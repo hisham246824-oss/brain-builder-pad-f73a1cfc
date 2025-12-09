@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookOpen, Home, X, GraduationCap, Table2 } from 'lucide-react';
+import { BookOpen, Home, X, GraduationCap, Table2, Timer } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 
 interface AppSidebarProps {
@@ -11,6 +11,7 @@ const navItems = [
   { to: '/', icon: Home, label: 'Home' },
   { to: '/materials', icon: BookOpen, label: 'Study Materials' },
   { to: '/table-creator', icon: Table2, label: 'Create Table' },
+  { to: '/pomodoro', icon: Timer, label: 'Pomodoro Timer' },
 ];
 
 export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
