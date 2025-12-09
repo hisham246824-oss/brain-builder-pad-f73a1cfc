@@ -18,13 +18,18 @@ export function TimerCircle({ minutes, seconds, totalSeconds, remainingSeconds, 
   const progress = totalSeconds > 0 ? remainingSeconds / totalSeconds : 1;
   const circumference = 2 * Math.PI * 140;
   const strokeDashoffset = circumference * (1 - progress);
+  
+  // Calculate scale based on progress (shrinks from 1 to 0.7 as time decreases)
+  const scale = 0.7 + (progress * 0.3);
 
   return (
     <div className="relative flex items-center justify-center">
-      <svg 
+      <motion.svg 
         width="320" 
         height="320" 
         className="transform -rotate-90"
+        animate={{ scale }}
+        transition={{ duration: 0.5, ease: 'easeInOut' }}
       >
         {/* Background circle */}
         <circle
@@ -49,7 +54,7 @@ export function TimerCircle({ minutes, seconds, totalSeconds, remainingSeconds, 
           animate={{ strokeDashoffset }}
           transition={{ duration: 0.5, ease: 'easeInOut' }}
         />
-      </svg>
+      </motion.svg>
       
       {/* Time display */}
       <div className="absolute inset-0 flex flex-col items-center justify-center">

@@ -31,6 +31,7 @@ export function TableCell({ value, style, onChange, isSelected, onSelect }: Tabl
       ref={inputRef}
       contentEditable
       suppressContentEditableWarning
+      dir="auto"
       onClick={onSelect}
       onInput={(e) => onChange(e.currentTarget.textContent || '')}
       className={`min-h-[48px] px-3 py-2 border border-border outline-none transition-all cursor-text ${
@@ -43,6 +44,7 @@ export function TableCell({ value, style, onChange, isSelected, onSelect }: Tabl
         fontStyle: style.fontStyle,
         textAlign: style.textAlign,
         backgroundColor: style.backgroundColor,
+        unicodeBidi: 'plaintext',
       }}
     >
       {value}
