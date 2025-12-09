@@ -7,14 +7,14 @@ interface ModeSelectorProps {
 }
 
 const modes = [
-  { key: 'study' as const, label: '25', subLabel: 'دراسة', color: 'bg-primary' },
-  { key: 'shortBreak' as const, label: '5', subLabel: 'راحة قصيرة', color: 'bg-accent' },
-  { key: 'longBreak' as const, label: '15', subLabel: 'راحة طويلة', color: 'bg-green-500' },
+  { key: 'study' as const, label: '25', subLabel: 'Study', color: 'bg-primary' },
+  { key: 'shortBreak' as const, label: '5', subLabel: 'Short Break', color: 'bg-accent' },
+  { key: 'longBreak' as const, label: '15', subLabel: 'Long Break', color: 'bg-green-500' },
 ];
 
 export function ModeSelector({ currentMode, onModeChange, isRunning }: ModeSelectorProps) {
   return (
-    <div className="flex items-center justify-center gap-6" dir="rtl">
+    <div className="flex items-center justify-center gap-6">
       {modes.map((mode) => (
         <motion.button
           key={mode.key}
