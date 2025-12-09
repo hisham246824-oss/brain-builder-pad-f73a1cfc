@@ -7,6 +7,7 @@ import { AppLayout } from "./components/layout/AppLayout";
 import Index from "./pages/Index";
 import MaterialsPage from "./pages/MaterialsPage";
 import MaterialDetailPage from "./pages/MaterialDetailPage";
+import TableCreatorPage from "./pages/TableCreatorPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +23,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/materials" element={<MaterialsPage />} />
             <Route path="/materials/:id" element={<MaterialDetailPage />} />
+            <Route path="/table-creator" element={<TableCreatorPage />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
