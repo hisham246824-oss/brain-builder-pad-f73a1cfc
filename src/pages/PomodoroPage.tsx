@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { TimerCircle } from '@/components/pomodoro/TimerCircle';
 import { ModeSelector } from '@/components/pomodoro/ModeSelector';
 import { TimerControls } from '@/components/pomodoro/TimerControls';
+import { SoundSelector } from '@/components/pomodoro/SoundSelector';
 import { usePomodoro } from '@/hooks/usePomodoro';
 
 export default function PomodoroPage() {
@@ -12,21 +13,24 @@ export default function PomodoroPage() {
     totalSeconds,
     remainingSeconds,
     isRunning,
+    alarmSound,
     changeMode,
+    changeAlarmSound,
+    previewSound,
     start,
     pause,
     reset,
   } = usePomodoro();
 
   return (
-    <div className="min-h-screen py-8 px-4" dir="rtl">
+    <div className="min-h-screen py-8 px-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="mx-auto max-w-md"
       >
         <h1 className="mb-8 text-center text-3xl font-bold text-foreground">
-          مؤقت بومودورو
+          Pomodoro Timer
         </h1>
 
         <div className="flex flex-col items-center gap-10">
@@ -53,6 +57,13 @@ export default function PomodoroPage() {
             onPause={pause}
             onReset={reset}
           />
+
+          {/* Sound Selector */}
+          <SoundSelector
+            currentSound={alarmSound}
+            onSoundChange={changeAlarmSound}
+            onPreview={previewSound}
+          />
         </div>
 
         {/* Tips */}
@@ -63,11 +74,11 @@ export default function PomodoroPage() {
           className="mt-12 rounded-2xl bg-card p-6 text-center shadow-soft"
         >
           <h3 className="mb-2 text-lg font-semibold text-card-foreground">
-            نصائح للتركيز
+            Focus Tips
           </h3>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            ابدأ بـ 25 دقيقة من التركيز، ثم خذ استراحة قصيرة 5 دقائق.
-            بعد 4 جلسات، خذ استراحة طويلة 15 دقيقة.
+            Start with 25 minutes of focus, then take a 5-minute short break.
+            After 4 sessions, take a 15-minute long break.
           </p>
         </motion.div>
       </motion.div>
