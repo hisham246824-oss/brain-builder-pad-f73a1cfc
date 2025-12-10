@@ -3,55 +3,29 @@ import { toPng } from 'html-to-image';
 import { toast } from 'sonner';
 import { TableCell, CellStyle } from './TableCell';
 import { TableToolbar } from './TableToolbar';
-
-interface CellData {
-  value: string;
-  style: CellStyle;
-}
-
-const defaultStyle: CellStyle = {
-  color: '#1a1a2e',
-  fontSize: 14,
-  fontWeight: 'normal',
-  fontStyle: 'normal',
-  textAlign: 'left',
-  backgroundColor: '#ffffff',
-};
+import { useTableData } from '@/hooks/useTableData';
 
 export function TableEditor() {
-  const [rows, setRows] = useState(3);
-  const [cols, setCols] = useState(3);
-  const [cells, setCells] = useState<Record<string, CellData>>({});
+  const {
+    rows,
+    cols,
+    cells,
+    getCellData,
+    updateCellValue,
+    updateCellStyle,
+    setRows,
+    setCols,
+    defaultStyle,
+  } = useTableData();
+  
   const [selectedCell, setSelectedCell] = useState<string | null>(null);
   const tableRef = useRef<HTMLDivElement>(null);
 
   const getCellKey = (row: number, col: number) => `${row}-${col}`;
 
-  const getCellData = (row: number, col: number): CellData => {
-    const key = getCellKey(row, col);
-    return cells[key] || { value: '', style: { ...defaultStyle } };
-  };
-
-  const updateCellValue = (row: number, col: number, value: string) => {
-    const key = getCellKey(row, col);
-    setCells((prev) => ({
-      ...prev,
-      [key]: { ...getCellData(row, col), value },
-    }));
-  };
-
-  const updateCellStyle = (style: Partial<CellStyle>) => {
+  const handleStyleChange = (style: Partial<CellStyle>) => {
     if (!selectedCell) return;
-    setCells((prev) => ({
-      ...prev,
-      [selectedCell]: {
-        ...prev[selectedCell] || { value: '', style: { ...defaultStyle } },
-        style: {
-          ...(prev[selectedCell]?.style || defaultStyle),
-          ...style,
-        },
-      },
-    }));
+    updateCellStyle(selectedCell, style);
   };
 
   const handleDownload = useCallback(async () => {
@@ -85,32 +59,10 @@ export function TableEditor() {
 
   const handleRowsChange = (newRows: number) => {
     setRows(newRows);
-    // Clean up cells that are no longer in range
-    setCells((prev) => {
-      const updated: Record<string, CellData> = {};
-      Object.entries(prev).forEach(([key, data]) => {
-        const [row] = key.split('-').map(Number);
-        if (row < newRows) {
-          updated[key] = data;
-        }
-      });
-      return updated;
-    });
   };
 
   const handleColsChange = (newCols: number) => {
     setCols(newCols);
-    // Clean up cells that are no longer in range
-    setCells((prev) => {
-      const updated: Record<string, CellData> = {};
-      Object.entries(prev).forEach(([key, data]) => {
-        const [, col] = key.split('-').map(Number);
-        if (col < newCols) {
-          updated[key] = data;
-        }
-      });
-      return updated;
-    });
   };
 
   const selectedCellData = selectedCell ? cells[selectedCell] : null;
@@ -123,7 +75,7 @@ export function TableEditor() {
         onRowsChange={handleRowsChange}
         onColsChange={handleColsChange}
         selectedStyle={selectedCellData?.style || null}
-        onStyleChange={updateCellStyle}
+        onStyleChange={handleStyleChange}
         onDownload={handleDownload}
         hasSelection={!!selectedCell}
       />
@@ -168,7 +120,7 @@ export function TableEditor() {
       </div>
 
       <p className="text-sm text-muted-foreground text-center">
-        Click on any cell to edit. Use the toolbar above to format selected cells.
+        Click on any cell to edit. Use the toolbar above to format selected cells. Data is automatically saved.
       </p>
     </div>
   );

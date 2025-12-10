@@ -1,15 +1,20 @@
+import { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, BookOpen, Trash2, CheckCircle2, Circle } from 'lucide-react';
+import { ArrowLeft, Trash2, CheckCircle2, Circle, BookOpen, FolderOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { LessonItem } from '@/components/lessons/LessonItem';
 import { AddLessonForm } from '@/components/lessons/AddLessonForm';
+import { FileList } from '@/components/materials/FileList';
+import { IconSelector, getMaterialIcon } from '@/components/materials/IconSelector';
 import { useStudyData } from '@/hooks/useStudyData';
 
 export default function MaterialDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { getMaterial, addLesson, toggleLesson, deleteLesson, deleteMaterial } = useStudyData();
+  const { getMaterial, addLesson, toggleLesson, deleteLesson, deleteMaterial, addFile, deleteFile, updateMaterialIcon } = useStudyData();
+  const [activeTab, setActiveTab] = useState<'lessons' | 'files'>('lessons');
+  const [showIconSelector, setShowIconSelector] = useState(false);
 
   const material = getMaterial(id || '');
 
@@ -40,6 +45,8 @@ export default function MaterialDetailPage() {
     }
   };
 
+  const MaterialIcon = getMaterialIcon(material.icon || 'book');
+
   return (
     <div>
       {/* Back button */}
@@ -69,12 +76,16 @@ export default function MaterialDetailPage() {
 
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex items-start gap-4 pl-4">
-            <div
-              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl"
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setShowIconSelector(true)}
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl cursor-pointer transition-shadow hover:shadow-lg"
               style={{ backgroundColor: material.color }}
+              title="Click to change icon"
             >
-              <BookOpen className="h-6 w-6 text-primary-foreground" />
-            </div>
+              <MaterialIcon className="h-6 w-6 text-primary-foreground" />
+            </motion.button>
 
             <div>
               <h1 className="text-2xl font-bold text-card-foreground">
@@ -127,23 +138,75 @@ export default function MaterialDetailPage() {
         </div>
       </motion.div>
 
-      {/* Lessons */}
-      <div className="space-y-3">
-        <AnimatePresence mode="popLayout">
-          {material.lessons.map((lesson, index) => (
-            <LessonItem
-              key={lesson.id}
-              lesson={lesson}
-              materialColor={material.color}
-              onToggle={() => toggleLesson(material.id, lesson.id)}
-              onDelete={() => deleteLesson(material.id, lesson.id)}
-              index={index}
-            />
-          ))}
-        </AnimatePresence>
-
-        <AddLessonForm onAdd={(title) => addLesson(material.id, title)} />
+      {/* Tab Buttons */}
+      <div className="flex gap-2 mb-6">
+        <Button
+          variant={activeTab === 'lessons' ? 'default' : 'outline'}
+          onClick={() => setActiveTab('lessons')}
+          className="flex-1 rounded-xl"
+        >
+          <BookOpen className="mr-2 h-4 w-4" />
+          Lessons ({material.lessons.length})
+        </Button>
+        <Button
+          variant={activeTab === 'files' ? 'default' : 'outline'}
+          onClick={() => setActiveTab('files')}
+          className="flex-1 rounded-xl"
+        >
+          <FolderOpen className="mr-2 h-4 w-4" />
+          Files ({material.files?.length || 0})
+        </Button>
       </div>
+
+      {/* Content */}
+      <AnimatePresence mode="wait">
+        {activeTab === 'lessons' ? (
+          <motion.div
+            key="lessons"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            className="space-y-3"
+          >
+            <AnimatePresence mode="popLayout">
+              {material.lessons.map((lesson, index) => (
+                <LessonItem
+                  key={lesson.id}
+                  lesson={lesson}
+                  materialColor={material.color}
+                  onToggle={() => toggleLesson(material.id, lesson.id)}
+                  onDelete={() => deleteLesson(material.id, lesson.id)}
+                  index={index}
+                />
+              ))}
+            </AnimatePresence>
+
+            <AddLessonForm onAdd={(title) => addLesson(material.id, title)} />
+          </motion.div>
+        ) : (
+          <motion.div
+            key="files"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+          >
+            <FileList
+              files={material.files || []}
+              onAddFile={(file) => addFile(material.id, file)}
+              onDeleteFile={(fileId) => deleteFile(material.id, fileId)}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Icon Selector Dialog */}
+      <IconSelector
+        isOpen={showIconSelector}
+        onClose={() => setShowIconSelector(false)}
+        currentIcon={material.icon || 'book'}
+        onSelect={(icon) => updateMaterialIcon(material.id, icon)}
+        color={material.color}
+      />
     </div>
   );
 }

@@ -32,12 +32,12 @@ export function TimerControls({ isRunning, onStart, onPause, onReset }: TimerCon
           {isRunning ? (
             <>
               <Pause className="mr-2 h-6 w-6" />
-              إيقاف
+              Pause
             </>
           ) : (
             <>
               <Play className="mr-2 h-6 w-6" />
-              بدء
+              Start
             </>
           )}
         </Button>

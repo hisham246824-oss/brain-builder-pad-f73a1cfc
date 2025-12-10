@@ -8,7 +8,7 @@ interface ModeSelectorProps {
 
 const modes = [
   { key: 'study' as const, label: '25', subLabel: 'Study', color: 'bg-primary' },
-  { key: 'shortBreak' as const, label: '5', subLabel: 'Short Break', color: 'bg-accent' },
+  { key: 'shortBreak' as const, label: '5', subLabel: 'Short Break', color: 'bg-sky-400' },
   { key: 'longBreak' as const, label: '15', subLabel: 'Long Break', color: 'bg-green-500' },
 ];
 

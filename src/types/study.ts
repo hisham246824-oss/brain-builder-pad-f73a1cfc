@@ -5,12 +5,25 @@ export interface Lesson {
   createdAt: number;
 }
 
+export interface StudyFile {
+  id: string;
+  name: string;
+  type: 'pdf' | 'doc' | 'docx' | 'ppt' | 'pptx' | 'xls' | 'xlsx' | 'txt' | 'image' | 'other';
+  url: string;
+  size: number;
+  createdAt: number;
+}
+
+export type MaterialIcon = 'book' | 'calculator' | 'flask' | 'globe' | 'music' | 'code' | 'palette';
+
 export interface Material {
   id: string;
   title: string;
   description?: string;
   color: string;
+  icon: MaterialIcon;
   lessons: Lesson[];
+  files: StudyFile[];
   createdAt: number;
 }
 

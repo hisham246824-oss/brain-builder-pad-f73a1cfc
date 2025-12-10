@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 
 export interface CellStyle {
   color: string;
@@ -18,7 +18,12 @@ interface TableCellProps {
 }
 
 export function TableCell({ value, style, onChange, isSelected, onSelect }: TableCellProps) {
-  const inputRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [localValue, setLocalValue] = useState(value);
+
+  useEffect(() => {
+    setLocalValue(value);
+  }, [value]);
 
   useEffect(() => {
     if (isSelected && inputRef.current) {
@@ -26,15 +31,21 @@ export function TableCell({ value, style, onChange, isSelected, onSelect }: Tabl
     }
   }, [isSelected]);
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    setLocalValue(newValue);
+    onChange(newValue);
+  };
+
   return (
-    <div
+    <input
       ref={inputRef}
-      contentEditable
-      suppressContentEditableWarning
+      type="text"
       dir="auto"
+      value={localValue}
       onClick={onSelect}
-      onInput={(e) => onChange(e.currentTarget.textContent || '')}
-      className={`min-h-[48px] px-3 py-2 border border-border outline-none transition-all cursor-text ${
+      onChange={handleChange}
+      className={`min-h-[48px] w-full px-3 py-2 border border-border outline-none transition-all ${
         isSelected ? 'ring-2 ring-primary ring-offset-1' : 'hover:bg-muted/50'
       }`}
       style={{
@@ -44,10 +55,7 @@ export function TableCell({ value, style, onChange, isSelected, onSelect }: Tabl
         fontStyle: style.fontStyle,
         textAlign: style.textAlign,
         backgroundColor: style.backgroundColor,
-        unicodeBidi: 'plaintext',
       }}
-    >
-      {value}
-    </div>
+    />
   );
 }
