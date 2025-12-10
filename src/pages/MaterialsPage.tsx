@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, BookOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { MaterialCard } from '@/components/materials/MaterialCard';
@@ -8,72 +8,66 @@ import { useStudyData } from '@/hooks/useStudyData';
 
 export default function MaterialsPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const { materials, isLoading, addMaterial } = useStudyData();
+  const { materials, isLoading, addMaterial, updateMaterialIcon } = useStudyData();
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
       </div>
     );
   }
 
   return (
-    <div>
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="pb-20"
+    >
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-foreground">Study Materials</h1>
+        <p className="mt-1 text-muted-foreground">
+          {materials.length} {materials.length === 1 ? 'subject' : 'subjects'}
+        </p>
+      </div>
+
+      <Button
+        onClick={() => setIsDialogOpen(true)}
+        className="mb-6 w-full rounded-2xl py-6 text-lg font-medium shadow-soft hover:shadow-lg transition-shadow"
       >
-        <div>
-          <h1 className="text-2xl font-bold text-foreground md:text-3xl">
-            Study Materials
-          </h1>
-          <p className="mt-1 text-muted-foreground">
-            {materials.length} {materials.length === 1 ? 'subject' : 'subjects'}
-          </p>
-        </div>
+        <Plus className="mr-2 h-5 w-5" />
+        Add Course
+      </Button>
 
-        <Button
-          onClick={() => setIsDialogOpen(true)}
-          className="rounded-2xl"
-        >
-          <Plus className="mr-2 h-4 w-4" />
-          Add Material
-        </Button>
-      </motion.div>
-
-      {/* Materials Grid */}
-      {materials.length > 0 ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {materials.map((material, index) => (
-            <MaterialCard key={material.id} material={material} index={index} />
-          ))}
-        </div>
-      ) : (
+      {materials.length === 0 ? (
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="flex flex-col items-center justify-center rounded-3xl bg-card py-16 px-8 text-center shadow-card"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="flex flex-col items-center justify-center py-16 text-center"
         >
-          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-accent text-accent-foreground">
-            <BookOpen className="h-8 w-8" />
+          <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-secondary">
+            <BookOpen className="h-10 w-10 text-muted-foreground" />
           </div>
-          <h2 className="mb-2 text-xl font-semibold text-card-foreground">
-            No materials yet
-          </h2>
-          <p className="mb-6 max-w-sm text-muted-foreground">
-            Start by adding your first study material. Click the button above to get started.
+          <h3 className="mb-2 text-lg font-semibold text-foreground">
+            No courses yet
+          </h3>
+          <p className="text-muted-foreground">
+            Add your first course to get started
           </p>
-          <Button
-            onClick={() => setIsDialogOpen(true)}
-            className="rounded-2xl"
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Add Your First Material
-          </Button>
         </motion.div>
+      ) : (
+        <div className="space-y-4">
+          <AnimatePresence mode="popLayout">
+            {materials.map((material, index) => (
+              <MaterialCard
+                key={material.id}
+                material={material}
+                index={index}
+                onUpdateIcon={(icon) => updateMaterialIcon(material.id, icon)}
+              />
+            ))}
+          </AnimatePresence>
+        </div>
       )}
 
       <AddMaterialDialog
@@ -81,6 +75,6 @@ export default function MaterialsPage() {
         onClose={() => setIsDialogOpen(false)}
         onAdd={addMaterial}
       />
-    </div>
+    </motion.div>
   );
 }
