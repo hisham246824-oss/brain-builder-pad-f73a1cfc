@@ -9,15 +9,16 @@ interface TimerCircleProps {
 }
 
 const modeColors = {
-  study: 'hsl(var(--primary))',
-  shortBreak: 'hsl(var(--accent))',
-  longBreak: 'hsl(142 76% 36%)',
+  study: 'hsl(175 60% 35%)',
+  shortBreak: 'hsl(199 89% 60%)', // sky-400
+  longBreak: 'hsl(142 71% 45%)',
 };
 
 export function TimerCircle({ minutes, seconds, totalSeconds, remainingSeconds, mode }: TimerCircleProps) {
   const progress = totalSeconds > 0 ? remainingSeconds / totalSeconds : 1;
   const circumference = 2 * Math.PI * 140;
   const strokeDashoffset = circumference * (1 - progress);
+  const color = modeColors[mode];
   
   // Calculate scale based on progress (shrinks from 1 to 0.7 as time decreases)
   const scale = 0.7 + (progress * 0.3);
@@ -46,7 +47,7 @@ export function TimerCircle({ minutes, seconds, totalSeconds, remainingSeconds, 
           cy="160"
           r="140"
           fill="none"
-          stroke={modeColors[mode]}
+          stroke={color}
           strokeWidth="12"
           strokeLinecap="round"
           strokeDasharray={circumference}
@@ -62,8 +63,8 @@ export function TimerCircle({ minutes, seconds, totalSeconds, remainingSeconds, 
           key={`${minutes}:${seconds}`}
           initial={{ scale: 1.1, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          className="text-6xl font-bold text-foreground tabular-nums"
-          style={{ direction: 'ltr' }}
+          className="text-6xl font-bold tabular-nums"
+          style={{ color, direction: 'ltr' }}
         >
           {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
         </motion.span>
