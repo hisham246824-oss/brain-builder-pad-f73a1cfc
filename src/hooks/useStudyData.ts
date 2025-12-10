@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Material, Lesson, StudyData } from '@/types/study';
+import { Material, Lesson, StudyFile, StudyData, MaterialIcon } from '@/types/study';
 
 const STORAGE_KEY = 'study-data';
 
@@ -15,7 +15,17 @@ export function useStudyData() {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       try {
-        setData(JSON.parse(stored));
+        const parsed = JSON.parse(stored);
+        // Migrate old data to include new fields
+        const migrated = {
+          ...parsed,
+          materials: parsed.materials.map((m: any) => ({
+            ...m,
+            icon: m.icon || 'book',
+            files: m.files || [],
+          })),
+        };
+        setData(migrated);
       } catch {
         setData(defaultData);
       }
@@ -42,7 +52,9 @@ export function useStudyData() {
       title,
       description,
       color: colors[data.materials.length % colors.length],
+      icon: 'book',
       lessons: [],
+      files: [],
       createdAt: Date.now(),
     };
     saveData({ ...data, materials: [...data.materials, newMaterial] });
@@ -52,6 +64,13 @@ export function useStudyData() {
   const updateMaterial = useCallback((id: string, updates: Partial<Material>) => {
     const materials = data.materials.map((m) =>
       m.id === id ? { ...m, ...updates } : m
+    );
+    saveData({ ...data, materials });
+  }, [data, saveData]);
+
+  const updateMaterialIcon = useCallback((id: string, icon: MaterialIcon) => {
+    const materials = data.materials.map((m) =>
+      m.id === id ? { ...m, icon } : m
     );
     saveData({ ...data, materials });
   }, [data, saveData]);
@@ -104,15 +123,61 @@ export function useStudyData() {
     saveData({ ...data, materials });
   }, [data, saveData]);
 
+  const addFile = useCallback((materialId: string, file: File) => {
+    const getFileType = (fileName: string): StudyFile['type'] => {
+      const ext = fileName.split('.').pop()?.toLowerCase() || '';
+      if (ext === 'pdf') return 'pdf';
+      if (['doc', 'docx'].includes(ext)) return 'docx';
+      if (['ppt', 'pptx'].includes(ext)) return 'pptx';
+      if (['xls', 'xlsx'].includes(ext)) return 'xlsx';
+      if (ext === 'txt') return 'txt';
+      if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) return 'image';
+      return 'other';
+    };
+
+    // Create a data URL for the file
+    const reader = new FileReader();
+    reader.onload = () => {
+      const newFile: StudyFile = {
+        id: crypto.randomUUID(),
+        name: file.name,
+        type: getFileType(file.name),
+        url: reader.result as string,
+        size: file.size,
+        createdAt: Date.now(),
+      };
+      
+      const materials = data.materials.map((m) =>
+        m.id === materialId
+          ? { ...m, files: [...m.files, newFile] }
+          : m
+      );
+      saveData({ ...data, materials });
+    };
+    reader.readAsDataURL(file);
+  }, [data, saveData]);
+
+  const deleteFile = useCallback((materialId: string, fileId: string) => {
+    const materials = data.materials.map((m) =>
+      m.id === materialId
+        ? { ...m, files: m.files.filter((f) => f.id !== fileId) }
+        : m
+    );
+    saveData({ ...data, materials });
+  }, [data, saveData]);
+
   return {
     materials: data.materials,
     isLoading,
     addMaterial,
     updateMaterial,
+    updateMaterialIcon,
     deleteMaterial,
     getMaterial,
     addLesson,
     toggleLesson,
     deleteLesson,
+    addFile,
+    deleteFile,
   };
 }

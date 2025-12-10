@@ -2,7 +2,6 @@ import { motion } from 'framer-motion';
 import { TimerCircle } from '@/components/pomodoro/TimerCircle';
 import { ModeSelector } from '@/components/pomodoro/ModeSelector';
 import { TimerControls } from '@/components/pomodoro/TimerControls';
-import { SoundSelector } from '@/components/pomodoro/SoundSelector';
 import { usePomodoro } from '@/hooks/usePomodoro';
 
 export default function PomodoroPage() {
@@ -13,10 +12,7 @@ export default function PomodoroPage() {
     totalSeconds,
     remainingSeconds,
     isRunning,
-    alarmSound,
     changeMode,
-    changeAlarmSound,
-    previewSound,
     start,
     pause,
     reset,
@@ -56,13 +52,6 @@ export default function PomodoroPage() {
             onStart={start}
             onPause={pause}
             onReset={reset}
-          />
-
-          {/* Sound Selector */}
-          <SoundSelector
-            currentSound={alarmSound}
-            onSoundChange={changeAlarmSound}
-            onPreview={previewSound}
           />
         </div>
 

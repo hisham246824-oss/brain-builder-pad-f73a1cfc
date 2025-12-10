@@ -28,24 +28,24 @@ export function AddMaterialDialog({ isOpen, onClose, onAdd }: AddMaterialDialogP
   return (
     <AnimatePresence>
       {isOpen && (
-        <>
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-foreground/20 backdrop-blur-sm"
+            className="absolute inset-0 bg-foreground/20 backdrop-blur-sm"
             onClick={onClose}
           />
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 px-4"
+            className="relative z-10 w-full max-w-md mx-4"
           >
             <div className="rounded-3xl bg-card p-6 shadow-soft">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-semibold text-card-foreground">
-                  Add New Material
+                  Add New Course
                 </h2>
                 <button
                   onClick={onClose}
@@ -63,7 +63,7 @@ export function AddMaterialDialog({ isOpen, onClose, onAdd }: AddMaterialDialogP
                   <Input
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    placeholder="e.g., Mathematics, History..."
+                    placeholder="Enter course name, e.g., Math, English, Chemistry..."
                     className="rounded-xl"
                     autoFocus
                   />
@@ -87,12 +87,12 @@ export function AddMaterialDialog({ isOpen, onClose, onAdd }: AddMaterialDialogP
                   className="w-full rounded-xl"
                 >
                   <Plus className="mr-2 h-4 w-4" />
-                  Add Material
+                  Add Course
                 </Button>
               </form>
             </div>
           </motion.div>
-        </>
+        </div>
       )}
     </AnimatePresence>
   );
