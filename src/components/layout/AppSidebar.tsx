@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { BookOpen, Home, X, GraduationCap, Table2, Timer } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
+import { ProfileSection } from './ProfileSection';
 
 interface AppSidebarProps {
   isOpen: boolean;
@@ -75,11 +76,9 @@ export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
                 </ul>
               </nav>
 
-              {/* Footer */}
+              {/* Profile Section */}
               <div className="border-t border-sidebar-border p-4">
-                <p className="text-center text-xs text-sidebar-foreground/50">
-                  Stay focused, keep learning
-                </p>
+                <ProfileSection onClose={onClose} />
               </div>
             </div>
           </motion.aside>

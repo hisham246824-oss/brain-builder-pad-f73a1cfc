@@ -192,7 +192,7 @@ export default function MaterialDetailPage() {
           >
             <FileList
               files={material.files || []}
-              onAddFile={(file) => addFile(material.id, file)}
+              onAddFile={(file, customName) => addFile(material.id, file, customName)}
               onDeleteFile={(fileId) => deleteFile(material.id, fileId)}
             />
           </motion.div>
