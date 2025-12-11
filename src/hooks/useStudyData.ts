@@ -123,7 +123,7 @@ export function useStudyData() {
     saveData({ ...data, materials });
   }, [data, saveData]);
 
-  const addFile = useCallback((materialId: string, file: File) => {
+  const addFile = useCallback((materialId: string, file: File, customName?: string) => {
     const getFileType = (fileName: string): StudyFile['type'] => {
       const ext = fileName.split('.').pop()?.toLowerCase() || '';
       if (ext === 'pdf') return 'pdf';
@@ -135,12 +135,16 @@ export function useStudyData() {
       return 'other';
     };
 
+    // Get file extension
+    const ext = file.name.split('.').pop()?.toLowerCase() || '';
+    const displayName = customName ? `${customName}.${ext}` : file.name;
+
     // Create a data URL for the file
     const reader = new FileReader();
     reader.onload = () => {
       const newFile: StudyFile = {
         id: crypto.randomUUID(),
-        name: file.name,
+        name: displayName,
         type: getFileType(file.name),
         url: reader.result as string,
         size: file.size,

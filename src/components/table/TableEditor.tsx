@@ -3,6 +3,7 @@ import { toPng } from 'html-to-image';
 import { toast } from 'sonner';
 import { TableCell, CellStyle } from './TableCell';
 import { TableToolbar } from './TableToolbar';
+import { TableDownloadWrapper } from './TableDownloadWrapper';
 import { useTableData } from '@/hooks/useTableData';
 
 export function TableEditor() {
@@ -19,7 +20,7 @@ export function TableEditor() {
   } = useTableData();
   
   const [selectedCell, setSelectedCell] = useState<string | null>(null);
-  const tableRef = useRef<HTMLDivElement>(null);
+  const downloadRef = useRef<HTMLDivElement>(null);
 
   const getCellKey = (row: number, col: number) => `${row}-${col}`;
 
@@ -29,7 +30,7 @@ export function TableEditor() {
   };
 
   const handleDownload = useCallback(async () => {
-    if (!tableRef.current) return;
+    if (!downloadRef.current) return;
 
     try {
       // Temporarily remove selection styling for clean export
@@ -37,16 +38,13 @@ export function TableEditor() {
       
       await new Promise((resolve) => setTimeout(resolve, 100));
       
-      const dataUrl = await toPng(tableRef.current, {
+      const dataUrl = await toPng(downloadRef.current, {
         backgroundColor: '#ffffff',
         pixelRatio: 2,
-        style: {
-          borderRadius: '16px',
-        },
       });
 
       const link = document.createElement('a');
-      link.download = `table-${Date.now()}.png`;
+      link.download = `studyhub-table-${Date.now()}.png`;
       link.href = dataUrl;
       link.click();
 
@@ -67,6 +65,44 @@ export function TableEditor() {
 
   const selectedCellData = selectedCell ? cells[selectedCell] : null;
 
+  const renderTable = (forExport: boolean = false) => (
+    <div
+      className={`inline-block min-w-full bg-white rounded-2xl border border-border overflow-hidden ${!forExport ? 'shadow-card' : ''}`}
+    >
+      <div
+        className="grid"
+        style={{
+          gridTemplateColumns: `repeat(${cols}, minmax(120px, 1fr))`,
+        }}
+      >
+        {Array.from({ length: rows }).map((_, rowIndex) =>
+          Array.from({ length: cols }).map((_, colIndex) => {
+            const key = getCellKey(rowIndex, colIndex);
+            const cellData = getCellData(rowIndex, colIndex);
+            const isHeader = rowIndex === 0;
+
+            return (
+              <TableCell
+                key={key}
+                value={cellData.value}
+                style={{
+                  ...cellData.style,
+                  fontWeight: isHeader && cellData.style.fontWeight === 'normal' ? 'bold' : cellData.style.fontWeight,
+                  backgroundColor: isHeader && cellData.style.backgroundColor === '#ffffff' 
+                    ? '#f8f9fa' 
+                    : cellData.style.backgroundColor,
+                }}
+                onChange={(value) => !forExport && updateCellValue(rowIndex, colIndex, value)}
+                isSelected={!forExport && selectedCell === key}
+                onSelect={() => !forExport && setSelectedCell(key)}
+              />
+            );
+          })
+        )}
+      </div>
+    </div>
+  );
+
   return (
     <div className="space-y-6">
       <TableToolbar
@@ -81,42 +117,14 @@ export function TableEditor() {
       />
 
       <div className="overflow-x-auto">
-        <div
-          ref={tableRef}
-          className="inline-block min-w-full bg-card rounded-2xl border border-border overflow-hidden shadow-card"
-        >
-          <div
-            className="grid"
-            style={{
-              gridTemplateColumns: `repeat(${cols}, minmax(120px, 1fr))`,
-            }}
-          >
-            {Array.from({ length: rows }).map((_, rowIndex) =>
-              Array.from({ length: cols }).map((_, colIndex) => {
-                const key = getCellKey(rowIndex, colIndex);
-                const cellData = getCellData(rowIndex, colIndex);
-                const isHeader = rowIndex === 0;
+        {renderTable(false)}
+      </div>
 
-                return (
-                  <TableCell
-                    key={key}
-                    value={cellData.value}
-                    style={{
-                      ...cellData.style,
-                      fontWeight: isHeader && cellData.style.fontWeight === 'normal' ? 'bold' : cellData.style.fontWeight,
-                      backgroundColor: isHeader && cellData.style.backgroundColor === '#ffffff' 
-                        ? '#f8f9fa' 
-                        : cellData.style.backgroundColor,
-                    }}
-                    onChange={(value) => updateCellValue(rowIndex, colIndex, value)}
-                    isSelected={selectedCell === key}
-                    onSelect={() => setSelectedCell(key)}
-                  />
-                );
-              })
-            )}
-          </div>
-        </div>
+      {/* Hidden wrapper for download with branding */}
+      <div className="absolute -left-[9999px] top-0">
+        <TableDownloadWrapper ref={downloadRef}>
+          {renderTable(true)}
+        </TableDownloadWrapper>
       </div>
 
       <p className="text-sm text-muted-foreground text-center">
