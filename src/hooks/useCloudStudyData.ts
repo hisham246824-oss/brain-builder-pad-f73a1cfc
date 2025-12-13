@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Material, Lesson, StudyFile, StudyData, MaterialIcon } from '@/types/study';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -14,27 +14,30 @@ export function useCloudStudyData() {
   const { user, loading: authLoading } = useAuth();
   const [data, setData] = useState<StudyData>(defaultData);
   const [isLoading, setIsLoading] = useState(true);
-  const [hasMigrated, setHasMigrated] = useState(false);
+  const migrationInProgress = useRef(false);
 
   // Fetch data from cloud when user is logged in
   const fetchCloudData = useCallback(async () => {
     if (!user) return;
 
     try {
-      // Fetch materials
+      // Fetch materials with ordering
       const { data: materials, error: materialsError } = await supabase
         .from('study_materials')
         .select('*')
         .eq('user_id', user.id)
+        .order('position', { ascending: true })
         .order('created_at', { ascending: true });
 
       if (materialsError) throw materialsError;
 
-      // Fetch lessons for all materials
+      // Fetch lessons for all materials with ordering
       const { data: lessons, error: lessonsError } = await supabase
         .from('lessons')
         .select('*')
-        .eq('user_id', user.id);
+        .eq('user_id', user.id)
+        .order('position', { ascending: true })
+        .order('created_at', { ascending: true });
 
       if (lessonsError) throw lessonsError;
 
@@ -47,11 +50,11 @@ export function useCloudStudyData() {
       if (filesError) throw filesError;
 
       // Map to local format
-      const mappedMaterials: Material[] = (materials || []).map((m) => ({
+      const mappedMaterials: Material[] = (materials || []).map((m, index) => ({
         id: m.id,
         title: m.title,
         icon: (m.icon as MaterialIcon) || 'book',
-        color: getColorForIndex(materials?.indexOf(m) || 0),
+        color: getColorForIndex(index),
         lessons: (lessons || [])
           .filter((l) => l.material_id === m.id)
           .map((l) => ({
@@ -79,27 +82,23 @@ export function useCloudStudyData() {
     }
   }, [user]);
 
-  // Migrate local data to cloud when user signs in
+  // Migrate local data to cloud - runs immediately on sign up/sign in
   const migrateLocalData = useCallback(async () => {
-    if (!user || hasMigrated) return;
+    if (!user || migrationInProgress.current) return false;
 
     const stored = localStorage.getItem(STORAGE_KEY);
-    if (!stored) {
-      setHasMigrated(true);
-      return;
-    }
+    if (!stored) return false;
 
     try {
       const parsed = JSON.parse(stored);
       const localMaterials: Material[] = parsed.materials || [];
 
-      if (localMaterials.length === 0) {
-        setHasMigrated(true);
-        return;
-      }
+      if (localMaterials.length === 0) return false;
 
-      // Migrate each material
-      for (const material of localMaterials) {
+      migrationInProgress.current = true;
+
+      // Migrate all materials in parallel for speed
+      const migrationPromises = localMaterials.map(async (material, index) => {
         // Insert material
         const { data: newMaterial, error: materialError } = await supabase
           .from('study_materials')
@@ -107,59 +106,66 @@ export function useCloudStudyData() {
             title: material.title,
             icon: material.icon || 'book',
             user_id: user.id,
+            position: index,
           })
           .select()
           .single();
 
         if (materialError) throw materialError;
 
-        // Insert lessons
+        // Insert lessons in parallel
         if (material.lessons?.length > 0) {
+          const lessonsToInsert = material.lessons.map((l, i) => ({
+            title: l.title,
+            completed: l.completed,
+            material_id: newMaterial.id,
+            user_id: user.id,
+            position: i,
+          }));
+
           const { error: lessonsError } = await supabase
             .from('lessons')
-            .insert(
-              material.lessons.map((l) => ({
-                title: l.title,
-                completed: l.completed,
-                material_id: newMaterial.id,
-                user_id: user.id,
-              }))
-            );
+            .insert(lessonsToInsert);
 
           if (lessonsError) throw lessonsError;
         }
 
-        // Insert files
+        // Insert files in parallel
         if (material.files?.length > 0) {
+          const filesToInsert = material.files.map((f) => ({
+            name: f.name,
+            file_url: f.url,
+            file_size: f.size,
+            file_type: f.type,
+            material_id: newMaterial.id,
+            user_id: user.id,
+          }));
+
           const { error: filesError } = await supabase
             .from('material_files')
-            .insert(
-              material.files.map((f) => ({
-                name: f.name,
-                file_url: f.url,
-                file_size: f.size,
-                file_type: f.type,
-                material_id: newMaterial.id,
-                user_id: user.id,
-              }))
-            );
+            .insert(filesToInsert);
 
           if (filesError) throw filesError;
         }
-      }
 
-      // Clear local storage after successful migration
+        return newMaterial;
+      });
+
+      await Promise.all(migrationPromises);
+
+      // Clear local storage immediately after migration
       localStorage.removeItem(STORAGE_KEY);
-      setHasMigrated(true);
-      toast.success('Your study materials have been synced to your account!');
+      toast.success('Your study materials have been synced!');
       
-      // Refresh cloud data
-      await fetchCloudData();
+      migrationInProgress.current = false;
+      return true;
     } catch (error) {
       console.error('Error migrating local data:', error);
-      toast.error('Failed to sync local data. Please try again.');
+      toast.error('Failed to sync local data');
+      migrationInProgress.current = false;
+      return false;
     }
-  }, [user, hasMigrated, fetchCloudData]);
+  }, [user]);
 
   // Load data based on auth state
   useEffect(() => {
@@ -169,8 +175,8 @@ export function useCloudStudyData() {
       setIsLoading(true);
 
       if (user) {
-        // User is logged in - migrate local data then fetch cloud data
-        await migrateLocalData();
+        // Migrate local data first (instant), then fetch cloud data
+        const migrated = await migrateLocalData();
         await fetchCloudData();
       } else {
         // User is logged out - load from local storage
@@ -193,7 +199,6 @@ export function useCloudStudyData() {
         } else {
           setData(defaultData);
         }
-        setHasMigrated(false);
       }
 
       setIsLoading(false);
@@ -229,6 +234,7 @@ export function useCloudStudyData() {
             title,
             icon: 'book',
             user_id: user.id,
+            position: data.materials.length,
           })
           .select()
           .single();
@@ -297,6 +303,40 @@ export function useCloudStudyData() {
     }
   }, [data, user, saveLocal]);
 
+  // Reorder materials
+  const reorderMaterials = useCallback(async (oldIndex: number, newIndex: number) => {
+    const materials = [...data.materials];
+    const [removed] = materials.splice(oldIndex, 1);
+    materials.splice(newIndex, 0, removed);
+    
+    // Update colors based on new positions
+    const recolored = materials.map((m, i) => ({
+      ...m,
+      color: getColorForIndex(i),
+    }));
+    
+    setData({ materials: recolored });
+
+    if (user) {
+      try {
+        // Update positions for all affected materials
+        const updates = recolored.map((m, i) => 
+          supabase
+            .from('study_materials')
+            .update({ position: i })
+            .eq('id', m.id)
+            .eq('user_id', user.id)
+        );
+        
+        await Promise.all(updates);
+      } catch (error) {
+        console.error('Error reordering materials:', error);
+      }
+    } else {
+      saveLocal({ materials: recolored });
+    }
+  }, [data, user, saveLocal]);
+
   // Delete material
   const deleteMaterial = useCallback(async (id: string) => {
     const materials = data.materials.filter((m) => m.id !== id);
@@ -326,6 +366,7 @@ export function useCloudStudyData() {
 
   // Add lesson
   const addLesson = useCallback(async (materialId: string, title: string) => {
+    const material = data.materials.find((m) => m.id === materialId);
     const newLesson: Lesson = {
       id: crypto.randomUUID(),
       title,
@@ -342,6 +383,7 @@ export function useCloudStudyData() {
             completed: false,
             material_id: materialId,
             user_id: user.id,
+            position: material?.lessons.length || 0,
           })
           .select()
           .single();
@@ -398,6 +440,42 @@ export function useCloudStudyData() {
         if (error) throw error;
       } catch (error) {
         console.error('Error toggling lesson:', error);
+      }
+    } else {
+      saveLocal({ materials });
+    }
+  }, [data, user, saveLocal]);
+
+  // Reorder lessons
+  const reorderLessons = useCallback(async (materialId: string, oldIndex: number, newIndex: number) => {
+    const materials = data.materials.map((m) => {
+      if (m.id !== materialId) return m;
+      
+      const lessons = [...m.lessons];
+      const [removed] = lessons.splice(oldIndex, 1);
+      lessons.splice(newIndex, 0, removed);
+      
+      return { ...m, lessons };
+    });
+    
+    setData({ materials });
+
+    if (user) {
+      try {
+        const material = materials.find((m) => m.id === materialId);
+        if (!material) return;
+        
+        const updates = material.lessons.map((l, i) => 
+          supabase
+            .from('lessons')
+            .update({ position: i })
+            .eq('id', l.id)
+            .eq('user_id', user.id)
+        );
+        
+        await Promise.all(updates);
+      } catch (error) {
+        console.error('Error reordering lessons:', error);
       }
     } else {
       saveLocal({ materials });
@@ -516,7 +594,6 @@ export function useCloudStudyData() {
   const clearLocalData = useCallback(() => {
     localStorage.removeItem(STORAGE_KEY);
     setData(defaultData);
-    setHasMigrated(false);
   }, []);
 
   return {
@@ -534,6 +611,8 @@ export function useCloudStudyData() {
     deleteFile,
     clearLocalData,
     refreshData: fetchCloudData,
+    reorderMaterials,
+    reorderLessons,
   };
 }
 

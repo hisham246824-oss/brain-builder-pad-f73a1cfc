@@ -4,11 +4,17 @@ import { Plus, BookOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { MaterialCard } from '@/components/materials/MaterialCard';
 import { AddMaterialDialog } from '@/components/materials/AddMaterialDialog';
+import { SortableList } from '@/components/dnd/SortableList';
+import { SortableItem } from '@/components/dnd/SortableItem';
 import { useStudyData } from '@/contexts/StudyDataContext';
 
 export default function MaterialsPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const { materials, isLoading, addMaterial, updateMaterialIcon } = useStudyData();
+  const { materials, isLoading, addMaterial, updateMaterialIcon, reorderMaterials } = useStudyData();
+
+  const handleReorder = (oldIndex: number, newIndex: number) => {
+    reorderMaterials(oldIndex, newIndex);
+  };
 
   if (isLoading) {
     return (
@@ -56,17 +62,21 @@ export default function MaterialsPage() {
           </p>
         </motion.div>
       ) : (
-        <div className="space-y-4">
-          <AnimatePresence mode="popLayout">
+        <div className="space-y-3">
+          <SortableList
+            items={materials.map((m) => m.id)}
+            onReorder={handleReorder}
+          >
             {materials.map((material, index) => (
-              <MaterialCard
-                key={material.id}
-                material={material}
-                index={index}
-                onUpdateIcon={(icon) => updateMaterialIcon(material.id, icon)}
-              />
+              <SortableItem key={material.id} id={material.id}>
+                <MaterialCard
+                  material={material}
+                  index={index}
+                  onUpdateIcon={(icon) => updateMaterialIcon(material.id, icon)}
+                />
+              </SortableItem>
             ))}
-          </AnimatePresence>
+          </SortableList>
         </div>
       )}
 

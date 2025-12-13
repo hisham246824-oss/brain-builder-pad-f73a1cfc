@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, LogOut } from 'lucide-react';
+import { User, LogOut, Settings } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 
 interface ProfileSectionProps {
@@ -13,6 +14,25 @@ export function ProfileSection({ onClose }: ProfileSectionProps) {
   const { user, displayName, signOut } = useAuth();
   const navigate = useNavigate();
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchAvatar = async () => {
+      if (!user) return;
+      
+      const { data } = await supabase
+        .from('profiles')
+        .select('avatar_url')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      
+      if (data?.avatar_url) {
+        setAvatarUrl(data.avatar_url);
+      }
+    };
+    
+    fetchAvatar();
+  }, [user]);
 
   const handleProfileClick = () => {
     if (!user) {
@@ -21,6 +41,11 @@ export function ProfileSection({ onClose }: ProfileSectionProps) {
     } else {
       setShowLogoutConfirm(true);
     }
+  };
+
+  const handleSettings = () => {
+    onClose();
+    navigate('/profile/settings');
   };
 
   const handleLogout = async () => {
@@ -41,30 +66,48 @@ export function ProfileSection({ onClose }: ProfileSectionProps) {
 
   return (
     <>
-      <button
-        onClick={handleProfileClick}
-        className="flex items-center gap-3 w-full p-3 rounded-xl hover:bg-sidebar-accent transition-colors"
-      >
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-sidebar-primary text-sidebar-primary-foreground font-semibold">
-          {user ? getInitial() : <User className="h-5 w-5" />}
-        </div>
-        <div className="flex-1 text-left">
-          {user ? (
-            <>
+      <div className="flex items-center gap-2">
+        <button
+          onClick={handleProfileClick}
+          className="flex items-center gap-3 flex-1 p-3 rounded-xl hover:bg-sidebar-accent transition-colors"
+        >
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-sidebar-primary text-sidebar-primary-foreground font-semibold overflow-hidden">
+            {avatarUrl ? (
+              <img src={avatarUrl} alt="Avatar" className="h-full w-full object-cover" />
+            ) : user ? (
+              getInitial()
+            ) : (
+              <User className="h-5 w-5" />
+            )}
+          </div>
+          <div className="flex-1 text-left min-w-0">
+            {user ? (
+              <>
+                <p className="font-medium text-sidebar-foreground text-sm truncate">
+                  {displayName || 'User'}
+                </p>
+                <p className="text-xs text-sidebar-foreground/60 truncate">
+                  {user.email}
+                </p>
+              </>
+            ) : (
               <p className="font-medium text-sidebar-foreground text-sm">
-                {displayName || 'User'}
+                Sign In / Create Account
               </p>
-              <p className="text-xs text-sidebar-foreground/60 truncate">
-                {user.email}
-              </p>
-            </>
-          ) : (
-            <p className="font-medium text-sidebar-foreground text-sm">
-              Sign In / Create Account
-            </p>
-          )}
-        </div>
-      </button>
+            )}
+          </div>
+        </button>
+        
+        {user && (
+          <button
+            onClick={handleSettings}
+            className="flex h-10 w-10 items-center justify-center rounded-xl text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors"
+            title="Profile Settings"
+          >
+            <Settings className="h-5 w-5" />
+          </button>
+        )}
+      </div>
 
       {/* Logout Confirmation Dialog */}
       <AnimatePresence>
