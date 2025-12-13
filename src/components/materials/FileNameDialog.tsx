@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -12,20 +12,23 @@ interface FileNameDialogProps {
 }
 
 export function FileNameDialog({ isOpen, onClose, onConfirm, defaultName }: FileNameDialogProps) {
-  const [fileName, setFileName] = useState(defaultName);
+  const [fileName, setFileName] = useState('');
+
+  // Reset fileName when dialog opens with new defaultName
+  useEffect(() => {
+    if (isOpen && defaultName) {
+      setFileName(defaultName);
+    }
+  }, [isOpen, defaultName]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (fileName.trim()) {
       onConfirm(fileName.trim());
+      setFileName('');
       onClose();
     }
   };
-
-  // Reset fileName when dialog opens with new defaultName
-  if (isOpen && fileName !== defaultName && defaultName) {
-    setFileName(defaultName);
-  }
 
   return (
     <AnimatePresence>

@@ -7,7 +7,7 @@ import { LessonItem } from '@/components/lessons/LessonItem';
 import { AddLessonForm } from '@/components/lessons/AddLessonForm';
 import { FileList } from '@/components/materials/FileList';
 import { IconSelector, getMaterialIcon } from '@/components/materials/IconSelector';
-import { useStudyData } from '@/hooks/useStudyData';
+import { useStudyData } from '@/contexts/StudyDataContext';
 
 export default function MaterialDetailPage() {
   const { id } = useParams<{ id: string }>();

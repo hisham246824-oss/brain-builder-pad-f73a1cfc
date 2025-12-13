@@ -1,6 +1,8 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+
+const STORAGE_KEY = 'study-data';
 
 interface AuthContextType {
   user: User | null;
@@ -89,10 +91,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error };
   };
 
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     await supabase.auth.signOut();
     setDisplayName(null);
-  };
+    // Clear local storage to restore fresh state
+    localStorage.removeItem(STORAGE_KEY);
+  }, []);
 
   return (
     <AuthContext.Provider value={{
