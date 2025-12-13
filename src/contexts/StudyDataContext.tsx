@@ -17,6 +17,8 @@ interface StudyDataContextType {
   deleteFile: (materialId: string, fileId: string) => Promise<void>;
   clearLocalData: () => void;
   refreshData: () => Promise<void>;
+  reorderMaterials: (oldIndex: number, newIndex: number) => Promise<void>;
+  reorderLessons: (materialId: string, oldIndex: number, newIndex: number) => Promise<void>;
 }
 
 const StudyDataContext = createContext<StudyDataContextType | undefined>(undefined);

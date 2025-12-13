@@ -12,6 +12,7 @@ import MaterialsPage from "./pages/MaterialsPage";
 import MaterialDetailPage from "./pages/MaterialDetailPage";
 import TableCreatorPage from "./pages/TableCreatorPage";
 import PomodoroPage from "./pages/PomodoroPage";
+import ProfileSettingsPage from "./pages/ProfileSettingsPage";
 import AuthPage from "./pages/AuthPage";
 import NotFound from "./pages/NotFound";
 
@@ -33,6 +34,7 @@ const App = () => (
                   <Route path="/materials/:id" element={<MaterialDetailPage />} />
                   <Route path="/table-creator" element={<TableCreatorPage />} />
                   <Route path="/pomodoro" element={<PomodoroPage />} />
+                  <Route path="/profile/settings" element={<ProfileSettingsPage />} />
                 </Route>
                 <Route path="/auth" element={<AuthPage />} />
                 <Route path="*" element={<NotFound />} />
