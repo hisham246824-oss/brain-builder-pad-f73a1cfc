@@ -4,7 +4,7 @@ import { Plus, BookOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { MaterialCard } from '@/components/materials/MaterialCard';
 import { AddMaterialDialog } from '@/components/materials/AddMaterialDialog';
-import { useStudyData } from '@/hooks/useStudyData';
+import { useStudyData } from '@/contexts/StudyDataContext';
 
 export default function MaterialsPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
