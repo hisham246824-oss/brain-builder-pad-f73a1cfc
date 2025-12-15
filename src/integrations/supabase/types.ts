@@ -153,6 +153,36 @@ export type Database = {
         }
         Relationships: []
       }
+      vocabulary: {
+        Row: {
+          created_at: string
+          id: string
+          meanings: string
+          notes: string | null
+          updated_at: string
+          user_id: string
+          word: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          meanings: string
+          notes?: string | null
+          updated_at?: string
+          user_id: string
+          word: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          meanings?: string
+          notes?: string | null
+          updated_at?: string
+          user_id?: string
+          word?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
