@@ -13,6 +13,10 @@ import MaterialDetailPage from "./pages/MaterialDetailPage";
 import TableCreatorPage from "./pages/TableCreatorPage";
 import PomodoroPage from "./pages/PomodoroPage";
 import VocabularyPage from "./pages/VocabularyPage";
+import PodcastPage from "./pages/PodcastPage";
+import UploadVideoPage from "./pages/UploadVideoPage";
+import VideoPlayerPage from "./pages/VideoPlayerPage";
+import ProgressPage from "./pages/ProgressPage";
 import ProfileSettingsPage from "./pages/ProfileSettingsPage";
 import AuthPage from "./pages/AuthPage";
 import NotFound from "./pages/NotFound";
@@ -36,6 +40,10 @@ const App = () => (
                   <Route path="/table-creator" element={<TableCreatorPage />} />
                   <Route path="/pomodoro" element={<PomodoroPage />} />
                   <Route path="/vocabulary" element={<VocabularyPage />} />
+                  <Route path="/podcast" element={<PodcastPage />} />
+                  <Route path="/podcast/:id" element={<VideoPlayerPage />} />
+                  <Route path="/upload-video" element={<UploadVideoPage />} />
+                  <Route path="/progress" element={<ProgressPage />} />
                   <Route path="/profile/settings" element={<ProfileSettingsPage />} />
                 </Route>
                 <Route path="/auth" element={<AuthPage />} />
