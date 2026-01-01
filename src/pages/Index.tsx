@@ -47,7 +47,7 @@ const Index = () => {
           Organize your learning materials, track your progress, and achieve your study goals.
         </p>
 
-        <Link to="/materials">
+        <Link to="/podcast">
           <Button size="lg" className="rounded-2xl px-8 py-6 text-base font-semibold shadow-glow">
             Get Started
             <ArrowRight className="ml-2 h-5 w-5" />
