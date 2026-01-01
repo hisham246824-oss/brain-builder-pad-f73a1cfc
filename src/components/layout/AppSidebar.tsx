@@ -11,7 +11,6 @@ interface AppSidebarProps {
 
 const navItems = [
   { to: '/', icon: Home, label: 'Home' },
-  { to: '/materials', icon: BookOpen, label: 'Study Materials' },
   { to: '/table-creator', icon: Table2, label: 'Create Table' },
   { to: '/pomodoro', icon: Timer, label: 'Pomodoro Timer' },
   { to: '/vocabulary', icon: Languages, label: 'Vocabulary' },
