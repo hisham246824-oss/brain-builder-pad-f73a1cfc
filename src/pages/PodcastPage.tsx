@@ -1,10 +1,11 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Pencil, Play, MoreVertical, Download, Clock, User } from 'lucide-react';
+import { Search, Pencil, Play, MoreVertical, Download, Clock, User, Eye, Calendar, ThumbsUp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
+import { format } from 'date-fns';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,13 +26,14 @@ interface Video {
     display_name: string | null;
     avatar_url: string | null;
   };
+  likes_count?: number;
 }
 
 export default function PodcastPage() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Fetch all videos with publisher info
+  // Fetch all videos with publisher info and likes count
   const { data: videos = [] } = useQuery({
     queryKey: ['videos'],
     queryFn: async () => {
@@ -43,16 +45,31 @@ export default function PodcastPage() {
       
       // Fetch profiles for each video
       const userIds = [...new Set(videosData.map(v => v.user_id))];
-      const { data: profiles } = await supabase
-        .from('profiles')
-        .select('user_id, display_name, avatar_url')
-        .in('user_id', userIds);
+      const videoIds = videosData.map(v => v.id);
+
+      const [profilesRes, likesRes] = await Promise.all([
+        supabase
+          .from('profiles')
+          .select('user_id, display_name, avatar_url')
+          .in('user_id', userIds),
+        supabase
+          .from('video_likes')
+          .select('video_id')
+          .in('video_id', videoIds)
+          .eq('is_like', true),
+      ]);
       
-      const profileMap = new Map(profiles?.map(p => [p.user_id, p]) || []);
+      const profileMap = new Map(profilesRes.data?.map(p => [p.user_id, p]) || []);
+      
+      const likesCount = new Map<string, number>();
+      likesRes.data?.forEach(l => {
+        likesCount.set(l.video_id, (likesCount.get(l.video_id) || 0) + 1);
+      });
       
       return videosData.map(v => ({
         ...v,
         profiles: profileMap.get(v.user_id) || null,
+        likes_count: likesCount.get(v.id) || 0,
       })) as Video[];
     },
   });
@@ -62,7 +79,8 @@ export default function PodcastPage() {
     if (!searchQuery.trim()) return videos;
     const query = searchQuery.toLowerCase();
     return videos.filter((video) =>
-      video.title.toLowerCase().includes(query)
+      video.title.toLowerCase().includes(query) ||
+      video.profiles?.display_name?.toLowerCase().includes(query)
     );
   }, [videos, searchQuery]);
 
@@ -159,6 +177,22 @@ export default function PodcastPage() {
                         </div>
                         <span className="text-sm text-muted-foreground truncate">
                           {video.profiles?.display_name || 'Anonymous'}
+                        </span>
+                      </div>
+                      
+                      {/* Additional Details */}
+                      <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground flex-wrap">
+                        <span className="flex items-center gap-1">
+                          <Eye className="h-3 w-3" />
+                          {video.views_count || 0} views
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <ThumbsUp className="h-3 w-3" />
+                          {video.likes_count || 0}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />
+                          {format(new Date(video.created_at), 'MMM d')}
                         </span>
                       </div>
                     </div>

@@ -151,7 +151,7 @@ export default function VideoPlayerPage() {
         .from('videos')
         .select('*')
         .neq('id', id)
-        .limit(5)
+        .limit(10)
         .order('created_at', { ascending: false });
       if (error) throw error;
       

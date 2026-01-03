@@ -117,6 +117,10 @@ export default function UploadVideoPage() {
       toast.error('Please enter a title');
       return;
     }
+    if (!coverFile) {
+      toast.error('Please add a cover image');
+      return;
+    }
     uploadMutation.mutate();
   };
 
@@ -195,10 +199,10 @@ export default function UploadVideoPage() {
             />
           </div>
 
-          {/* Cover Upload (Optional) */}
+          {/* Cover Upload (Required) */}
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">
-              Cover Image (Optional)
+              Cover Image <span className="text-destructive">*</span>
             </label>
             <input
               ref={coverInputRef}
@@ -239,7 +243,7 @@ export default function UploadVideoPage() {
           {/* Upload Button */}
           <Button
             onClick={handleUpload}
-            disabled={uploadMutation.isPending || !videoFile}
+            disabled={uploadMutation.isPending || !videoFile || !coverFile}
             className="w-full rounded-2xl py-6 text-lg font-semibold"
           >
             {uploadMutation.isPending ? (
