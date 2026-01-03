@@ -17,6 +17,7 @@ import PodcastPage from "./pages/PodcastPage";
 import UploadVideoPage from "./pages/UploadVideoPage";
 import VideoPlayerPage from "./pages/VideoPlayerPage";
 import ProgressPage from "./pages/ProgressPage";
+import MyVideosPage from "./pages/MyVideosPage";
 import ProfileSettingsPage from "./pages/ProfileSettingsPage";
 import AuthPage from "./pages/AuthPage";
 import NotFound from "./pages/NotFound";
@@ -43,6 +44,7 @@ const App = () => (
                   <Route path="/podcast" element={<PodcastPage />} />
                   <Route path="/podcast/:id" element={<VideoPlayerPage />} />
                   <Route path="/upload-video" element={<UploadVideoPage />} />
+                  <Route path="/my-videos" element={<MyVideosPage />} />
                   <Route path="/progress" element={<ProgressPage />} />
                   <Route path="/profile/settings" element={<ProfileSettingsPage />} />
                 </Route>
