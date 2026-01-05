@@ -30,3 +30,19 @@ export interface Material {
 export interface StudyData {
   materials: Material[];
 }
+
+// --- الإضافات الجديدة الخاصة بالمالك هشام ---
+
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  role: 'admin' | 'user'; // (رتبة) تفرق بين المالك والمستخدمين
+  is_verified: boolean;   // (موثق) لإظهار علامة الصح الزرقاء
+  avatarUrl?: string;     // رابط الصورة الشخصية
+}
+
+export interface AppState {
+  currentUser: User | null;
+  studyData: StudyData;
+}
