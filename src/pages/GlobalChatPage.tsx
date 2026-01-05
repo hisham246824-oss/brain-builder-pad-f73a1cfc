@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Send, Paperclip, Users } from 'lucide-react';
+import { Send, Paperclip } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 
@@ -25,7 +25,6 @@ const GlobalChatPage = () => {
   const { user } = useAuth();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
-  const [onlineUsers, setOnlineUsers] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -68,7 +67,7 @@ const GlobalChatPage = () => {
   // Real-time subscription for new messages
   useEffect(() => {
     const channel = supabase
-      .channel('global-chat')
+      .channel('global-chat-realtime')
       .on(
         'postgres_changes',
         {
@@ -107,37 +106,6 @@ const GlobalChatPage = () => {
     };
   }, []);
 
-  // Presence for online users
-  useEffect(() => {
-    if (!user) return;
-
-    const presenceChannel = supabase.channel('online-users', {
-      config: {
-        presence: {
-          key: user.id,
-        },
-      },
-    });
-
-    presenceChannel
-      .on('presence', { event: 'sync' }, () => {
-        const state = presenceChannel.presenceState();
-        setOnlineUsers(Object.keys(state).length);
-      })
-      .subscribe(async (status) => {
-        if (status === 'SUBSCRIBED') {
-          await presenceChannel.track({
-            user_id: user.id,
-            online_at: new Date().toISOString(),
-          });
-        }
-      });
-
-    return () => {
-      supabase.removeChannel(presenceChannel);
-    };
-  }, [user]);
-
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     if (scrollRef.current) {
@@ -148,19 +116,21 @@ const GlobalChatPage = () => {
   const sendMessage = async () => {
     if (!newMessage.trim() || !user || isSending) return;
 
+    const messageContent = newMessage.trim();
+    setNewMessage(''); // Clear immediately for instant feedback
     setIsSending(true);
+
     const { error } = await supabase
       .from('global_chat_messages')
       .insert({
         user_id: user.id,
-        content: newMessage.trim()
+        content: messageContent
       });
 
     if (error) {
       toast.error('Failed to send message');
+      setNewMessage(messageContent); // Restore on error
       console.error('Error sending message:', error);
-    } else {
-      setNewMessage('');
     }
     setIsSending(false);
   };
@@ -176,7 +146,7 @@ const GlobalChatPage = () => {
     const fileExt = file.name.split('.').pop();
     const fileName = `${user.id}/${Date.now()}.${fileExt}`;
 
-    const { error: uploadError, data } = await supabase.storage
+    const { error: uploadError } = await supabase.storage
       .from('material-files')
       .upload(fileName, file);
 
@@ -227,19 +197,9 @@ const GlobalChatPage = () => {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-2rem)] max-w-4xl mx-auto">
-      {/* Header with online users */}
-      <div className="flex items-center justify-between p-4 border-b border-border bg-card rounded-t-xl">
-        <h1 className="text-xl font-semibold">Global Chat</h1>
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-          <Users className="w-4 h-4" />
-          <span>{onlineUsers} online</span>
-        </div>
-      </div>
-
+    <div className="flex flex-col h-[calc(100vh-5rem)] max-w-4xl mx-auto">
       {/* Messages area */}
-      <ScrollArea ref={scrollRef} className="flex-1 p-4 bg-background/50">
+      <ScrollArea ref={scrollRef} className="flex-1 p-4 bg-background/50 rounded-t-xl">
         {isLoading ? (
           <div className="flex items-center justify-center h-full">
             <p className="text-muted-foreground">Loading messages...</p>
