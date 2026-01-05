@@ -18,6 +18,12 @@ interface VocabularyWord {
   created_at: string;
 }
 
+interface AddWordData {
+  word: string;
+  meanings: string;
+  notes: string | null;
+}
+
 export default function VocabularyPage() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -43,32 +49,32 @@ export default function VocabularyPage() {
     enabled: !!user,
   });
 
-  // Add word mutation with optimistic update
+  // Add word mutation - pass data directly to avoid closure issues
   const addWordMutation = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (wordData: AddWordData) => {
       if (!user) throw new Error('Not authenticated');
       const { data, error } = await supabase.from('vocabulary').insert({
         user_id: user.id,
-        word: newWord.trim(),
-        meanings: newMeanings.trim(),
-        notes: newNotes.trim() || null,
+        word: wordData.word,
+        meanings: wordData.meanings,
+        notes: wordData.notes,
       }).select().single();
       if (error) throw error;
       return data;
     },
-    onMutate: async () => {
+    onMutate: async (wordData: AddWordData) => {
       // Cancel any outgoing refetches
       await queryClient.cancelQueries({ queryKey: ['vocabulary', user?.id] });
       
       // Snapshot the previous value
       const previousVocabulary = queryClient.getQueryData(['vocabulary', user?.id]);
       
-      // Optimistically update
-      const optimisticWord = {
+      // Optimistically update with the passed data
+      const optimisticWord: VocabularyWord = {
         id: `temp-${Date.now()}`,
-        word: newWord.trim(),
-        meanings: newMeanings.trim(),
-        notes: newNotes.trim() || null,
+        word: wordData.word,
+        meanings: wordData.meanings,
+        notes: wordData.notes,
         created_at: new Date().toISOString(),
       };
       
@@ -76,12 +82,6 @@ export default function VocabularyPage() {
         optimisticWord,
         ...old,
       ]);
-      
-      // Clear form immediately
-      setNewWord('');
-      setNewMeanings('');
-      setNewNotes('');
-      setIsAddingWord(false);
       
       return { previousVocabulary };
     },
@@ -121,11 +121,23 @@ export default function VocabularyPage() {
   }, [vocabulary, searchQuery]);
 
   const handleAddWord = () => {
-    if (!newWord.trim() || !newMeanings.trim()) {
+    const word = newWord.trim();
+    const meanings = newMeanings.trim();
+    const notes = newNotes.trim() || null;
+
+    if (!word || !meanings) {
       toast.error('Please enter both word and meanings');
       return;
     }
-    addWordMutation.mutate();
+
+    // Pass data directly to mutation
+    addWordMutation.mutate({ word, meanings, notes });
+    
+    // Clear form after passing data
+    setNewWord('');
+    setNewMeanings('');
+    setNewNotes('');
+    setIsAddingWord(false);
   };
 
   const speakWord = (word: string) => {
@@ -264,7 +276,7 @@ export default function VocabularyPage() {
                 <div className="mb-3">
                   <span className="text-xs font-semibold text-primary uppercase tracking-wider">English</span>
                   <div className="flex items-center justify-between mt-1">
-                    <h3 className="text-2xl font-bold text-foreground">{item.word}</h3>
+                    <h3 className="text-2xl font-bold text-foreground">{item.word || '—'}</h3>
                     <button 
                       onClick={() => speakWord(item.word)}
                       className="p-2 rounded-full hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
@@ -281,7 +293,7 @@ export default function VocabularyPage() {
                 <div className="mb-4">
                   <span className="text-xs font-semibold text-primary uppercase tracking-wider">العربية</span>
                   <p className="text-lg text-foreground mt-1 text-right" dir="rtl">
-                    {item.meanings}
+                    {item.meanings || '—'}
                   </p>
                   {item.notes && (
                     <p className="text-sm text-muted-foreground mt-2 text-right" dir="rtl">
@@ -299,7 +311,7 @@ export default function VocabularyPage() {
                   <div className="flex items-center gap-3">
                     <div className="flex items-center gap-1">
                       <Hash className="h-3.5 w-3.5" />
-                      <span>{item.word.length} letters</span>
+                      <span>{item.word?.length || 0} letters</span>
                     </div>
                     <button
                       onClick={() => deleteWordMutation.mutate(item.id)}

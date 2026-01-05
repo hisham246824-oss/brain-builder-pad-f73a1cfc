@@ -27,8 +27,18 @@ const GlobalChatPage = () => {
   const [newMessage, setNewMessage] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Scroll to bottom function
+  const scrollToBottom = () => {
+    if (scrollAreaRef.current) {
+      const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
+      if (scrollContainer) {
+        scrollContainer.scrollTop = scrollContainer.scrollHeight;
+      }
+    }
+  };
 
   // Fetch messages
   useEffect(() => {
@@ -59,6 +69,8 @@ const GlobalChatPage = () => {
 
       setMessages(messagesWithProfiles);
       setIsLoading(false);
+      // Scroll after initial load
+      setTimeout(scrollToBottom, 100);
     };
 
     fetchMessages();
@@ -83,9 +95,20 @@ const GlobalChatPage = () => {
             .from('profiles')
             .select('display_name, avatar_url')
             .eq('user_id', newMsg.user_id)
-            .single();
+            .maybeSingle();
 
-          setMessages(prev => [...prev, { ...newMsg, profile }]);
+          const messageWithProfile = { ...newMsg, profile };
+          setMessages(prev => [...prev, messageWithProfile]);
+
+          // Show notification for messages from others
+          if (newMsg.user_id !== user?.id) {
+            toast.info(`${profile?.display_name || 'Someone'}: ${newMsg.content.substring(0, 50)}${newMsg.content.length > 50 ? '...' : ''}`, {
+              duration: 3000,
+            });
+          }
+
+          // Auto-scroll to new message
+          setTimeout(scrollToBottom, 50);
         }
       )
       .on(
@@ -104,13 +127,11 @@ const GlobalChatPage = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [user?.id]);
 
-  // Auto-scroll to bottom when new messages arrive
+  // Auto-scroll when messages change
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
+    scrollToBottom();
   }, [messages]);
 
   const sendMessage = async () => {
@@ -146,6 +167,8 @@ const GlobalChatPage = () => {
     const fileExt = file.name.split('.').pop();
     const fileName = `${user.id}/${Date.now()}.${fileExt}`;
 
+    toast.info('Uploading file...');
+
     const { error: uploadError } = await supabase.storage
       .from('material-files')
       .upload(fileName, file);
@@ -169,6 +192,8 @@ const GlobalChatPage = () => {
 
     if (error) {
       toast.error('Failed to send attachment');
+    } else {
+      toast.success('File sent!');
     }
 
     if (fileInputRef.current) {
@@ -199,7 +224,7 @@ const GlobalChatPage = () => {
   return (
     <div className="flex flex-col h-[calc(100vh-5rem)] max-w-4xl mx-auto">
       {/* Messages area */}
-      <ScrollArea ref={scrollRef} className="flex-1 p-4 bg-background/50 rounded-t-xl">
+      <ScrollArea ref={scrollAreaRef} className="flex-1 p-4 bg-background/50 rounded-t-xl">
         {isLoading ? (
           <div className="flex items-center justify-center h-full">
             <p className="text-muted-foreground">Loading messages...</p>
