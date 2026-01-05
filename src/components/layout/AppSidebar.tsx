@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Home, X, GraduationCap, Table2, Timer, Languages, Podcast, Upload, BarChart3, Video, MessageCircle } from 'lucide-react';
+import { Home, X, GraduationCap, Table2, Timer, Languages, Podcast, Upload, Video, MessageCircle } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { ProfileSection } from './ProfileSection';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
@@ -16,7 +16,6 @@ const navItems = [
   { to: '/my-videos', icon: Video, label: 'My Videos' },
   { to: '/global-chat', icon: MessageCircle, label: 'Global Chat' },
   { to: '/vocabulary', icon: Languages, label: 'Vocabulary' },
-  { to: '/progress', icon: BarChart3, label: 'Progress' },
   { to: '/pomodoro', icon: Timer, label: 'Pomodoro Timer' },
   { to: '/table-creator', icon: Table2, label: 'Create Table' },
 ];
