@@ -46,7 +46,7 @@ export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              className="fixed left-0 top-0 z-50 h-full w-72 bg-sidebar shadow-soft"
+              className="fixed left-0 top-0 z-50 h-full w-72 bg-sidebar shadow-soft rounded-r-3xl"
             >
               <div className="flex h-full flex-col">
                 <div className="flex items-center justify-between border-b border-sidebar-border p-5">
