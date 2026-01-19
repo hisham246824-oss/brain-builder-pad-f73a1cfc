@@ -41,11 +41,8 @@ export function FileList({ files, onAddFile, onDeleteFile }: FileListProps) {
   };
 
   const openFile = (file: StudyFile) => {
-    const link = document.createElement('a');
-    link.href = file.url;
-    link.target = '_blank';
-    link.download = file.name;
-    link.click();
+    // Open file directly in new tab instead of downloading
+    window.open(file.url, '_blank');
   };
 
   return (
