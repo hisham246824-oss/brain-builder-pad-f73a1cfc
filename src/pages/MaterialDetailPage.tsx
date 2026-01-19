@@ -5,18 +5,37 @@ import { ArrowLeft, Trash2, CheckCircle2, Circle, BookOpen, FolderOpen } from 'l
 import { Button } from '@/components/ui/button';
 import { LessonItem } from '@/components/lessons/LessonItem';
 import { AddLessonForm } from '@/components/lessons/AddLessonForm';
-import { FileList } from '@/components/materials/FileList';
+import { FileListSupabase } from '@/components/materials/FileListSupabase';
 import { IconSelector, getMaterialIcon } from '@/components/materials/IconSelector';
-import { useStudyData } from '@/hooks/useStudyData';
+import { useStudyDataSupabase } from '@/hooks/useStudyDataSupabase';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function MaterialDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { getMaterial, addLesson, toggleLesson, deleteLesson, deleteMaterial, addFile, deleteFile, updateMaterialIcon } = useStudyData();
+  const { user } = useAuth();
+  const { getMaterial, addLesson, toggleLesson, deleteLesson, deleteMaterial, updateMaterialIcon, refetch } = useStudyDataSupabase();
   const [activeTab, setActiveTab] = useState<'lessons' | 'files'>('lessons');
   const [showIconSelector, setShowIconSelector] = useState(false);
 
   const material = getMaterial(id || '');
+
+  // Show sign in message if not authenticated
+  if (!user) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20">
+        <h2 className="mb-4 text-xl font-semibold text-foreground">
+          Sign in to view materials
+        </h2>
+        <Link to="/materials">
+          <Button variant="outline" className="rounded-xl">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Materials
+          </Button>
+        </Link>
+      </div>
+    );
+  }
 
   if (!material) {
     return (
@@ -34,13 +53,23 @@ export default function MaterialDetailPage() {
     );
   }
 
+  const colors = [
+    'hsl(175 60% 35%)',
+    'hsl(220 70% 50%)',
+    'hsl(280 60% 50%)',
+    'hsl(340 70% 50%)',
+    'hsl(30 80% 50%)',
+    'hsl(145 60% 40%)',
+  ];
+  const materialColor = colors[0]; // Default color
+
   const completedCount = material.lessons.filter((l) => l.completed).length;
   const totalCount = material.lessons.length;
   const progress = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (confirm('Are you sure you want to delete this material and all its lessons?')) {
-      deleteMaterial(material.id);
+      await deleteMaterial(material.id);
       navigate('/materials');
     }
   };
@@ -71,7 +100,7 @@ export default function MaterialDetailPage() {
       >
         <div
           className="absolute left-0 top-0 h-full w-2"
-          style={{ backgroundColor: material.color }}
+          style={{ backgroundColor: materialColor }}
         />
 
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -81,7 +110,7 @@ export default function MaterialDetailPage() {
               whileTap={{ scale: 0.95 }}
               onClick={() => setShowIconSelector(true)}
               className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl cursor-pointer transition-shadow hover:shadow-lg"
-              style={{ backgroundColor: material.color }}
+              style={{ backgroundColor: materialColor }}
               title="Click to change icon"
             >
               <MaterialIcon className="h-6 w-6 text-primary-foreground" />
@@ -91,11 +120,6 @@ export default function MaterialDetailPage() {
               <h1 className="text-2xl font-bold text-card-foreground">
                 {material.title}
               </h1>
-              {material.description && (
-                <p className="mt-1 text-muted-foreground">
-                  {material.description}
-                </p>
-              )}
             </div>
           </div>
 
@@ -132,7 +156,7 @@ export default function MaterialDetailPage() {
               animate={{ width: `${progress}%` }}
               transition={{ duration: 0.5, delay: 0.2 }}
               className="h-full rounded-full"
-              style={{ backgroundColor: material.color }}
+              style={{ backgroundColor: materialColor }}
             />
           </div>
         </div>
@@ -172,8 +196,8 @@ export default function MaterialDetailPage() {
               {material.lessons.map((lesson, index) => (
                 <LessonItem
                   key={lesson.id}
-                  lesson={lesson}
-                  materialColor={material.color}
+                  lesson={{ ...lesson, createdAt: Date.now() }}
+                  materialColor={materialColor}
                   onToggle={() => toggleLesson(material.id, lesson.id)}
                   onDelete={() => deleteLesson(material.id, lesson.id)}
                   index={index}
@@ -190,10 +214,11 @@ export default function MaterialDetailPage() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
           >
-            <FileList
+            <FileListSupabase
               files={material.files || []}
-              onAddFile={(file) => addFile(material.id, file)}
-              onDeleteFile={(fileId) => deleteFile(material.id, fileId)}
+              materialId={material.id}
+              onFileAdded={refetch}
+              onFileDeleted={refetch}
             />
           </motion.div>
         )}
@@ -205,7 +230,7 @@ export default function MaterialDetailPage() {
         onClose={() => setShowIconSelector(false)}
         currentIcon={material.icon || 'book'}
         onSelect={(icon) => updateMaterialIcon(material.id, icon)}
-        color={material.color}
+        color={materialColor}
       />
     </div>
   );
