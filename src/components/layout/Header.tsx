@@ -1,14 +1,11 @@
-import { Menu, GraduationCap, Users } from 'lucide-react';
+import { Menu, GraduationCap } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useOnlineUsers } from '@/hooks/useOnlineUsers';
 
 interface HeaderProps {
   onMenuClick: () => void;
 }
 
 export function Header({ onMenuClick }: HeaderProps) {
-  const onlineUsers = useOnlineUsers();
-
   return (
     <motion.header
       initial={{ y: -20, opacity: 0 }}
@@ -33,21 +30,6 @@ export function Header({ onMenuClick }: HeaderProps) {
             </span>
           </div>
         </div>
-
-        {/* Online Users Indicator */}
-        {onlineUsers > 0 && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-500/10 border border-green-500/20"
-          >
-            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-            <Users className="w-4 h-4 text-green-600 dark:text-green-400" />
-            <span className="text-sm font-medium text-green-600 dark:text-green-400">
-              {onlineUsers} online
-            </span>
-          </motion.div>
-        )}
       </div>
     </motion.header>
   );

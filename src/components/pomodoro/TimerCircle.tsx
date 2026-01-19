@@ -10,7 +10,7 @@ interface TimerCircleProps {
 
 const modeColors = {
   study: 'hsl(175 60% 35%)',
-  shortBreak: 'hsl(199 89% 60%)',
+  shortBreak: 'hsl(199 89% 60%)', // sky-400
   longBreak: 'hsl(142 71% 45%)',
 };
 
@@ -19,13 +19,18 @@ export function TimerCircle({ minutes, seconds, totalSeconds, remainingSeconds, 
   const circumference = 2 * Math.PI * 140;
   const strokeDashoffset = circumference * (1 - progress);
   const color = modeColors[mode];
+  
+  // Calculate scale based on progress (shrinks from 1 to 0.7 as time decreases)
+  const scale = 0.7 + (progress * 0.3);
 
   return (
     <div className="relative flex items-center justify-center">
-      <svg 
+      <motion.svg 
         width="320" 
         height="320" 
         className="transform -rotate-90"
+        animate={{ scale }}
+        transition={{ duration: 0.5, ease: 'easeInOut' }}
       >
         {/* Background circle */}
         <circle
@@ -50,7 +55,7 @@ export function TimerCircle({ minutes, seconds, totalSeconds, remainingSeconds, 
           animate={{ strokeDashoffset }}
           transition={{ duration: 0.5, ease: 'easeInOut' }}
         />
-      </svg>
+      </motion.svg>
       
       {/* Time display */}
       <div className="absolute inset-0 flex flex-col items-center justify-center">

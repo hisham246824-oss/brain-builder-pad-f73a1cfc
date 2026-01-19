@@ -1,13 +1,12 @@
-import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FileText, FileSpreadsheet, Presentation, Image, File, Trash2, Upload } from 'lucide-react';
+import { FileText, FileSpreadsheet, Presentation, Image, File, Trash2, Plus, Upload } from 'lucide-react';
 import { StudyFile } from '@/types/study';
 import { Button } from '@/components/ui/button';
-import { FileNameDialog } from './FileNameDialog';
+import { useRef } from 'react';
 
 interface FileListProps {
   files: StudyFile[];
-  onAddFile: (file: File, customName: string) => void;
+  onAddFile: (file: File) => void;
   onDeleteFile: (fileId: string) => void;
 }
 
@@ -32,28 +31,21 @@ function formatFileSize(bytes: number): string {
 
 export function FileList({ files, onAddFile, onDeleteFile }: FileListProps) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [pendingFile, setPendingFile] = useState<File | null>(null);
-  const [showNameDialog, setShowNameDialog] = useState(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setPendingFile(file);
-      setShowNameDialog(true);
+      onAddFile(file);
       e.target.value = '';
     }
   };
 
-  const handleConfirmName = (fileName: string) => {
-    if (pendingFile) {
-      onAddFile(pendingFile, fileName);
-      setPendingFile(null);
-    }
-  };
-
   const openFile = (file: StudyFile) => {
-    // Open file in new tab for viewing
-    window.open(file.url, '_blank');
+    const link = document.createElement('a');
+    link.href = file.url;
+    link.target = '_blank';
+    link.download = file.name;
+    link.click();
   };
 
   return (
@@ -126,16 +118,6 @@ export function FileList({ files, onAddFile, onDeleteFile }: FileListProps) {
           </AnimatePresence>
         </div>
       )}
-
-      <FileNameDialog
-        isOpen={showNameDialog}
-        onClose={() => {
-          setShowNameDialog(false);
-          setPendingFile(null);
-        }}
-        onConfirm={handleConfirmName}
-        defaultName={pendingFile?.name.replace(/\.[^/.]+$/, '') || ''}
-      />
     </div>
   );
 }

@@ -7,14 +7,12 @@ import { LessonItem } from '@/components/lessons/LessonItem';
 import { AddLessonForm } from '@/components/lessons/AddLessonForm';
 import { FileList } from '@/components/materials/FileList';
 import { IconSelector, getMaterialIcon } from '@/components/materials/IconSelector';
-import { SortableList } from '@/components/dnd/SortableList';
-import { SortableItem } from '@/components/dnd/SortableItem';
-import { useStudyData } from '@/contexts/StudyDataContext';
+import { useStudyData } from '@/hooks/useStudyData';
 
 export default function MaterialDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { getMaterial, addLesson, toggleLesson, deleteLesson, deleteMaterial, addFile, deleteFile, updateMaterialIcon, reorderLessons } = useStudyData();
+  const { getMaterial, addLesson, toggleLesson, deleteLesson, deleteMaterial, addFile, deleteFile, updateMaterialIcon } = useStudyData();
   const [activeTab, setActiveTab] = useState<'lessons' | 'files'>('lessons');
   const [showIconSelector, setShowIconSelector] = useState(false);
 
@@ -45,10 +43,6 @@ export default function MaterialDetailPage() {
       deleteMaterial(material.id);
       navigate('/materials');
     }
-  };
-
-  const handleReorderLessons = (oldIndex: number, newIndex: number) => {
-    reorderLessons(material.id, oldIndex, newIndex);
   };
 
   const MaterialIcon = getMaterialIcon(material.icon || 'book');
@@ -174,24 +168,18 @@ export default function MaterialDetailPage() {
             exit={{ opacity: 0, x: 20 }}
             className="space-y-3"
           >
-            {material.lessons.length > 0 && (
-              <SortableList
-                items={material.lessons.map((l) => l.id)}
-                onReorder={handleReorderLessons}
-              >
-                {material.lessons.map((lesson, index) => (
-                  <SortableItem key={lesson.id} id={lesson.id}>
-                    <LessonItem
-                      lesson={lesson}
-                      materialColor={material.color}
-                      onToggle={() => toggleLesson(material.id, lesson.id)}
-                      onDelete={() => deleteLesson(material.id, lesson.id)}
-                      index={index}
-                    />
-                  </SortableItem>
-                ))}
-              </SortableList>
-            )}
+            <AnimatePresence mode="popLayout">
+              {material.lessons.map((lesson, index) => (
+                <LessonItem
+                  key={lesson.id}
+                  lesson={lesson}
+                  materialColor={material.color}
+                  onToggle={() => toggleLesson(material.id, lesson.id)}
+                  onDelete={() => deleteLesson(material.id, lesson.id)}
+                  index={index}
+                />
+              ))}
+            </AnimatePresence>
 
             <AddLessonForm onAdd={(title) => addLesson(material.id, title)} />
           </motion.div>
@@ -204,7 +192,7 @@ export default function MaterialDetailPage() {
           >
             <FileList
               files={material.files || []}
-              onAddFile={(file, customName) => addFile(material.id, file, customName)}
+              onAddFile={(file) => addFile(material.id, file)}
               onDeleteFile={(fileId) => deleteFile(material.id, fileId)}
             />
           </motion.div>

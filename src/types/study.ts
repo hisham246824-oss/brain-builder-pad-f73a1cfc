@@ -30,4 +30,3 @@ export interface Material {
 export interface StudyData {
   materials: Material[];
 }
-
