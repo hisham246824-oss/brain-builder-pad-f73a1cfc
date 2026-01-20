@@ -320,27 +320,39 @@ export type Database = {
       vocabulary: {
         Row: {
           created_at: string
+          ease_factor: number | null
           id: string
+          interval_days: number | null
           meanings: string
+          next_review_at: string | null
           notes: string | null
+          repetitions: number | null
           updated_at: string
           user_id: string
           word: string
         }
         Insert: {
           created_at?: string
+          ease_factor?: number | null
           id?: string
+          interval_days?: number | null
           meanings: string
+          next_review_at?: string | null
           notes?: string | null
+          repetitions?: number | null
           updated_at?: string
           user_id: string
           word: string
         }
         Update: {
           created_at?: string
+          ease_factor?: number | null
           id?: string
+          interval_days?: number | null
           meanings?: string
+          next_review_at?: string | null
           notes?: string | null
+          repetitions?: number | null
           updated_at?: string
           user_id?: string
           word?: string
