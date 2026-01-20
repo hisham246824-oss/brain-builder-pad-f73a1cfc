@@ -93,6 +93,65 @@ export function useStudyDataSupabase() {
     fetchMaterials();
   }, [fetchMaterials]);
 
+  // Subscribe to realtime changes for cross-device sync
+  useEffect(() => {
+    if (!user) return;
+
+    const materialsChannel = supabase
+      .channel('study-materials-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'study_materials',
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => {
+          fetchMaterials();
+        }
+      )
+      .subscribe();
+
+    const lessonsChannel = supabase
+      .channel('lessons-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'lessons',
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => {
+          fetchMaterials();
+        }
+      )
+      .subscribe();
+
+    const filesChannel = supabase
+      .channel('material-files-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'material_files',
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => {
+          fetchMaterials();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(materialsChannel);
+      supabase.removeChannel(lessonsChannel);
+      supabase.removeChannel(filesChannel);
+    };
+  }, [user, fetchMaterials]);
+
   const addMaterial = useCallback(async (title: string) => {
     if (!user) return null;
 
