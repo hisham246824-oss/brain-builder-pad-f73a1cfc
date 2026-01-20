@@ -7,6 +7,7 @@ import { LessonItem } from '@/components/lessons/LessonItem';
 import { AddLessonForm } from '@/components/lessons/AddLessonForm';
 import { FileListSupabase } from '@/components/materials/FileListSupabase';
 import { IconSelector, getMaterialIcon } from '@/components/materials/IconSelector';
+import { MaterialDetailSkeleton } from '@/components/skeletons/MaterialDetailSkeleton';
 import { useStudyDataSupabase } from '@/hooks/useStudyDataSupabase';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -14,11 +15,16 @@ export default function MaterialDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { getMaterial, addLesson, toggleLesson, deleteLesson, deleteMaterial, updateMaterialIcon, refetch } = useStudyDataSupabase();
+  const { getMaterial, isLoading, addLesson, toggleLesson, deleteLesson, deleteMaterial, updateMaterialIcon, refetch } = useStudyDataSupabase();
   const [activeTab, setActiveTab] = useState<'lessons' | 'files'>('lessons');
   const [showIconSelector, setShowIconSelector] = useState(false);
 
   const material = getMaterial(id || '');
+
+  // Show skeleton while loading
+  if (isLoading) {
+    return <MaterialDetailSkeleton />;
+  }
 
   // Show sign in message if not authenticated
   if (!user) {

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { VocabularyCard } from '@/components/vocabulary/VocabularyCard';
 import { AddWordDialog } from '@/components/vocabulary/AddWordDialog';
+import { VocabularySkeleton } from '@/components/skeletons/VocabularySkeleton';
 import { useVocabulary } from '@/hooks/useVocabulary';
 import { useAuth } from '@/contexts/AuthContext';
 import { Link } from 'react-router-dom';
@@ -31,11 +32,7 @@ export default function VocabularyPage() {
   }
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-      </div>
-    );
+    return <VocabularySkeleton />;
   }
 
   return (
