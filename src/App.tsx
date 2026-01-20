@@ -11,6 +11,7 @@ import MaterialDetailPage from "./pages/MaterialDetailPage";
 import TableCreatorPage from "./pages/TableCreatorPage";
 import PomodoroPage from "./pages/PomodoroPage";
 import VocabularyPage from "./pages/VocabularyPage";
+import FlashcardsPage from "./pages/FlashcardsPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +31,7 @@ const App = () => (
               <Route path="/table-creator" element={<TableCreatorPage />} />
               <Route path="/pomodoro" element={<PomodoroPage />} />
               <Route path="/vocabulary" element={<VocabularyPage />} />
+              <Route path="/flashcards" element={<FlashcardsPage />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>

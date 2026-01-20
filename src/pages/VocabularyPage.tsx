@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Search, BookOpen } from 'lucide-react';
+import { Plus, Search, BookOpen, GraduationCap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { VocabularyCard } from '@/components/vocabulary/VocabularyCard';
 import { AddWordDialog } from '@/components/vocabulary/AddWordDialog';
 import { useVocabulary } from '@/hooks/useVocabulary';
 import { useAuth } from '@/contexts/AuthContext';
+import { Link } from 'react-router-dom';
 
 export default function VocabularyPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -61,13 +62,24 @@ export default function VocabularyPage() {
         />
       </div>
 
-      <Button
-        onClick={() => setIsDialogOpen(true)}
-        className="mb-6 w-full rounded-2xl py-6 text-lg font-medium shadow-soft hover:shadow-lg transition-shadow"
-      >
-        <Plus className="mr-2 h-5 w-5" />
-        Add Word
-      </Button>
+      <div className="flex gap-3 mb-6">
+        <Button
+          onClick={() => setIsDialogOpen(true)}
+          className="flex-1 rounded-2xl py-6 text-lg font-medium shadow-soft hover:shadow-lg transition-shadow"
+        >
+          <Plus className="mr-2 h-5 w-5" />
+          Add Word
+        </Button>
+        <Link to="/flashcards">
+          <Button
+            variant="outline"
+            className="rounded-2xl py-6 px-6 text-lg font-medium"
+          >
+            <GraduationCap className="mr-2 h-5 w-5" />
+            Practice
+          </Button>
+        </Link>
+      </div>
 
       {words.length === 0 ? (
         <motion.div
