@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { toast } from '@/hooks/use-toast';
 
 export interface VocabularyWord {
   id: string;
@@ -15,6 +16,7 @@ export function useVocabulary() {
   const [words, setWords] = useState<VocabularyWord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const isLocalChange = useRef(false);
 
   const fetchWords = useCallback(async () => {
     if (!user) {
@@ -57,7 +59,15 @@ export function useVocabulary() {
           filter: `user_id=eq.${user.id}`,
         },
         () => {
+          if (isLocalChange.current) {
+            isLocalChange.current = false;
+            return;
+          }
           fetchWords();
+          toast({
+            title: "Data synced",
+            description: "Your vocabulary updated from another device",
+          });
         }
       )
       .subscribe();
