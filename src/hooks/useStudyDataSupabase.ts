@@ -1,7 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { MaterialIcon } from '@/types/study';
+import { toast } from '@/hooks/use-toast';
 
 export interface MaterialWithRelations {
   id: string;
@@ -26,6 +27,7 @@ export function useStudyDataSupabase() {
   const { user } = useAuth();
   const [materials, setMaterials] = useState<MaterialWithRelations[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const isLocalChange = useRef(false);
 
   const fetchMaterials = useCallback(async () => {
     if (!user) {
@@ -97,6 +99,18 @@ export function useStudyDataSupabase() {
   useEffect(() => {
     if (!user) return;
 
+    const handleRealtimeChange = (tableName: string) => {
+      if (isLocalChange.current) {
+        isLocalChange.current = false;
+        return;
+      }
+      fetchMaterials();
+      toast({
+        title: "Data synced",
+        description: `Your ${tableName} updated from another device`,
+      });
+    };
+
     const materialsChannel = supabase
       .channel('study-materials-changes')
       .on(
@@ -107,9 +121,7 @@ export function useStudyDataSupabase() {
           table: 'study_materials',
           filter: `user_id=eq.${user.id}`,
         },
-        () => {
-          fetchMaterials();
-        }
+        () => handleRealtimeChange('materials')
       )
       .subscribe();
 
@@ -123,9 +135,7 @@ export function useStudyDataSupabase() {
           table: 'lessons',
           filter: `user_id=eq.${user.id}`,
         },
-        () => {
-          fetchMaterials();
-        }
+        () => handleRealtimeChange('lessons')
       )
       .subscribe();
 
@@ -139,9 +149,7 @@ export function useStudyDataSupabase() {
           table: 'material_files',
           filter: `user_id=eq.${user.id}`,
         },
-        () => {
-          fetchMaterials();
-        }
+        () => handleRealtimeChange('files')
       )
       .subscribe();
 
