@@ -29,14 +29,16 @@ export function useStudyDataSupabase() {
   const [isLoading, setIsLoading] = useState(true);
   const isLocalChange = useRef(false);
 
-  const fetchMaterials = useCallback(async () => {
+  const fetchMaterials = useCallback(async (showLoading = true) => {
     if (!user) {
       setMaterials([]);
       setIsLoading(false);
       return;
     }
 
-    setIsLoading(true);
+    if (showLoading) {
+      setIsLoading(true);
+    }
 
     // Fetch materials
     const { data: materialsData, error: materialsError } = await supabase
@@ -104,7 +106,8 @@ export function useStudyDataSupabase() {
         isLocalChange.current = false;
         return;
       }
-      fetchMaterials();
+      // Fetch without showing loading state for realtime updates
+      fetchMaterials(false);
       toast({
         title: "Data synced",
         description: `Your ${tableName} updated from another device`,

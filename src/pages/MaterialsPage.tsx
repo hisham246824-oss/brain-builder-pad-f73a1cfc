@@ -4,6 +4,7 @@ import { Plus, BookOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { MaterialCard } from '@/components/materials/MaterialCard';
 import { AddMaterialDialog } from '@/components/materials/AddMaterialDialog';
+import { MaterialsSkeleton } from '@/components/skeletons/MaterialsSkeleton';
 import { useStudyDataSupabase } from '@/hooks/useStudyDataSupabase';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -34,11 +35,7 @@ export default function MaterialsPage() {
   }
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-      </div>
-    );
+    return <MaterialsSkeleton />;
   }
 
   // Transform materials to match MaterialCard expected format
