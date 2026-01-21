@@ -3,6 +3,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { MaterialIcon } from '@/types/study';
 import { toast } from '@/hooks/use-toast';
+import { useNetworkStatus } from '@/hooks/useNetworkStatus';
+import { cacheMaterials, getCachedMaterials, addPendingAction, getPendingActions, removePendingAction } from '@/lib/offlineCache';
 
 export interface MaterialWithRelations {
   id: string;
@@ -25,13 +27,64 @@ export interface MaterialWithRelations {
 
 export function useStudyDataSupabase() {
   const { user } = useAuth();
+  const { isOnline } = useNetworkStatus();
   const [materials, setMaterials] = useState<MaterialWithRelations[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const isLocalChange = useRef(false);
+  const hasSyncedPending = useRef(false);
+
+  // Sync pending actions when coming back online
+  const syncPendingActions = useCallback(async () => {
+    if (!user || !isOnline || hasSyncedPending.current) return;
+    
+    const pendingActions = getPendingActions();
+    if (pendingActions.length === 0) return;
+    
+    hasSyncedPending.current = true;
+    
+    for (const action of pendingActions) {
+      if (action.table !== 'study_materials' && action.table !== 'lessons') continue;
+      
+      try {
+        if (action.type === 'add') {
+          await supabase.from(action.table).insert(action.data);
+        } else if (action.type === 'update') {
+          await supabase.from(action.table).update(action.data.updates).eq('id', action.data.id);
+        } else if (action.type === 'delete') {
+          await supabase.from(action.table).delete().eq('id', action.data.id);
+        }
+        removePendingAction(action.id);
+      } catch (error) {
+        console.error('Error syncing pending action:', error);
+      }
+    }
+    
+    toast({
+      title: "تمت المزامنة",
+      description: "تم حفظ التغييرات المعلقة",
+    });
+  }, [user, isOnline]);
+
+  useEffect(() => {
+    if (isOnline) {
+      hasSyncedPending.current = false;
+      syncPendingActions();
+    }
+  }, [isOnline, syncPendingActions]);
 
   const fetchMaterials = useCallback(async (showLoading = true) => {
     if (!user) {
       setMaterials([]);
+      setIsLoading(false);
+      return;
+    }
+
+    // If offline, use cached data
+    if (!isOnline) {
+      const cached = getCachedMaterials();
+      if (cached) {
+        setMaterials(cached);
+      }
       setIsLoading(false);
       return;
     }
@@ -49,6 +102,11 @@ export function useStudyDataSupabase() {
 
     if (materialsError) {
       console.error('Error fetching materials:', materialsError);
+      // Fallback to cache on error
+      const cached = getCachedMaterials();
+      if (cached) {
+        setMaterials(cached);
+      }
       setIsLoading(false);
       return;
     }
@@ -90,8 +148,10 @@ export function useStudyDataSupabase() {
     }));
 
     setMaterials(materialsWithRelations);
+    // Cache for offline use
+    cacheMaterials(materialsWithRelations);
     setIsLoading(false);
-  }, [user]);
+  }, [user, isOnline]);
 
   useEffect(() => {
     fetchMaterials();
