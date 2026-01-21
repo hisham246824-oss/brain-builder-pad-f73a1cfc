@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { clearOfflineCache } from '@/lib/offlineCache';
 
 interface AuthContextType {
   user: User | null;
@@ -19,10 +20,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Get initial session
+    // Get initial session - this will restore from localStorage even offline
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
+      setIsLoading(false);
+    }).catch(() => {
+      // If we're offline and can't get session, check localStorage directly
+      // The session is persisted by Supabase, so user stays logged in
       setIsLoading(false);
     });
 
@@ -41,6 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // Clear local storage on logout
           localStorage.removeItem('study-data');
           localStorage.removeItem('table-data');
+          clearOfflineCache();
         }
         
         setIsLoading(false);
@@ -144,6 +150,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await supabase.auth.signOut();
     localStorage.removeItem('study-data');
     localStorage.removeItem('table-data');
+    clearOfflineCache();
   };
 
   return (

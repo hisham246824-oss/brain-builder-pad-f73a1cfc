@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
+import { useNetworkStatus } from '@/hooks/useNetworkStatus';
+import { cacheVocabulary, getCachedVocabulary, addPendingAction, getPendingActions, removePendingAction } from '@/lib/offlineCache';
 
 export interface VocabularyWord {
   id: string;
@@ -13,14 +15,62 @@ export interface VocabularyWord {
 
 export function useVocabulary() {
   const { user } = useAuth();
+  const { isOnline } = useNetworkStatus();
   const [words, setWords] = useState<VocabularyWord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const isLocalChange = useRef(false);
+  const hasSyncedPending = useRef(false);
+
+  // Sync pending vocabulary actions when coming back online
+  const syncPendingActions = useCallback(async () => {
+    if (!user || !isOnline || hasSyncedPending.current) return;
+    
+    const pendingActions = getPendingActions();
+    const vocabActions = pendingActions.filter(a => a.table === 'vocabulary');
+    if (vocabActions.length === 0) return;
+    
+    hasSyncedPending.current = true;
+    
+    for (const action of vocabActions) {
+      try {
+        if (action.type === 'add') {
+          await supabase.from('vocabulary').insert(action.data);
+        } else if (action.type === 'delete') {
+          await supabase.from('vocabulary').delete().eq('id', action.data.id);
+        }
+        removePendingAction(action.id);
+      } catch (error) {
+        console.error('Error syncing vocabulary action:', error);
+      }
+    }
+    
+    toast({
+      title: "تمت المزامنة",
+      description: "تم حفظ المفردات المعلقة",
+    });
+  }, [user, isOnline]);
+
+  useEffect(() => {
+    if (isOnline) {
+      hasSyncedPending.current = false;
+      syncPendingActions();
+    }
+  }, [isOnline, syncPendingActions]);
 
   const fetchWords = useCallback(async () => {
     if (!user) {
       setWords([]);
+      setIsLoading(false);
+      return;
+    }
+
+    // If offline, use cached data
+    if (!isOnline) {
+      const cached = getCachedVocabulary();
+      if (cached) {
+        setWords(cached);
+      }
       setIsLoading(false);
       return;
     }
@@ -34,11 +84,18 @@ export function useVocabulary() {
 
     if (error) {
       console.error('Error fetching vocabulary:', error);
+      // Fallback to cache on error
+      const cached = getCachedVocabulary();
+      if (cached) {
+        setWords(cached);
+      }
     } else {
       setWords(data || []);
+      // Cache for offline use
+      cacheVocabulary(data || []);
     }
     setIsLoading(false);
-  }, [user]);
+  }, [user, isOnline]);
 
   useEffect(() => {
     fetchWords();
