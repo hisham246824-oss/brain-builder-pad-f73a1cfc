@@ -66,9 +66,30 @@ export function FileListSupabase({ files, materialId, onFileAdded, onFileDeleted
     }
   };
 
-  const openFile = (file: UploadedFile) => {
-    // Open file directly in new tab
-    window.open(file.file_url, '_blank');
+  const openFile = async (fileData: UploadedFile) => {
+    // Try to use Web Share API for native "Open with" on mobile
+    if (navigator.share && navigator.canShare) {
+      try {
+        // Fetch the file to create a shareable blob
+        const response = await fetch(fileData.file_url);
+        const blob = await response.blob();
+        const shareFile = new window.File([blob], fileData.name, { type: blob.type });
+        
+        if (navigator.canShare({ files: [shareFile] })) {
+          await navigator.share({
+            files: [shareFile],
+            title: fileData.name,
+          });
+          return;
+        }
+      } catch (error) {
+        // If share fails or user cancels, fall back to opening in new tab
+        console.log('Share cancelled or failed, opening in new tab');
+      }
+    }
+    
+    // Fallback: Open file directly in new tab
+    window.open(fileData.file_url, '_blank');
   };
 
   return (
