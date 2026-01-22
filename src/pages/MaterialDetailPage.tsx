@@ -15,7 +15,7 @@ export default function MaterialDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { getMaterial, isLoading, addLesson, toggleLesson, deleteLesson, deleteMaterial, updateMaterialIcon, refetch } = useStudyDataSupabase();
+  const { getMaterial, isLoading, addLesson, toggleLesson, deleteLesson, deleteMaterial, updateMaterialIcon, updateLessonNotes, refetch } = useStudyDataSupabase();
   const [activeTab, setActiveTab] = useState<'lessons' | 'files'>('lessons');
   const [showIconSelector, setShowIconSelector] = useState(false);
 
@@ -202,10 +202,11 @@ export default function MaterialDetailPage() {
               {material.lessons.map((lesson, index) => (
                 <LessonItem
                   key={lesson.id}
-                  lesson={{ ...lesson, createdAt: Date.now() }}
+                  lesson={lesson}
                   materialColor={materialColor}
                   onToggle={() => toggleLesson(material.id, lesson.id)}
                   onDelete={() => deleteLesson(material.id, lesson.id)}
+                  onUpdateNotes={(notes) => updateLessonNotes(material.id, lesson.id, notes)}
                   index={index}
                 />
               ))}

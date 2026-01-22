@@ -2,7 +2,9 @@ export interface Lesson {
   id: string;
   title: string;
   completed: boolean;
-  createdAt: number;
+  position?: number | null;
+  notes?: string | null;
+  createdAt?: number;
 }
 
 export interface StudyFile {

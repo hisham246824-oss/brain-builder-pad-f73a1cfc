@@ -57,6 +57,8 @@ export default function MaterialsPage() {
         id: l.id,
         title: l.title,
         completed: l.completed,
+        position: l.position,
+        notes: l.notes,
         createdAt: Date.now(),
       })),
       files: m.files.map(f => ({

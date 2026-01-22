@@ -15,6 +15,7 @@ export interface MaterialWithRelations {
     title: string;
     completed: boolean;
     position: number | null;
+    notes: string | null;
   }[];
   files: {
     id: string;
@@ -369,6 +370,43 @@ export function useStudyDataSupabase() {
     }
   }, [user, fetchMaterials]);
 
+  const updateLessonNotes = useCallback(async (materialId: string, lessonId: string, notes: string) => {
+    if (!user) return;
+
+    // Optimistic update
+    setMaterials(prev => prev.map(m => 
+      m.id === materialId 
+        ? { 
+            ...m, 
+            lessons: m.lessons.map(l => 
+              l.id === lessonId ? { ...l, notes } : l
+            ) 
+          }
+        : m
+    ));
+
+    if (!isOnline) {
+      // Queue for later sync
+      addPendingAction({
+        type: 'update',
+        table: 'lessons',
+        data: { id: lessonId, updates: { notes } },
+      });
+      return;
+    }
+
+    const { error } = await supabase
+      .from('lessons')
+      .update({ notes })
+      .eq('id', lessonId)
+      .eq('user_id', user.id);
+
+    if (error) {
+      console.error('Error updating lesson notes:', error);
+      fetchMaterials();
+    }
+  }, [user, isOnline, fetchMaterials]);
+
   const getMaterial = useCallback((id: string) => {
     return materials.find(m => m.id === id);
   }, [materials]);
@@ -382,6 +420,7 @@ export function useStudyDataSupabase() {
     addLesson,
     toggleLesson,
     deleteLesson,
+    updateLessonNotes,
     getMaterial,
     refetch: fetchMaterials,
   };
