@@ -407,6 +407,50 @@ export function useStudyDataSupabase() {
     }
   }, [user, isOnline, fetchMaterials]);
 
+  const reorderLessons = useCallback(async (materialId: string, lessonIds: string[]) => {
+    if (!user) return;
+
+    // Optimistic update
+    setMaterials(prev => prev.map(m => {
+      if (m.id !== materialId) return m;
+      
+      const reorderedLessons = lessonIds.map((id, index) => {
+        const lesson = m.lessons.find(l => l.id === id);
+        return lesson ? { ...lesson, position: index } : null;
+      }).filter(Boolean) as typeof m.lessons;
+      
+      return { ...m, lessons: reorderedLessons };
+    }));
+
+    if (!isOnline) {
+      // Queue for later sync
+      lessonIds.forEach((id, index) => {
+        addPendingAction({
+          type: 'update',
+          table: 'lessons',
+          data: { id, updates: { position: index } },
+        });
+      });
+      return;
+    }
+
+    // Update positions in database
+    const updates = lessonIds.map((id, index) => 
+      supabase
+        .from('lessons')
+        .update({ position: index })
+        .eq('id', id)
+        .eq('user_id', user.id)
+    );
+
+    try {
+      await Promise.all(updates);
+    } catch (error) {
+      console.error('Error reordering lessons:', error);
+      fetchMaterials();
+    }
+  }, [user, isOnline, fetchMaterials]);
+
   const getMaterial = useCallback((id: string) => {
     return materials.find(m => m.id === id);
   }, [materials]);
@@ -421,6 +465,7 @@ export function useStudyDataSupabase() {
     toggleLesson,
     deleteLesson,
     updateLessonNotes,
+    reorderLessons,
     getMaterial,
     refetch: fetchMaterials,
   };

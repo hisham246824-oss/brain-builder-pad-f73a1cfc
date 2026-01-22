@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Trash2, CheckCircle2, Circle, BookOpen, FolderOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { LessonItem } from '@/components/lessons/LessonItem';
+import { SortableLessonList } from '@/components/lessons/SortableLessonList';
 import { AddLessonForm } from '@/components/lessons/AddLessonForm';
 import { FileListSupabase } from '@/components/materials/FileListSupabase';
 import { IconSelector, getMaterialIcon } from '@/components/materials/IconSelector';
@@ -15,7 +15,7 @@ export default function MaterialDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { getMaterial, isLoading, addLesson, toggleLesson, deleteLesson, deleteMaterial, updateMaterialIcon, updateLessonNotes, refetch } = useStudyDataSupabase();
+  const { getMaterial, isLoading, addLesson, toggleLesson, deleteLesson, deleteMaterial, updateMaterialIcon, updateLessonNotes, reorderLessons, refetch } = useStudyDataSupabase();
   const [activeTab, setActiveTab] = useState<'lessons' | 'files'>('lessons');
   const [showIconSelector, setShowIconSelector] = useState(false);
 
@@ -198,19 +198,15 @@ export default function MaterialDetailPage() {
             exit={{ opacity: 0, x: 20 }}
             className="space-y-3"
           >
-            <AnimatePresence mode="popLayout">
-              {material.lessons.map((lesson, index) => (
-                <LessonItem
-                  key={lesson.id}
-                  lesson={lesson}
-                  materialColor={materialColor}
-                  onToggle={() => toggleLesson(material.id, lesson.id)}
-                  onDelete={() => deleteLesson(material.id, lesson.id)}
-                  onUpdateNotes={(notes) => updateLessonNotes(material.id, lesson.id, notes)}
-                  index={index}
-                />
-              ))}
-            </AnimatePresence>
+            <SortableLessonList
+              lessons={material.lessons}
+              materialId={material.id}
+              materialColor={materialColor}
+              onToggle={(lessonId) => toggleLesson(material.id, lessonId)}
+              onDelete={(lessonId) => deleteLesson(material.id, lessonId)}
+              onUpdateNotes={(lessonId, notes) => updateLessonNotes(material.id, lessonId, notes)}
+              onReorder={(lessonIds) => reorderLessons(material.id, lessonIds)}
+            />
 
             <AddLessonForm onAdd={(title) => addLesson(material.id, title)} />
           </motion.div>
