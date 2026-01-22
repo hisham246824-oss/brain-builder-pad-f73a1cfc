@@ -44,6 +44,7 @@ export type Database = {
           created_at: string
           id: string
           material_id: string
+          notes: string | null
           position: number | null
           title: string
           updated_at: string
@@ -54,6 +55,7 @@ export type Database = {
           created_at?: string
           id?: string
           material_id: string
+          notes?: string | null
           position?: number | null
           title: string
           updated_at?: string
@@ -64,6 +66,7 @@ export type Database = {
           created_at?: string
           id?: string
           material_id?: string
+          notes?: string | null
           position?: number | null
           title?: string
           updated_at?: string

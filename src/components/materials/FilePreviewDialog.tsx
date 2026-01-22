@@ -14,7 +14,7 @@ interface FilePreviewDialogProps {
   } | null;
 }
 
-const SUPPORTED_PREVIEW_TYPES = ['pdf', 'jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'txt'];
+const SUPPORTED_PREVIEW_TYPES = ['pdf', 'jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'txt', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx'];
 
 export function FilePreviewDialog({ isOpen, onClose, file }: FilePreviewDialogProps) {
   const [zoom, setZoom] = useState(1);
@@ -27,7 +27,13 @@ export function FilePreviewDialog({ isOpen, onClose, file }: FilePreviewDialogPr
   const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(fileType);
   const isPdf = fileType === 'pdf';
   const isTxt = fileType === 'txt';
+  const isOfficeDoc = ['doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx'].includes(fileType);
   const canPreview = SUPPORTED_PREVIEW_TYPES.includes(fileType);
+  
+  // Google Docs Viewer URL for Office documents
+  const googleViewerUrl = isOfficeDoc 
+    ? `https://docs.google.com/gview?url=${encodeURIComponent(file.file_url)}&embedded=true`
+    : null;
 
   const handleZoomIn = () => setZoom(prev => Math.min(prev + 0.25, 3));
   const handleZoomOut = () => setZoom(prev => Math.max(prev - 0.25, 0.5));
@@ -148,6 +154,12 @@ export function FilePreviewDialog({ isOpen, onClose, file }: FilePreviewDialogPr
             <iframe
               src={file.file_url}
               className="w-full h-full rounded-lg border bg-white font-mono text-sm"
+              title={file.name}
+            />
+          ) : isOfficeDoc && googleViewerUrl ? (
+            <iframe
+              src={googleViewerUrl}
+              className="w-full h-full rounded-lg border bg-white"
               title={file.name}
             />
           ) : null}

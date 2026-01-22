@@ -89,6 +89,8 @@ export function useStudyData() {
       id: crypto.randomUUID(),
       title,
       completed: false,
+      position: null,
+      notes: null,
       createdAt: Date.now(),
     };
     const materials = data.materials.map((m) =>
