@@ -61,8 +61,8 @@ export function useStudyDataSupabase() {
     }
     
     toast({
-      title: "تمت المزامنة",
-      description: "تم حفظ التغييرات المعلقة",
+      title: "Synced",
+      description: "Pending changes have been saved",
     });
   }, [user, isOnline]);
 
@@ -324,27 +324,68 @@ export function useStudyDataSupabase() {
     const lesson = material?.lessons.find(l => l.id === lessonId);
     if (!lesson) return;
 
-    // Optimistic update
-    setMaterials(prev => prev.map(m => 
-      m.id === materialId 
-        ? { 
-            ...m, 
-            lessons: m.lessons.map(l => 
-              l.id === lessonId ? { ...l, completed: !l.completed } : l
-            ) 
-          }
-        : m
-    ));
+    const newCompleted = !lesson.completed;
 
+    // Optimistic update with reordering
+    setMaterials(prev => prev.map(m => {
+      if (m.id !== materialId) return m;
+      
+      const updatedLessons = m.lessons.map(l => 
+        l.id === lessonId ? { ...l, completed: newCompleted } : l
+      );
+      
+      // Sort: incomplete lessons first, then completed
+      const incompleteLessons = updatedLessons
+        .filter(l => !l.completed)
+        .sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
+      const completedLessons = updatedLessons
+        .filter(l => l.completed)
+        .sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
+      
+      const sortedLessons = [...incompleteLessons, ...completedLessons].map((l, idx) => ({
+        ...l,
+        position: idx,
+      }));
+      
+      return { ...m, lessons: sortedLessons };
+    }));
+
+    // Update completion status in database
     const { error } = await supabase
       .from('lessons')
-      .update({ completed: !lesson.completed })
+      .update({ completed: newCompleted })
       .eq('id', lessonId)
       .eq('user_id', user.id);
 
     if (error) {
       console.error('Error toggling lesson:', error);
       fetchMaterials();
+      return;
+    }
+
+    // Update positions in database
+    const material2 = materials.find(m => m.id === materialId);
+    if (material2) {
+      const updatedLessons = material2.lessons.map(l => 
+        l.id === lessonId ? { ...l, completed: newCompleted } : l
+      );
+      const incompleteLessons = updatedLessons.filter(l => !l.completed);
+      const completedLessons = updatedLessons.filter(l => l.completed);
+      const sortedLessons = [...incompleteLessons, ...completedLessons];
+      
+      const positionUpdates = sortedLessons.map((l, index) =>
+        supabase
+          .from('lessons')
+          .update({ position: index })
+          .eq('id', l.id)
+          .eq('user_id', user.id)
+      );
+      
+      try {
+        await Promise.all(positionUpdates);
+      } catch (posError) {
+        console.error('Error updating positions:', posError);
+      }
     }
   }, [user, materials, fetchMaterials]);
 
