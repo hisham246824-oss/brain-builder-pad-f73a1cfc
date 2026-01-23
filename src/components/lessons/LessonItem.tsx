@@ -147,25 +147,22 @@ export function LessonItem({ lesson, materialColor, onToggle, onDelete, onUpdate
             className="overflow-hidden"
           >
             <div className="px-4 pb-4 pt-0">
-              <div className="rounded-xl bg-background border border-border p-3">
+              <div className="rounded-2xl bg-gradient-to-br from-background to-muted/20 border border-border/50 p-4 shadow-inner">
                 <Textarea
                   value={notes}
                   onChange={(e) => handleNotesChange(e.target.value)}
-                  placeholder="أضف ملاحظاتك هنا..."
-                  className="min-h-[100px] resize-none border-0 bg-transparent p-0 focus-visible:ring-0 text-sm"
+                  placeholder="Add your notes here..."
+                  className="min-h-[100px] resize-none border-0 bg-transparent p-0 focus-visible:ring-0 text-sm leading-relaxed"
                   dir="auto"
                 />
-                <div className="flex items-center justify-between mt-2 pt-2 border-t border-border/50">
-                  <span className="text-xs text-muted-foreground">
-                    {isSaving ? 'جاري الحفظ...' : notes ? 'تم الحفظ تلقائياً' : ''}
-                  </span>
+                <div className="flex items-center justify-end mt-3 pt-3 border-t border-border/30">
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setIsExpanded(false)}
-                    className="h-7 text-xs"
+                    className="h-8 px-4 text-xs font-medium hover:bg-muted/50 rounded-lg"
                   >
-                    إخفاء
+                    Hide
                   </Button>
                 </div>
               </div>
