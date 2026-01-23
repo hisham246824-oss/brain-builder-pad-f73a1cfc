@@ -12,6 +12,7 @@ import TableCreatorPage from "./pages/TableCreatorPage";
 import PomodoroPage from "./pages/PomodoroPage";
 import VocabularyPage from "./pages/VocabularyPage";
 import FlashcardsPage from "./pages/FlashcardsPage";
+import AIChatPage from "./pages/AIChatPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,6 +33,7 @@ const App = () => (
               <Route path="/pomodoro" element={<PomodoroPage />} />
               <Route path="/vocabulary" element={<VocabularyPage />} />
               <Route path="/flashcards" element={<FlashcardsPage />} />
+              <Route path="/ai-chat" element={<AIChatPage />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
