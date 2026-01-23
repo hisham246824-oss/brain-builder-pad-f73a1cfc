@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookOpen, Home, X, GraduationCap, Table2, Timer, BookA, User, LogOut } from 'lucide-react';
+import { BookOpen, Home, X, GraduationCap, Table2, Timer, BookA, User, LogOut, Bot } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useAuth } from '@/contexts/AuthContext';
 import { AuthDialog } from '@/components/auth/AuthDialog';
@@ -14,6 +14,7 @@ const navItems = [
   { to: '/', icon: Home, label: 'Home' },
   { to: '/materials', icon: BookOpen, label: 'Study Materials' },
   { to: '/vocabulary', icon: BookA, label: 'Vocabulary' },
+  { to: '/ai-chat', icon: Bot, label: 'AI Study Chat' },
   { to: '/table-creator', icon: Table2, label: 'Create Table' },
   { to: '/pomodoro', icon: Timer, label: 'Pomodoro Timer' },
 ];
