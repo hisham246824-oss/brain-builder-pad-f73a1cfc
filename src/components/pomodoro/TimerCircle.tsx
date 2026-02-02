@@ -9,10 +9,17 @@ interface TimerCircleProps {
 }
 
 export function TimerCircle({ minutes, seconds, totalSeconds, remainingSeconds, color }: TimerCircleProps) {
-  const progress = totalSeconds > 0 ? remainingSeconds / totalSeconds : 1;
   const circumference = 2 * Math.PI * 140;
-  // Progress goes from 0 to circumference as time decreases (clockwise from top)
-  const strokeDashoffset = circumference * progress;
+  
+  // Calculate how much of the circle should be visible
+  // When timer hasn't started (remaining === total), show full circle
+  // As time passes, the colored part disappears clockwise from the start point
+  const elapsed = totalSeconds - remainingSeconds;
+  const elapsedRatio = totalSeconds > 0 ? elapsed / totalSeconds : 0;
+  
+  // strokeDashoffset: 0 = full circle, circumference = empty circle
+  // We start with full circle and increase offset as time passes
+  const strokeDashoffset = circumference * elapsedRatio;
 
   return (
     <div className="relative flex items-center justify-center">
@@ -29,8 +36,9 @@ export function TimerCircle({ minutes, seconds, totalSeconds, remainingSeconds, 
           fill="none"
           stroke="hsl(var(--secondary))"
           strokeWidth="12"
+          className="opacity-50"
         />
-        {/* Progress circle - starts from top, goes clockwise */}
+        {/* Progress circle - colored part that disappears as time passes */}
         <motion.circle
           cx="160"
           cy="160"
@@ -40,9 +48,11 @@ export function TimerCircle({ minutes, seconds, totalSeconds, remainingSeconds, 
           strokeWidth="12"
           strokeLinecap="round"
           strokeDasharray={circumference}
-          initial={{ strokeDashoffset: 0 }}
           animate={{ strokeDashoffset }}
-          transition={{ duration: 0.5, ease: 'easeInOut' }}
+          transition={{ 
+            duration: 0.8, 
+            ease: [0.4, 0, 0.2, 1]
+          }}
           style={{ transformOrigin: 'center' }}
         />
       </svg>
@@ -51,8 +61,9 @@ export function TimerCircle({ minutes, seconds, totalSeconds, remainingSeconds, 
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <motion.span
           key={`${minutes}:${seconds}`}
-          initial={{ scale: 1.05, opacity: 0.8 }}
+          initial={{ scale: 1.02, opacity: 0.9 }}
           animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.2, ease: 'easeOut' }}
           className="text-6xl font-bold tabular-nums text-foreground"
           style={{ direction: 'ltr' }}
         >

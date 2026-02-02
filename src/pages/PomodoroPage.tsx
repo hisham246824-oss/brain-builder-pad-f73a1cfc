@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Settings } from 'lucide-react';
+import { ChevronLeft, Settings } from 'lucide-react';
 import { TimerCircle } from '@/components/pomodoro/TimerCircle';
 import { ModeSelector } from '@/components/pomodoro/ModeSelector';
 import { TimerControls } from '@/components/pomodoro/TimerControls';
@@ -133,17 +133,44 @@ export default function PomodoroPage() {
       <AnimatedBackground color={currentColor} />
       
       <div className="flex h-screen">
+        {/* Toggle Button - Fixed to left edge */}
+        <motion.div
+          className="fixed top-1/2 -translate-y-1/2 z-20"
+          animate={{ left: isPanelVisible ? 'calc(50% - 16px)' : '0px' }}
+          transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+        >
+          <Button
+            variant="secondary"
+            size="icon"
+            onClick={() => setIsPanelVisible(!isPanelVisible)}
+            className="h-12 w-8 rounded-l-none rounded-r-lg shadow-lg border-l-0"
+          >
+            <motion.div
+              animate={{ rotate: isPanelVisible ? 0 : 180 }}
+              transition={{ duration: 0.3 }}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </motion.div>
+          </Button>
+        </motion.div>
+
         {/* Left Panel - Sounds & Settings */}
-        <AnimatePresence>
+        <AnimatePresence mode="wait">
           {isPanelVisible && (
             <motion.div
               initial={{ width: 0, opacity: 0 }}
               animate={{ width: '50%', opacity: 1 }}
               exit={{ width: 0, opacity: 0 }}
-              transition={{ duration: 0.3, ease: 'easeInOut' }}
+              transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
               className="h-full bg-card/60 backdrop-blur-md border-r border-border/50 overflow-hidden"
             >
-              <div className="h-full flex flex-col p-6 overflow-hidden">
+              <motion.div 
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3, delay: 0.1 }}
+                className="h-full flex flex-col p-6 overflow-hidden"
+              >
                 <h2 className="text-2xl font-bold text-foreground mb-6">Focus Zone</h2>
                 
                 {/* Nature Sounds */}
@@ -160,50 +187,22 @@ export default function PomodoroPage() {
                     currentMode={mode}
                   />
                 </div>
-              </div>
+              </motion.div>
             </motion.div>
           )}
         </AnimatePresence>
-
-        {/* Toggle Button */}
-        <div className="absolute left-0 top-1/2 -translate-y-1/2 z-10">
-          <motion.div
-            animate={{ left: isPanelVisible ? 'calc(50% - 16px)' : '0px' }}
-            transition={{ duration: 0.3 }}
-            className="relative"
-            style={{ left: isPanelVisible ? 'calc(50% - 16px)' : '0px' }}
-          >
-            <Button
-              variant="secondary"
-              size="icon"
-              onClick={() => setIsPanelVisible(!isPanelVisible)}
-              className="h-12 w-8 rounded-l-none rounded-r-lg shadow-lg"
-              style={{ 
-                position: 'fixed',
-                left: isPanelVisible ? 'calc(50% - 1px)' : '0px',
-                transition: 'left 0.3s ease-in-out'
-              }}
-            >
-              {isPanelVisible ? (
-                <ChevronLeft className="h-4 w-4" />
-              ) : (
-                <ChevronRight className="h-4 w-4" />
-              )}
-            </Button>
-          </motion.div>
-        </div>
 
         {/* Right Panel - Timer */}
         <motion.div
           animate={{ 
             width: isPanelVisible ? '50%' : '100%',
-            paddingLeft: isPanelVisible ? '0' : '0'
           }}
-          transition={{ duration: 0.3, ease: 'easeInOut' }}
+          transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
           className="flex flex-col items-center justify-center p-8"
         >
           <motion.div
             layout
+            transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
             className="flex flex-col items-center gap-8"
           >
             <TimerCircle
