@@ -182,6 +182,39 @@ export type Database = {
           },
         ]
       }
+      pomodoro_settings: {
+        Row: {
+          alarm_sound: string
+          created_at: string
+          id: string
+          long_break_color: string
+          short_break_color: string
+          study_color: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          alarm_sound?: string
+          created_at?: string
+          id?: string
+          long_break_color?: string
+          short_break_color?: string
+          study_color?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          alarm_sound?: string
+          created_at?: string
+          id?: string
+          long_break_color?: string
+          short_break_color?: string
+          study_color?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

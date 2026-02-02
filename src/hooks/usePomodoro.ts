@@ -8,7 +8,7 @@ const modeDurations: Record<TimerMode, number> = {
   longBreak: 15 * 60,
 };
 
-const playChime = () => {
+const playAlarmSound = (soundType: string) => {
   const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
   
   const playTone = (time: number, frequency: number, duration: number, volume: number = 0.25) => {
@@ -29,17 +29,53 @@ const playChime = () => {
   };
 
   const now = audioContext.currentTime;
-  
-  // Musical chime
-  playTone(now, 523.25, 0.8, 0.25);
-  playTone(now + 0.3, 659.25, 0.8, 0.25);
-  playTone(now + 0.6, 783.99, 0.8, 0.25);
-  playTone(now + 0.9, 1046.5, 1.2, 0.3);
+
+  switch (soundType) {
+    case 'chime':
+      // Musical chime - ascending
+      playTone(now, 523.25, 0.8, 0.25);
+      playTone(now + 0.3, 659.25, 0.8, 0.25);
+      playTone(now + 0.6, 783.99, 0.8, 0.25);
+      playTone(now + 0.9, 1046.5, 1.2, 0.3);
+      break;
+    case 'bell':
+      // Bell sound - rich harmonics
+      playTone(now, 440, 1.5, 0.3);
+      playTone(now, 880, 1.2, 0.15);
+      playTone(now, 1320, 0.8, 0.1);
+      playTone(now + 1.5, 440, 1.5, 0.25);
+      break;
+    case 'digital':
+      // Digital beeps
+      for (let i = 0; i < 4; i++) {
+        playTone(now + i * 0.3, 1000, 0.15, 0.3);
+      }
+      break;
+    case 'gentle':
+      // Gentle soft tones
+      playTone(now, 392, 1.5, 0.15);
+      playTone(now + 0.5, 440, 1.5, 0.15);
+      playTone(now + 1, 494, 2, 0.2);
+      break;
+    case 'nature':
+      // Nature-inspired - wind chime effect
+      const frequencies = [523.25, 587.33, 659.25, 698.46, 783.99];
+      frequencies.forEach((freq, i) => {
+        playTone(now + i * 0.2, freq, 1.2, 0.15);
+      });
+      break;
+    default:
+      // Default chime
+      playTone(now, 523.25, 0.8, 0.25);
+      playTone(now + 0.3, 659.25, 0.8, 0.25);
+      playTone(now + 0.6, 783.99, 0.8, 0.25);
+      playTone(now + 0.9, 1046.5, 1.2, 0.3);
+  }
   
   setTimeout(() => audioContext.close(), 4000);
 };
 
-export function usePomodoro() {
+export function usePomodoro(alarmSound: string = 'chime') {
   const [mode, setMode] = useState<TimerMode>('study');
   const [remainingSeconds, setRemainingSeconds] = useState(modeDurations.study);
   const [isRunning, setIsRunning] = useState(false);
@@ -57,13 +93,13 @@ export function usePomodoro() {
       }, 1000);
     } else if (remainingSeconds === 0 && isRunning) {
       setIsRunning(false);
-      playChime();
+      playAlarmSound(alarmSound);
     }
 
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [isRunning, remainingSeconds]);
+  }, [isRunning, remainingSeconds, alarmSound]);
 
   const changeMode = useCallback((newMode: TimerMode) => {
     setMode(newMode);
