@@ -1,68 +1,91 @@
 import { motion } from 'framer-motion';
+import { useMemo } from 'react';
 
 interface AnimatedBackgroundProps {
   color: string;
 }
 
 export function AnimatedBackground({ color }: AnimatedBackgroundProps) {
+  // Memoize orb configs to prevent recreation on each render
+  const orbs = useMemo(() => [
+    {
+      size: 'w-[500px] h-[500px]',
+      opacity: 0.15,
+      position: { left: '5%', top: '10%' },
+      animation: {
+        x: [0, 80, 0],
+        y: [0, -40, 0],
+        scale: [1, 1.15, 1],
+      },
+      duration: 20,
+    },
+    {
+      size: 'w-[400px] h-[400px]',
+      opacity: 0.12,
+      position: { right: '10%', bottom: '15%' },
+      animation: {
+        x: [0, -60, 0],
+        y: [0, 50, 0],
+        scale: [1.1, 0.95, 1.1],
+      },
+      duration: 18,
+    },
+    {
+      size: 'w-[350px] h-[350px]',
+      opacity: 0.1,
+      position: { left: '35%', top: '55%' },
+      animation: {
+        x: [0, 40, 0],
+        y: [0, 60, 0],
+        scale: [1, 1.2, 1],
+      },
+      duration: 22,
+    },
+    {
+      size: 'w-[300px] h-[300px]',
+      opacity: 0.08,
+      position: { right: '25%', top: '20%' },
+      animation: {
+        x: [0, -30, 0],
+        y: [0, -30, 0],
+        scale: [0.95, 1.1, 0.95],
+      },
+      duration: 25,
+    },
+  ], []);
+
   return (
-    <div className="fixed inset-0 -z-10 overflow-hidden">
-      {/* Base gradient */}
+    <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+      {/* Base gradient that follows the color */}
       <motion.div
-        className="absolute inset-0 transition-colors duration-1000"
-        style={{
-          background: `radial-gradient(ellipse at 50% 50%, ${color}15 0%, transparent 70%)`,
+        className="absolute inset-0"
+        animate={{
+          background: `radial-gradient(ellipse at 50% 50%, ${color}20 0%, transparent 70%)`,
         }}
+        transition={{ duration: 1.5, ease: 'easeInOut' }}
       />
       
       {/* Floating orbs */}
-      <motion.div
-        className="absolute w-96 h-96 rounded-full blur-3xl opacity-20"
-        style={{ backgroundColor: color }}
-        animate={{
-          x: [0, 100, 0],
-          y: [0, -50, 0],
-          scale: [1, 1.2, 1],
-        }}
-        transition={{
-          duration: 15,
-          repeat: Infinity,
-          ease: 'easeInOut',
-        }}
-        initial={{ left: '10%', top: '20%' }}
-      />
-      
-      <motion.div
-        className="absolute w-80 h-80 rounded-full blur-3xl opacity-15"
-        style={{ backgroundColor: color }}
-        animate={{
-          x: [0, -80, 0],
-          y: [0, 60, 0],
-          scale: [1.1, 0.9, 1.1],
-        }}
-        transition={{
-          duration: 12,
-          repeat: Infinity,
-          ease: 'easeInOut',
-        }}
-        initial={{ right: '15%', bottom: '25%' }}
-      />
-      
-      <motion.div
-        className="absolute w-64 h-64 rounded-full blur-3xl opacity-10"
-        style={{ backgroundColor: color }}
-        animate={{
-          x: [0, 50, 0],
-          y: [0, 80, 0],
-          scale: [1, 1.3, 1],
-        }}
-        transition={{
-          duration: 18,
-          repeat: Infinity,
-          ease: 'easeInOut',
-        }}
-        initial={{ left: '40%', top: '60%' }}
-      />
+      {orbs.map((orb, index) => (
+        <motion.div
+          key={index}
+          className={`absolute ${orb.size} rounded-full blur-3xl`}
+          style={{ 
+            ...orb.position,
+            opacity: orb.opacity,
+          }}
+          animate={{
+            ...orb.animation,
+            backgroundColor: color,
+          }}
+          transition={{
+            backgroundColor: { duration: 1.5, ease: 'easeInOut' },
+            x: { duration: orb.duration, repeat: Infinity, ease: 'easeInOut' },
+            y: { duration: orb.duration, repeat: Infinity, ease: 'easeInOut' },
+            scale: { duration: orb.duration, repeat: Infinity, ease: 'easeInOut' },
+          }}
+        />
+      ))}
     </div>
   );
 }

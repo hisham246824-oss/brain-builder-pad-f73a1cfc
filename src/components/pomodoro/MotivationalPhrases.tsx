@@ -24,10 +24,13 @@ export function MotivationalPhrases() {
       <AnimatePresence mode="wait">
         <motion.p
           key={currentIndex}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.4, ease: 'easeInOut' }}
+          initial={{ opacity: 0, y: 15, filter: 'blur(4px)' }}
+          animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+          exit={{ opacity: 0, y: -15, filter: 'blur(4px)' }}
+          transition={{ 
+            duration: 0.5, 
+            ease: [0.4, 0, 0.2, 1]
+          }}
           className="text-sm text-muted-foreground text-center italic px-4"
         >
           "{PHRASES[currentIndex]}"
