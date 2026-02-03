@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookOpen, Home, X, GraduationCap, Table2, Timer, BookA, User, LogOut, Bot } from 'lucide-react';
+import { BookOpen, Home, X, GraduationCap, Table2, Timer, BookA, User, LogOut, Bot, Mail } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useAuth } from '@/contexts/AuthContext';
 import { AuthDialog } from '@/components/auth/AuthDialog';
+import { useAdminMessages } from '@/hooks/useAdminMessages';
+import { cn } from '@/lib/utils';
 
 interface AppSidebarProps {
   isOpen: boolean;
@@ -22,11 +24,15 @@ const navItems = [
 export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
   const { user, signOut, isLoading } = useAuth();
   const [showAuthDialog, setShowAuthDialog] = useState(false);
+  const { hasUnread, unreadCount } = useAdminMessages();
 
   const handleSignOut = async () => {
     await signOut();
     onClose();
   };
+
+  // Determine where messages button should appear (at top if unread, else at bottom)
+  const messagesAtTop = hasUnread;
 
   return (
     <>
@@ -65,8 +71,50 @@ export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
                   </button>
                 </div>
 
-                <nav className="flex-1 p-4">
+                <nav className="flex-1 p-4 overflow-y-auto">
                   <ul className="space-y-1">
+                    {/* Messages button at top if has unread */}
+                    {user && messagesAtTop && (
+                      <motion.li
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ 
+                          opacity: 1, 
+                          scale: [1, 1.02, 1],
+                        }}
+                        transition={{
+                          scale: {
+                            repeat: Infinity,
+                            duration: 2,
+                            ease: 'easeInOut'
+                          }
+                        }}
+                      >
+                        <NavLink
+                          to="/messages"
+                          onClick={onClose}
+                          className={cn(
+                            "relative flex items-center gap-3 rounded-xl px-4 py-3 transition-all",
+                            "bg-primary/10 text-primary font-medium",
+                            hasUnread && "animate-pulse"
+                          )}
+                          activeClassName="bg-primary text-primary-foreground"
+                        >
+                          <motion.div
+                            animate={{ rotate: [0, -10, 10, -10, 0] }}
+                            transition={{ repeat: Infinity, duration: 0.5, repeatDelay: 2 }}
+                          >
+                            <Mail className="h-5 w-5" />
+                          </motion.div>
+                          <span>Messages</span>
+                          {unreadCount > 0 && (
+                            <span className="absolute left-4 top-1/2 -translate-y-1/2 flex h-5 min-w-5 items-center justify-center rounded-full bg-destructive px-1.5 text-xs font-bold text-destructive-foreground">
+                              {unreadCount}
+                            </span>
+                          )}
+                        </NavLink>
+                      </motion.li>
+                    )}
+
                     {navItems.map((item) => (
                       <li key={item.to}>
                         <NavLink
@@ -80,6 +128,21 @@ export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
                         </NavLink>
                       </li>
                     ))}
+
+                    {/* Messages button at bottom if no unread */}
+                    {user && !messagesAtTop && (
+                      <li>
+                        <NavLink
+                          to="/messages"
+                          onClick={onClose}
+                          className="flex items-center gap-3 rounded-xl px-4 py-3 text-sidebar-foreground/80 transition-all hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                          activeClassName="bg-sidebar-accent text-sidebar-primary font-medium"
+                        >
+                          <Mail className="h-5 w-5" />
+                          <span>Messages</span>
+                        </NavLink>
+                      </li>
+                    )}
                   </ul>
                 </nav>
 
