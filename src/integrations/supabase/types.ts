@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          sender_id: string | null
+          title: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          sender_id?: string | null
+          title?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          sender_id?: string | null
+          title?: string | null
+        }
+        Relationships: []
+      }
       ai_chat_conversations: {
         Row: {
           created_at: string
@@ -182,6 +206,62 @@ export type Database = {
           },
         ]
       }
+      message_reads: {
+        Row: {
+          id: string
+          liked: boolean | null
+          message_id: string
+          read_at: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          liked?: boolean | null
+          message_id: string
+          read_at?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          liked?: boolean | null
+          message_id?: string
+          read_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_reads_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "admin_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      page_visits: {
+        Row: {
+          duration_seconds: number | null
+          id: string
+          page_path: string
+          user_id: string | null
+          visited_at: string
+        }
+        Insert: {
+          duration_seconds?: number | null
+          id?: string
+          page_path: string
+          user_id?: string | null
+          visited_at?: string
+        }
+        Update: {
+          duration_seconds?: number | null
+          id?: string
+          page_path?: string
+          user_id?: string | null
+          visited_at?: string
+        }
+        Relationships: []
+      }
       pomodoro_settings: {
         Row: {
           alarm_sound: string
@@ -272,6 +352,65 @@ export type Database = {
         }
         Relationships: []
       }
+      suggestion_votes: {
+        Row: {
+          created_at: string
+          id: string
+          suggestion_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          suggestion_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          suggestion_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "suggestion_votes_suggestion_id_fkey"
+            columns: ["suggestion_id"]
+            isOneToOne: false
+            referencedRelation: "suggestions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      suggestions: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          id?: string
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_activity: {
         Row: {
           activity_date: string
@@ -295,6 +434,27 @@ export type Database = {
           count?: number | null
           created_at?: string
           id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
         }
         Relationships: []
@@ -459,13 +619,26 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_user_role: {
+        Args: { _user_id: string }
+        Returns: Database["public"]["Enums"]["app_role"]
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       increment_activity: {
         Args: { p_activity_type: string; p_user_id: string }
         Returns: undefined
       }
+      is_admin: { Args: { _user_id: string }; Returns: boolean }
+      is_super_admin: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "super_admin" | "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -592,6 +765,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["super_admin", "admin", "user"],
+    },
   },
 } as const

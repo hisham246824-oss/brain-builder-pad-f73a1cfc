@@ -1,11 +1,15 @@
 import { useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import { Header } from './Header';
 import { AppSidebar } from './AppSidebar';
 import { OfflineIndicator } from '@/components/OfflineIndicator';
+import { usePageVisitTracking } from '@/hooks/usePageVisitTracking';
 
 export function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  
+  // Track page visits for admin statistics
+  usePageVisitTracking();
 
   return (
     <div className="min-h-screen bg-background">
