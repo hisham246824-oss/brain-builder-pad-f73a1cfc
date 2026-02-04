@@ -1,10 +1,13 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Mail, Lock, User } from 'lucide-react';
+import { X, Mail, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+
+// Protected admin email - cannot be used for signup
+const ADMIN_EMAIL = 'h246824@gmail.com';
 
 interface AuthDialogProps {
   isOpen: boolean;
@@ -25,11 +28,18 @@ export function AuthDialog({ isOpen, onClose }: AuthDialogProps) {
     setIsSubmitting(true);
     
     if (mode === 'signup') {
+      // Prevent registration with admin email
+      if (email.toLowerCase().trim() === ADMIN_EMAIL.toLowerCase()) {
+        toast.error('This email address is not available for registration');
+        setIsSubmitting(false);
+        return;
+      }
+      
       const { error } = await signUp(email, password);
       if (error) {
         toast.error(error.message || 'Failed to create account');
       } else {
-        toast.success('Account created successfully!');
+        toast.success('Account created! Please check your email to verify your account.');
         onClose();
       }
     } else {

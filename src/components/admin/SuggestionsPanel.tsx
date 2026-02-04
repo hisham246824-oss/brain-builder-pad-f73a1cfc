@@ -69,21 +69,21 @@ export function SuggestionsPanel({
         return (
           <span className="inline-flex items-center gap-1 rounded-full bg-green-500/10 px-2 py-0.5 text-xs font-medium text-green-600">
             <Check className="h-3 w-3" />
-            مقبول
+            Accepted
           </span>
         );
       case 'rejected':
         return (
           <span className="inline-flex items-center gap-1 rounded-full bg-red-500/10 px-2 py-0.5 text-xs font-medium text-red-600">
             <X className="h-3 w-3" />
-            مرفوض
+            Rejected
           </span>
         );
       default:
         return (
           <span className="inline-flex items-center gap-1 rounded-full bg-yellow-500/10 px-2 py-0.5 text-xs font-medium text-yellow-600">
             <Lightbulb className="h-3 w-3" />
-            قيد المراجعة
+            Under Review
           </span>
         );
     }
@@ -106,15 +106,15 @@ export function SuggestionsPanel({
         animate={{ opacity: 1, y: 0 }}
         className="text-2xl font-bold text-foreground"
       >
-        اقتراحات المستخدمين
+        User Suggestions
       </motion.h2>
 
       {suggestions.length === 0 ? (
         <div className="rounded-xl bg-secondary/50 p-12 text-center">
           <Lightbulb className="mx-auto h-16 w-16 text-muted-foreground" />
-          <p className="mt-4 text-lg text-muted-foreground">لا توجد اقتراحات بعد</p>
+          <p className="mt-4 text-lg text-muted-foreground">No suggestions yet</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            سيظهر هنا اقتراحات المستخدمين عندما يقومون بإرسالها
+            User suggestions will appear here when submitted
           </p>
         </div>
       ) : (
@@ -150,15 +150,15 @@ export function SuggestionsPanel({
                         <div className="mt-4 flex items-center gap-4 text-sm text-muted-foreground">
                           <div className="flex items-center gap-1.5">
                             <User className="h-4 w-4" />
-                            {suggestion.user_display_name || 'مستخدم'}
+                            {suggestion.user_display_name || 'User'}
                           </div>
                           <div className="flex items-center gap-1.5">
                             <Calendar className="h-4 w-4" />
-                            {new Date(suggestion.created_at).toLocaleDateString('ar-EG')}
+                            {new Date(suggestion.created_at).toLocaleDateString()}
                           </div>
                           <div className="flex items-center gap-1.5">
                             <ThumbsUp className="h-4 w-4" />
-                            {suggestion.votes_count} تصويت
+                            {suggestion.votes_count} votes
                           </div>
                         </div>
                       </div>
@@ -184,7 +184,7 @@ export function SuggestionsPanel({
                           variant="default"
                         >
                           <Check className="h-4 w-4" />
-                          قبول الاقتراح
+                          Accept Suggestion
                         </Button>
                         <Button
                           onClick={() => {
@@ -195,7 +195,7 @@ export function SuggestionsPanel({
                           variant="outline"
                         >
                           <X className="h-4 w-4" />
-                          رفض
+                          Reject
                         </Button>
                       </div>
                     )}
@@ -218,22 +218,22 @@ export function SuggestionsPanel({
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {actionType === 'accept' ? 'تأكيد قبول الاقتراح' : 'تأكيد رفض الاقتراح'}
+              {actionType === 'accept' ? 'Confirm Acceptance' : 'Confirm Rejection'}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {actionType === 'accept' 
-                ? 'سيتم إرسال رسالة شكر تلقائية للمستخدم عند قبول اقتراحه.'
-                : 'هل أنت متأكد من رفض هذا الاقتراح؟ سيتم حذفه نهائياً.'
+                ? 'A thank you message will be automatically sent to the user when their suggestion is accepted.'
+                : 'Are you sure you want to reject this suggestion? It will be permanently deleted.'
               }
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>إلغاء</AlertDialogCancel>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleAction}
               className={actionType === 'reject' ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90' : ''}
             >
-              {actionType === 'accept' ? 'قبول' : 'رفض'}
+              {actionType === 'accept' ? 'Accept' : 'Reject'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

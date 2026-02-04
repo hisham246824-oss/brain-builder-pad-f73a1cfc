@@ -22,19 +22,20 @@ interface StatisticsPanelProps {
 }
 
 const pageNameMap: Record<string, string> = {
-  '/': 'الصفحة الرئيسية',
-  '/materials': 'المواد الدراسية',
-  '/vocabulary': 'المفردات',
-  '/flashcards': 'البطاقات التعليمية',
-  '/pomodoro': 'مؤقت بومودورو',
-  '/table-creator': 'منشئ الجداول',
-  '/ai-chat': 'الدردشة الذكية',
+  '/': 'Home',
+  '/materials': 'Study Materials',
+  '/vocabulary': 'Vocabulary',
+  '/flashcards': 'Flashcards',
+  '/pomodoro': 'Pomodoro Timer',
+  '/table-creator': 'Table Creator',
+  '/ai-chat': 'AI Chat',
+  '/messages': 'Messages',
 };
 
 function formatDuration(seconds: number): string {
-  if (seconds < 60) return `${seconds} ثانية`;
-  if (seconds < 3600) return `${Math.round(seconds / 60)} دقيقة`;
-  return `${Math.round(seconds / 3600)} ساعة`;
+  if (seconds < 60) return `${seconds} sec`;
+  if (seconds < 3600) return `${Math.round(seconds / 60)} min`;
+  return `${Math.round(seconds / 3600)} hr`;
 }
 
 export function StatisticsPanel({ stats, isLoading }: StatisticsPanelProps) {
@@ -54,28 +55,28 @@ export function StatisticsPanel({ stats, isLoading }: StatisticsPanelProps) {
 
   const statCards = [
     {
-      title: 'إجمالي المستخدمين',
+      title: 'Total Users',
       value: stats?.totalUsers || 0,
       icon: Users,
       color: 'text-blue-500',
       bgColor: 'bg-blue-500/10',
     },
     {
-      title: 'نشطون اليوم',
+      title: 'Active Today',
       value: stats?.activeToday || 0,
       icon: Activity,
       color: 'text-green-500',
       bgColor: 'bg-green-500/10',
     },
     {
-      title: 'المواد الدراسية',
+      title: 'Study Materials',
       value: stats?.totalMaterials || 0,
       icon: BookOpen,
       color: 'text-purple-500',
       bgColor: 'bg-purple-500/10',
     },
     {
-      title: 'الدروس',
+      title: 'Lessons',
       value: stats?.totalLessons || 0,
       icon: GraduationCap,
       color: 'text-orange-500',
@@ -90,7 +91,7 @@ export function StatisticsPanel({ stats, isLoading }: StatisticsPanelProps) {
         animate={{ opacity: 1, y: 0 }}
         className="text-2xl font-bold text-foreground"
       >
-        الإحصائيات العامة
+        General Statistics
       </motion.h2>
 
       {/* Stat Cards */}
@@ -108,7 +109,7 @@ export function StatisticsPanel({ stats, isLoading }: StatisticsPanelProps) {
                   <div>
                     <p className="text-sm text-muted-foreground">{stat.title}</p>
                     <p className="mt-1 text-3xl font-bold text-foreground">
-                      {stat.value.toLocaleString('ar-EG')}
+                      {stat.value.toLocaleString()}
                     </p>
                   </div>
                   <div className={`rounded-xl p-3 ${stat.bgColor}`}>
@@ -133,7 +134,7 @@ export function StatisticsPanel({ stats, isLoading }: StatisticsPanelProps) {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <TrendingUp className="h-5 w-5 text-primary" />
-                الصفحات الأكثر زيارة
+                Most Visited Pages
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -158,13 +159,13 @@ export function StatisticsPanel({ stats, isLoading }: StatisticsPanelProps) {
                         </div>
                       </div>
                       <span className="text-sm text-muted-foreground">
-                        {page.visits} زيارة
+                        {page.visits} visits
                       </span>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-center text-muted-foreground">لا توجد بيانات بعد</p>
+                <p className="text-center text-muted-foreground">No data yet</p>
               )}
             </CardContent>
           </Card>
@@ -180,7 +181,7 @@ export function StatisticsPanel({ stats, isLoading }: StatisticsPanelProps) {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Clock className="h-5 w-5 text-primary" />
-                أطول مدة تصفح
+                Longest Session Duration
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -211,7 +212,7 @@ export function StatisticsPanel({ stats, isLoading }: StatisticsPanelProps) {
                   ))}
                 </div>
               ) : (
-                <p className="text-center text-muted-foreground">لا توجد بيانات بعد</p>
+                <p className="text-center text-muted-foreground">No data yet</p>
               )}
             </CardContent>
           </Card>
