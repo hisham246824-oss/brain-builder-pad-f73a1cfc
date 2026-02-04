@@ -14,7 +14,6 @@ export default function MessagesPage() {
   const { 
     messages, 
     isLoading, 
-    markAsRead, 
     toggleLike,
     markAllAsRead 
   } = useAdminMessages();
@@ -26,10 +25,10 @@ export default function MessagesPage() {
 
   if (isLoading) {
     return (
-      <div className="space-y-6" dir="rtl">
+      <div className="space-y-6">
         <div className="flex items-center gap-3">
           <Mail className="h-8 w-8 text-primary" />
-          <h1 className="text-2xl font-bold text-foreground">الرسائل</h1>
+          <h1 className="text-2xl font-bold text-foreground">Messages</h1>
         </div>
         <div className="space-y-4">
           {[...Array(3)].map((_, i) => (
@@ -41,7 +40,7 @@ export default function MessagesPage() {
   }
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6">
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -51,9 +50,9 @@ export default function MessagesPage() {
           <Mail className="h-6 w-6 text-primary-foreground" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-foreground">رسائل من الإدارة</h1>
+          <h1 className="text-2xl font-bold text-foreground">Messages from Admin</h1>
           <p className="text-sm text-muted-foreground">
-            {messages.length} رسالة
+            {messages.length} {messages.length === 1 ? 'message' : 'messages'}
           </p>
         </div>
       </motion.div>
@@ -65,9 +64,9 @@ export default function MessagesPage() {
           className="rounded-2xl bg-secondary/50 p-12 text-center"
         >
           <Mail className="mx-auto h-16 w-16 text-muted-foreground" />
-          <p className="mt-4 text-lg font-medium text-foreground">لا توجد رسائل</p>
+          <p className="mt-4 text-lg font-medium text-foreground">No messages</p>
           <p className="mt-1 text-muted-foreground">
-            ستظهر هنا الرسائل من إدارة الموقع
+            Messages from the site admin will appear here
           </p>
         </motion.div>
       ) : (
@@ -92,9 +91,9 @@ export default function MessagesPage() {
                     {/* Message bubble effect */}
                     <div className="relative">
                       {/* Gradient accent */}
-                      <div className="absolute right-0 top-0 h-full w-1 gradient-primary" />
+                      <div className="absolute left-0 top-0 h-full w-1 gradient-primary" />
                       
-                      <div className="p-5 pr-6">
+                      <div className="p-5 pl-6">
                         {/* Header */}
                         <div className="flex items-start justify-between gap-4">
                           <div className="flex items-center gap-3">
@@ -103,11 +102,11 @@ export default function MessagesPage() {
                             </div>
                             <div>
                               <h3 className="font-semibold text-foreground">
-                                {message.title || 'رسالة من الإدارة'}
+                                {message.title || 'Message from Admin'}
                               </h3>
                               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                                 <Calendar className="h-3 w-3" />
-                                {new Date(message.created_at).toLocaleDateString('ar-EG', {
+                                {new Date(message.created_at).toLocaleDateString('en-US', {
                                   year: 'numeric',
                                   month: 'long',
                                   day: 'numeric',
@@ -121,7 +120,7 @@ export default function MessagesPage() {
                           {message.isRead && (
                             <div className="flex items-center gap-1 rounded-full bg-green-500/10 px-2 py-1 text-xs text-green-600">
                               <Check className="h-3 w-3" />
-                              تمت القراءة
+                              Read
                             </div>
                           )}
                         </div>
@@ -146,7 +145,7 @@ export default function MessagesPage() {
                                 message.isLiked ? 'fill-current' : ''
                               }`} 
                             />
-                            {message.isLiked ? 'أعجبني' : 'إعجاب'}
+                            {message.isLiked ? 'Liked' : 'Like'}
                           </Button>
                         </div>
                       </div>

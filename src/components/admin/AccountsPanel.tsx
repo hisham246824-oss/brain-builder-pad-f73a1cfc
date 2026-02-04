@@ -6,7 +6,7 @@ import {
   Shield, 
   ShieldAlert,
   Trash2,
-  ChevronLeft,
+  ChevronRight,
   Send,
   MessageSquare,
   Eye,
@@ -114,11 +114,11 @@ export function AccountsPanel({
   const getRoleName = (role: string) => {
     switch (role) {
       case 'super_admin':
-        return 'المشرف الرئيسي';
+        return 'Super Admin';
       case 'admin':
-        return 'مشرف';
+        return 'Admin';
       default:
-        return 'مستخدم';
+        return 'User';
     }
   };
 
@@ -140,7 +140,7 @@ export function AccountsPanel({
           animate={{ opacity: 1, y: 0 }}
           className="text-2xl font-bold text-foreground"
         >
-          إدارة الحسابات
+          Account Management
         </motion.h2>
 
         <div className="flex gap-2">
@@ -150,19 +150,19 @@ export function AccountsPanel({
             variant="outline"
           >
             <Send className="h-4 w-4" />
-            رسالة جماعية
+            Broadcast Message
           </Button>
         </div>
       </div>
 
       {/* Search */}
       <div className="relative">
-        <Search className="absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+        <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
         <Input
-          placeholder="البحث عن مستخدم..."
+          placeholder="Search for a user..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="pr-10"
+          className="pl-10"
         />
       </div>
 
@@ -178,17 +178,17 @@ export function AccountsPanel({
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <MessageSquare className="h-5 w-5" />
-                  إرسال رسالة لجميع المستخدمين
+                  Send Message to All Users
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <Input
-                  placeholder="عنوان الرسالة (اختياري)"
+                  placeholder="Message title (optional)"
                   value={broadcastTitle}
                   onChange={(e) => setBroadcastTitle(e.target.value)}
                 />
                 <Textarea
-                  placeholder="محتوى الرسالة..."
+                  placeholder="Message content..."
                   value={broadcastContent}
                   onChange={(e) => setBroadcastContent(e.target.value)}
                   rows={4}
@@ -198,7 +198,7 @@ export function AccountsPanel({
                     variant="outline"
                     onClick={() => setShowBroadcast(false)}
                   >
-                    إلغاء
+                    Cancel
                   </Button>
                   <Button
                     onClick={handleSendBroadcast}
@@ -206,7 +206,7 @@ export function AccountsPanel({
                     className="gap-2"
                   >
                     <Send className="h-4 w-4" />
-                    إرسال
+                    Send
                   </Button>
                 </div>
               </CardContent>
@@ -246,7 +246,7 @@ export function AccountsPanel({
                         {user.display_name?.charAt(0) || user.email?.charAt(0) || '?'}
                       </div>
                     )}
-                    <div className="absolute -bottom-1 -left-1 rounded-full bg-card p-0.5">
+                    <div className="absolute -bottom-1 -right-1 rounded-full bg-card p-0.5">
                       {getRoleIcon(user.role)}
                     </div>
                   </div>
@@ -254,17 +254,17 @@ export function AccountsPanel({
                   {/* Info */}
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-foreground truncate">
-                      {user.display_name || 'مستخدم'}
+                      {user.display_name || 'User'}
                     </p>
                     <p className="text-sm text-muted-foreground truncate">
                       {user.email}
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">
-                      {getRoleName(user.role)} • انضم {new Date(user.created_at).toLocaleDateString('ar-EG')}
+                      {getRoleName(user.role)} • Joined {new Date(user.created_at).toLocaleDateString()}
                     </p>
                   </div>
 
-                  <ChevronLeft className={cn(
+                  <ChevronRight className={cn(
                     'h-5 w-5 text-muted-foreground transition-transform',
                     selectedUser?.id === user.id && 'rotate-90'
                   )} />
@@ -282,11 +282,11 @@ export function AccountsPanel({
                       <div className="flex flex-wrap gap-2">
                         <Button variant="outline" size="sm" className="gap-2">
                           <Eye className="h-4 w-4" />
-                          عرض النشاط
+                          View Activity
                         </Button>
                         <Button variant="outline" size="sm" className="gap-2">
                           <MessageSquare className="h-4 w-4" />
-                          رسالة خاصة
+                          Private Message
                         </Button>
                         
                         {isSuperAdmin && user.role !== 'super_admin' && (
@@ -302,7 +302,7 @@ export function AccountsPanel({
                                 className="gap-2 text-orange-600 hover:text-orange-700"
                               >
                                 <ShieldAlert className="h-4 w-4" />
-                                إزالة الصلاحيات
+                                Remove Admin
                               </Button>
                             ) : (
                               <Button
@@ -315,7 +315,7 @@ export function AccountsPanel({
                                 className="gap-2 text-blue-600 hover:text-blue-700"
                               >
                                 <Shield className="h-4 w-4" />
-                                ترقية لمشرف
+                                Promote to Admin
                               </Button>
                             )}
                             
@@ -329,7 +329,7 @@ export function AccountsPanel({
                               className="gap-2"
                             >
                               <Trash2 className="h-4 w-4" />
-                              حذف الحساب
+                              Delete Account
                             </Button>
                           </>
                         )}
@@ -345,7 +345,7 @@ export function AccountsPanel({
         {filteredUsers.length === 0 && (
           <div className="rounded-xl bg-secondary/50 p-8 text-center">
             <UserCircle className="mx-auto h-12 w-12 text-muted-foreground" />
-            <p className="mt-2 text-muted-foreground">لا توجد نتائج</p>
+            <p className="mt-2 text-muted-foreground">No results found</p>
           </div>
         )}
       </div>
@@ -354,19 +354,19 @@ export function AccountsPanel({
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>تأكيد حذف الحساب</AlertDialogTitle>
+            <AlertDialogTitle>Confirm Account Deletion</AlertDialogTitle>
             <AlertDialogDescription>
-              هل أنت متأكد من حذف حساب "{selectedUser?.display_name || selectedUser?.email}"؟
-              سيتم حذف جميع بياناته بشكل نهائي ولن يمكن استرجاعها.
+              Are you sure you want to delete the account "{selectedUser?.display_name || selectedUser?.email}"?
+              All data will be permanently deleted and cannot be recovered.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>إلغاء</AlertDialogCancel>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteUser}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              حذف نهائياً
+              Delete Permanently
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -376,26 +376,26 @@ export function AccountsPanel({
       <AlertDialog open={promoteDialogOpen} onOpenChange={setPromoteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>تأكيد ترقية المستخدم</AlertDialogTitle>
+            <AlertDialogTitle>Confirm User Promotion</AlertDialogTitle>
             <AlertDialogDescription>
-              لترقية "{selectedUser?.display_name || selectedUser?.email}" إلى مشرف، 
-              يرجى إدخال كلمة مرور حسابك للتأكيد.
+              To promote "{selectedUser?.display_name || selectedUser?.email}" to admin, 
+              please enter your password to confirm.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <Input
             type="password"
-            placeholder="كلمة المرور"
+            placeholder="Your password"
             value={adminPassword}
             onChange={(e) => setAdminPassword(e.target.value)}
             className="mt-2"
           />
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setAdminPassword('')}>إلغاء</AlertDialogCancel>
+            <AlertDialogCancel onClick={() => setAdminPassword('')}>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handlePromoteUser}
               disabled={!adminPassword}
             >
-              تأكيد الترقية
+              Confirm Promotion
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

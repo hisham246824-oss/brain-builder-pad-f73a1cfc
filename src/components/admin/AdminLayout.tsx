@@ -25,9 +25,9 @@ export function AdminLayout({ children, activeTab, onTabChange }: AdminLayoutPro
   const { isSuperAdmin } = useUserRole();
 
   const tabs = [
-    { id: 'statistics' as const, label: 'الإحصائيات', icon: BarChart3 },
-    { id: 'accounts' as const, label: 'الحسابات', icon: Users },
-    { id: 'suggestions' as const, label: 'الاقتراحات', icon: Lightbulb },
+    { id: 'statistics' as const, label: 'Statistics', icon: BarChart3 },
+    { id: 'accounts' as const, label: 'Accounts', icon: Users },
+    { id: 'suggestions' as const, label: 'Suggestions', icon: Lightbulb },
   ];
 
   const handleSignOut = async () => {
@@ -35,7 +35,7 @@ export function AdminLayout({ children, activeTab, onTabChange }: AdminLayoutPro
   };
 
   return (
-    <div className="min-h-screen bg-background" dir="rtl">
+    <div className="min-h-screen bg-background">
       {/* Mobile Header */}
       <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur-lg lg:hidden">
         <div className="flex h-16 items-center justify-between px-4">
@@ -47,22 +47,22 @@ export function AdminLayout({ children, activeTab, onTabChange }: AdminLayoutPro
           </button>
           <div className="flex items-center gap-2">
             <Shield className="h-5 w-5 text-primary" />
-            <span className="font-semibold">لوحة التحكم</span>
+            <span className="font-semibold">Admin Panel</span>
           </div>
         </div>
       </header>
 
       {/* Desktop Sidebar */}
-      <aside className="fixed right-0 top-0 z-30 hidden h-screen w-64 border-l border-border bg-card lg:block">
+      <aside className="fixed left-0 top-0 z-30 hidden h-screen w-64 border-r border-border bg-card lg:block">
         <div className="flex h-full flex-col">
           <div className="flex h-16 items-center gap-3 border-b border-border px-6">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl gradient-primary">
               <Shield className="h-5 w-5 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="font-bold text-foreground">لوحة التحكم</h1>
+              <h1 className="font-bold text-foreground">Admin Panel</h1>
               <p className="text-xs text-muted-foreground">
-                {isSuperAdmin ? 'المشرف الرئيسي' : 'مشرف'}
+                {isSuperAdmin ? 'Super Admin' : 'Admin'}
               </p>
             </div>
           </div>
@@ -73,7 +73,7 @@ export function AdminLayout({ children, activeTab, onTabChange }: AdminLayoutPro
                 key={tab.id}
                 onClick={() => onTabChange(tab.id)}
                 className={cn(
-                  'flex w-full items-center gap-3 rounded-xl px-4 py-3 text-right transition-all',
+                  'flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left transition-all',
                   activeTab === tab.id
                     ? 'bg-primary text-primary-foreground'
                     : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
@@ -87,7 +87,7 @@ export function AdminLayout({ children, activeTab, onTabChange }: AdminLayoutPro
 
           <div className="border-t border-border p-4">
             <div className="mb-4 rounded-xl bg-secondary/50 p-3">
-              <p className="text-xs text-muted-foreground">مسجل الدخول كـ</p>
+              <p className="text-xs text-muted-foreground">Logged in as</p>
               <p className="truncate text-sm font-medium text-foreground">
                 {user?.email}
               </p>
@@ -97,7 +97,7 @@ export function AdminLayout({ children, activeTab, onTabChange }: AdminLayoutPro
               className="flex w-full items-center justify-center gap-2 rounded-xl bg-destructive/10 px-4 py-3 text-destructive transition-all hover:bg-destructive hover:text-destructive-foreground"
             >
               <LogOut className="h-4 w-4" />
-              <span>تسجيل الخروج</span>
+              <span>Sign Out</span>
             </button>
           </div>
         </div>
@@ -115,17 +115,17 @@ export function AdminLayout({ children, activeTab, onTabChange }: AdminLayoutPro
               onClick={() => setSidebarOpen(false)}
             />
             <motion.aside
-              initial={{ x: '100%' }}
+              initial={{ x: '-100%' }}
               animate={{ x: 0 }}
-              exit={{ x: '100%' }}
+              exit={{ x: '-100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed right-0 top-0 z-50 h-screen w-72 bg-card shadow-xl lg:hidden"
+              className="fixed left-0 top-0 z-50 h-screen w-72 bg-card shadow-xl lg:hidden"
             >
               <div className="flex h-full flex-col">
                 <div className="flex h-16 items-center justify-between border-b border-border px-4">
                   <div className="flex items-center gap-2">
                     <Shield className="h-5 w-5 text-primary" />
-                    <span className="font-semibold">لوحة التحكم</span>
+                    <span className="font-semibold">Admin Panel</span>
                   </div>
                   <button
                     onClick={() => setSidebarOpen(false)}
@@ -144,7 +144,7 @@ export function AdminLayout({ children, activeTab, onTabChange }: AdminLayoutPro
                         setSidebarOpen(false);
                       }}
                       className={cn(
-                        'flex w-full items-center gap-3 rounded-xl px-4 py-3 text-right transition-all',
+                        'flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left transition-all',
                         activeTab === tab.id
                           ? 'bg-primary text-primary-foreground'
                           : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
@@ -162,7 +162,7 @@ export function AdminLayout({ children, activeTab, onTabChange }: AdminLayoutPro
                     className="flex w-full items-center justify-center gap-2 rounded-xl bg-destructive/10 px-4 py-3 text-destructive"
                   >
                     <LogOut className="h-4 w-4" />
-                    <span>تسجيل الخروج</span>
+                    <span>Sign Out</span>
                   </button>
                 </div>
               </div>
@@ -172,7 +172,7 @@ export function AdminLayout({ children, activeTab, onTabChange }: AdminLayoutPro
       </AnimatePresence>
 
       {/* Main Content */}
-      <main className="lg:mr-64">
+      <main className="lg:ml-64">
         <div className="mx-auto max-w-6xl p-4 md:p-6 lg:p-8">
           {children}
         </div>
