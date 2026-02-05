@@ -16,6 +16,7 @@ import FlashcardsPage from "./pages/FlashcardsPage";
 import AIChatPage from "./pages/AIChatPage";
 import MessagesPage from "./pages/MessagesPage";
 import AdminDashboard from "./pages/AdminDashboard";
+import SettingsPage from "./pages/SettingsPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -104,6 +105,7 @@ function AppRoutes() {
         <Route path="/flashcards" element={<FlashcardsPage />} />
         <Route path="/ai-chat" element={<AIChatPage />} />
         <Route path="/messages" element={<MessagesPage />} />
+        <Route path="/settings" element={<SettingsPage />} />
       </Route>
       
       <Route path="*" element={<NotFound />} />
