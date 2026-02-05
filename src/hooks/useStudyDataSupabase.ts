@@ -60,10 +60,7 @@ export function useStudyDataSupabase() {
       }
     }
     
-    toast({
-      title: "Synced",
-      description: "Pending changes have been saved",
-    });
+    // Silent sync - no toast notification
   }, [user, isOnline]);
 
   useEffect(() => {
@@ -167,12 +164,8 @@ export function useStudyDataSupabase() {
         isLocalChange.current = false;
         return;
       }
-      // Fetch without showing loading state for realtime updates
+      // Fetch without showing loading state for realtime updates - silent sync
       fetchMaterials(false);
-      toast({
-        title: "Data synced",
-        description: `Your ${tableName} updated from another device`,
-      });
     };
 
     const materialsChannel = supabase

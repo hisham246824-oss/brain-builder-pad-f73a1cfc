@@ -7,7 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
 // Protected admin email - cannot be used for signup
-const ADMIN_EMAIL = 'h246824@gmail.com';
+const ADMIN_EMAIL = 'hisham090807@gmail.com';
 
 interface AuthDialogProps {
   isOpen: boolean;

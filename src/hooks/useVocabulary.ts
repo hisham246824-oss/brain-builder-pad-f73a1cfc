@@ -45,10 +45,7 @@ export function useVocabulary() {
       }
     }
     
-    toast({
-      title: "تمت المزامنة",
-      description: "تم حفظ المفردات المعلقة",
-    });
+    // Silent sync - no toast notification
   }, [user, isOnline]);
 
   useEffect(() => {
@@ -120,11 +117,8 @@ export function useVocabulary() {
             isLocalChange.current = false;
             return;
           }
+          // Silent sync - no toast notification
           fetchWords();
-          toast({
-            title: "Data synced",
-            description: "Your vocabulary updated from another device",
-          });
         }
       )
       .subscribe();

@@ -4,12 +4,16 @@ import { Header } from './Header';
 import { AppSidebar } from './AppSidebar';
 import { OfflineIndicator } from '@/components/OfflineIndicator';
 import { usePageVisitTracking } from '@/hooks/usePageVisitTracking';
+import { useTheme } from '@/hooks/useTheme';
 
 export function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   
   // Track page visits for admin statistics
   usePageVisitTracking();
+  
+  // Apply theme from user settings
+  useTheme();
 
   return (
     <div className="min-h-screen bg-background">

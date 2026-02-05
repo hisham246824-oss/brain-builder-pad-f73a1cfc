@@ -459,6 +459,45 @@ export type Database = {
         }
         Relationships: []
       }
+      user_settings: {
+        Row: {
+          ai_custom_prompt: string | null
+          avatar_color: string | null
+          avatar_icon: string | null
+          created_at: string
+          display_name: string | null
+          id: string
+          sidebar_order: string[] | null
+          theme: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_custom_prompt?: string | null
+          avatar_color?: string | null
+          avatar_icon?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          sidebar_order?: string[] | null
+          theme?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_custom_prompt?: string | null
+          avatar_color?: string | null
+          avatar_icon?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          sidebar_order?: string[] | null
+          theme?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       video_comments: {
         Row: {
           content: string

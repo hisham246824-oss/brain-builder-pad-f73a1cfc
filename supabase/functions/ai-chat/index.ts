@@ -23,34 +23,40 @@ Tone & Language:
 Interaction Goal: Always end your response with a clear "Next Step" or a helpful question.`;
 
 serve(async (req) => {
-  // التعامل مع طلبات Preflight (CORS)
+  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { messages } = await req.json();
+    const { messages, customPrompt } = await req.json();
 
-    // تأكد أن الرسائل موجودة
+    // Validate messages
     if (!messages || !Array.isArray(messages)) {
       throw new Error("Messages are required and must be an array");
     }
 
-    // تنسيق الرسائل لـ Gemini API
+    // Format messages for Gemini API
     const formattedContents = messages.map((msg: { role: string; content: string }) => ({
       role: msg.role === 'assistant' ? 'model' : 'user',
       parts: [{ text: msg.content }]
     }));
 
-    // تجهيز جسم الطلب (Request Body)
+    // Build system prompt with custom user preferences
+    let fullSystemPrompt = SYSTEM_PROMPT;
+    if (customPrompt && typeof customPrompt === 'string' && customPrompt.trim()) {
+      fullSystemPrompt += `\n\nUser Preferences: ${customPrompt.trim()}`;
+    }
+
+    // Build request body
     const requestBody = {
       contents: formattedContents,
       systemInstruction: {
-        parts: [{ text: SYSTEM_PROMPT }]
+        parts: [{ text: fullSystemPrompt }]
       },
       generationConfig: {
         temperature: 0.7,
-        maxOutputTokens: 2000, // قللتها شوي عشان السرعة
+        maxOutputTokens: 2000,
       }
     };
 
@@ -65,7 +71,7 @@ serve(async (req) => {
 
     const data = await response.json();
 
-    // التأكد من وجود رد
+    // Check for errors
     if (data.error) {
       console.error('Gemini API Error details:', data.error);
       throw new Error(data.error.message || 'API Error');

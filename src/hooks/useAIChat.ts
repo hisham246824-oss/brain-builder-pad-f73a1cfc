@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { useUserSettings } from '@/hooks/useUserSettings';
 
 interface Message {
   id: string;
@@ -20,6 +21,7 @@ interface Conversation {
 export function useAIChat() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { settings } = useUserSettings();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [currentConversation, setCurrentConversation] = useState<Conversation | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -145,13 +147,14 @@ export function useAIChat() {
     });
 
     try {
-      // Call AI edge function
+      // Call AI edge function with custom prompt if available
       const response = await supabase.functions.invoke('ai-chat', {
         body: {
           messages: [...messages, userMessage].map(m => ({
             role: m.role,
             content: m.content,
           })),
+          customPrompt: settings?.ai_custom_prompt || undefined,
         },
       });
 
