@@ -118,6 +118,19 @@
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-family: 'DM Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Performance optimizations */
+  .will-change-transform {
+    will-change: transform;
+  }
+
+  /* Reduce layout shifts */
+  img, video {
+    max-width: 100%;
+    height: auto;
   }
 }
 
@@ -140,5 +153,11 @@
 
   .shadow-glow {
     box-shadow: var(--shadow-glow);
+  }
+
+  /* GPU-accelerated transitions */
+  .gpu-accelerated {
+    transform: translateZ(0);
+    backface-visibility: hidden;
   }
 }

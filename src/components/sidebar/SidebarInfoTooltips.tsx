@@ -27,4 +27,8 @@ export const sidebarInfoMap: Record<string, { title: string; description: string
     title: 'Messages',
     description: 'Read announcements and messages from the admin. Like messages and stay updated with the latest news.',
   },
+  suggestions: {
+    title: 'Suggestions',
+    description: 'Share your ideas to improve the platform. Vote on other users\' suggestions and help shape the future of the site.',
+  },
 };

@@ -6,10 +6,14 @@ import {
   Check, 
   X,
   User,
-  Calendar
+  Calendar,
+  Send,
+  Trash2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { 
   AlertDialog,
   AlertDialogAction,
@@ -20,7 +24,16 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 
 interface Suggestion {
   id: string;
@@ -47,8 +60,13 @@ export function SuggestionsPanel({
   onAccept,
   onReject,
 }: SuggestionsPanelProps) {
+  const { user } = useAuth();
   const [selectedSuggestion, setSelectedSuggestion] = useState<Suggestion | null>(null);
   const [actionType, setActionType] = useState<'accept' | 'reject' | null>(null);
+  const [messageTarget, setMessageTarget] = useState<Suggestion | null>(null);
+  const [messageTitle, setMessageTitle] = useState('');
+  const [messageContent, setMessageContent] = useState('');
+  const [isSending, setIsSending] = useState(false);
 
   const handleAction = async () => {
     if (!selectedSuggestion || !actionType) return;
@@ -63,25 +81,49 @@ export function SuggestionsPanel({
     setActionType(null);
   };
 
+  const handleSendMessage = async () => {
+    if (!messageTarget || !messageContent.trim() || !user) return;
+    setIsSending(true);
+    try {
+      const { error } = await supabase
+        .from('admin_messages')
+        .insert({
+          sender_id: user.id,
+          title: messageTitle.trim() || `Re: ${messageTarget.title}`,
+          content: messageContent.trim(),
+        });
+      if (error) throw error;
+      toast.success('Message sent successfully');
+      setMessageTarget(null);
+      setMessageTitle('');
+      setMessageContent('');
+    } catch (err) {
+      console.error('Error sending message:', err);
+      toast.error('Failed to send message');
+    } finally {
+      setIsSending(false);
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'accepted':
         return (
-          <span className="inline-flex items-center gap-1 rounded-full bg-green-500/10 px-2 py-0.5 text-xs font-medium text-green-600">
+          <span className="inline-flex items-center gap-1 rounded-full bg-success/10 px-2 py-0.5 text-xs font-medium text-success">
             <Check className="h-3 w-3" />
             Accepted
           </span>
         );
       case 'rejected':
         return (
-          <span className="inline-flex items-center gap-1 rounded-full bg-red-500/10 px-2 py-0.5 text-xs font-medium text-red-600">
+          <span className="inline-flex items-center gap-1 rounded-full bg-destructive/10 px-2 py-0.5 text-xs font-medium text-destructive">
             <X className="h-3 w-3" />
             Rejected
           </span>
         );
       default:
         return (
-          <span className="inline-flex items-center gap-1 rounded-full bg-yellow-500/10 px-2 py-0.5 text-xs font-medium text-yellow-600">
+          <span className="inline-flex items-center gap-1 rounded-full bg-accent px-2 py-0.5 text-xs font-medium text-accent-foreground">
             <Lightbulb className="h-3 w-3" />
             Under Review
           </span>
@@ -131,7 +173,7 @@ export function SuggestionsPanel({
               >
                 <Card className={cn(
                   'overflow-hidden transition-all',
-                  suggestion.status === 'pending' && 'border-yellow-500/30'
+                  suggestion.status === 'pending' && 'border-primary/30'
                 )}>
                   <CardContent className="p-5">
                     <div className="flex items-start justify-between gap-4">
@@ -172,9 +214,9 @@ export function SuggestionsPanel({
                       </div>
                     </div>
 
-                    {/* Actions for pending suggestions */}
-                    {suggestion.status === 'pending' && (
-                      <div className="mt-4 flex gap-2 border-t border-border pt-4">
+                    {/* Actions */}
+                    <div className="mt-4 flex gap-2 border-t border-border pt-4">
+                      {suggestion.status === 'pending' && (
                         <Button
                           onClick={() => {
                             setSelectedSuggestion(suggestion);
@@ -184,21 +226,29 @@ export function SuggestionsPanel({
                           variant="default"
                         >
                           <Check className="h-4 w-4" />
-                          Accept Suggestion
+                          Accept
                         </Button>
-                        <Button
-                          onClick={() => {
-                            setSelectedSuggestion(suggestion);
-                            setActionType('reject');
-                          }}
-                          className="flex-1 gap-2"
-                          variant="outline"
-                        >
-                          <X className="h-4 w-4" />
-                          Reject
-                        </Button>
-                      </div>
-                    )}
+                      )}
+                      <Button
+                        onClick={() => setMessageTarget(suggestion)}
+                        className="flex-1 gap-2"
+                        variant="outline"
+                      >
+                        <Send className="h-4 w-4" />
+                        Message User
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          setSelectedSuggestion(suggestion);
+                          setActionType('reject');
+                        }}
+                        className="gap-2"
+                        variant="outline"
+                        size="icon"
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -218,12 +268,12 @@ export function SuggestionsPanel({
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {actionType === 'accept' ? 'Confirm Acceptance' : 'Confirm Rejection'}
+              {actionType === 'accept' ? 'Confirm Acceptance' : 'Delete Suggestion'}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {actionType === 'accept' 
                 ? 'A thank you message will be automatically sent to the user when their suggestion is accepted.'
-                : 'Are you sure you want to reject this suggestion? It will be permanently deleted.'
+                : 'Are you sure you want to delete this suggestion? It will be permanently removed.'
               }
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -233,11 +283,50 @@ export function SuggestionsPanel({
               onClick={handleAction}
               className={actionType === 'reject' ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90' : ''}
             >
-              {actionType === 'accept' ? 'Accept' : 'Reject'}
+              {actionType === 'accept' ? 'Accept' : 'Delete'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Send Message Dialog */}
+      <Dialog open={!!messageTarget} onOpenChange={() => setMessageTarget(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Send className="h-5 w-5 text-primary" />
+              Send Message to {messageTarget?.user_display_name || 'User'}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-2">
+            <div>
+              <label className="text-sm font-medium text-foreground mb-1.5 block">Title</label>
+              <Input
+                placeholder="Message title..."
+                value={messageTitle}
+                onChange={(e) => setMessageTitle(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-foreground mb-1.5 block">Message</label>
+              <Textarea
+                placeholder="Write your message..."
+                value={messageContent}
+                onChange={(e) => setMessageContent(e.target.value)}
+                className="min-h-[100px] resize-none"
+              />
+            </div>
+            <Button
+              onClick={handleSendMessage}
+              disabled={!messageContent.trim() || isSending}
+              className="w-full gap-2"
+            >
+              <Send className="h-4 w-4" />
+              {isSending ? 'Sending...' : 'Send Message'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

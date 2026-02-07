@@ -233,46 +233,44 @@ export function useAdminData() {
 
       if (error) throw error;
       
-      toast.success('تم إرسال الرسالة بنجاح');
+      toast.success('Message sent successfully');
       fetchMessages();
       return true;
     } catch (err) {
       console.error('Error sending message:', err);
-      toast.error('فشل في إرسال الرسالة');
+      toast.error('Failed to send message');
       return false;
     }
   };
 
   const deleteUser = async (userId: string) => {
     if (!isSuperAdmin) {
-      toast.error('فقط المشرف الرئيسي يمكنه حذف المستخدمين');
+      toast.error('Only the super admin can delete users');
       return false;
     }
 
     try {
-      // Delete user's data first
       await supabase.from('study_materials').delete().eq('user_id', userId);
       await supabase.from('vocabulary').delete().eq('user_id', userId);
       await supabase.from('profiles').delete().eq('user_id', userId);
       await supabase.from('user_roles').delete().eq('user_id', userId);
 
-      toast.success('تم حذف الحساب بنجاح');
+      toast.success('Account deleted successfully');
       fetchUsers();
       return true;
     } catch (err) {
       console.error('Error deleting user:', err);
-      toast.error('فشل في حذف الحساب');
+      toast.error('Failed to delete account');
       return false;
     }
   };
 
   const promoteToAdmin = async (userId: string, password: string) => {
     if (!isSuperAdmin) {
-      toast.error('فقط المشرف الرئيسي يمكنه ترقية المستخدمين');
+      toast.error('Only the super admin can promote users');
       return false;
     }
 
-    // Verify password by attempting to sign in
     try {
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email: user?.email || '',
@@ -280,11 +278,10 @@ export function useAdminData() {
       });
 
       if (signInError) {
-        toast.error('كلمة المرور غير صحيحة');
+        toast.error('Incorrect password');
         return false;
       }
 
-      // Update role
       const { error } = await supabase
         .from('user_roles')
         .update({ role: 'admin' })
@@ -292,19 +289,19 @@ export function useAdminData() {
 
       if (error) throw error;
 
-      toast.success('تم ترقية المستخدم إلى مشرف');
+      toast.success('User promoted to admin');
       fetchUsers();
       return true;
     } catch (err) {
       console.error('Error promoting user:', err);
-      toast.error('فشل في ترقية المستخدم');
+      toast.error('Failed to promote user');
       return false;
     }
   };
 
   const demoteFromAdmin = async (userId: string) => {
     if (!isSuperAdmin) {
-      toast.error('فقط المشرف الرئيسي يمكنه إزالة صلاحيات المشرف');
+      toast.error('Only the super admin can remove admin privileges');
       return false;
     }
 
@@ -316,18 +313,18 @@ export function useAdminData() {
 
       if (error) throw error;
 
-      toast.success('تم إزالة صلاحيات المشرف');
+      toast.success('Admin privileges removed');
       fetchUsers();
       return true;
     } catch (err) {
       console.error('Error demoting user:', err);
-      toast.error('فشل في إزالة صلاحيات المشرف');
+      toast.error('Failed to remove admin privileges');
       return false;
     }
   };
 
   const acceptSuggestion = async (suggestionId: string, userId: string) => {
-    if (!isAdmin) return false;
+    if (!isAdmin || !user) return false;
 
     try {
       // Update suggestion status
@@ -338,13 +335,21 @@ export function useAdminData() {
 
       if (updateError) throw updateError;
 
-      // Send automatic message to user (we'll handle this via admin messages)
-      toast.success('تم قبول الاقتراح');
+      // Send automatic thank-you message to the user
+      await supabase
+        .from('admin_messages')
+        .insert({
+          sender_id: user.id,
+          title: 'Your suggestion has been accepted! 🎉',
+          content: 'Thank you for your valuable suggestion! We appreciate your contribution to improving the platform. Your idea is now under development and will be implemented soon.',
+        });
+
+      toast.success('Suggestion accepted');
       fetchSuggestions();
       return true;
     } catch (err) {
       console.error('Error accepting suggestion:', err);
-      toast.error('فشل في قبول الاقتراح');
+      toast.error('Failed to accept suggestion');
       return false;
     }
   };
@@ -360,12 +365,12 @@ export function useAdminData() {
 
       if (error) throw error;
 
-      toast.success('تم حذف الاقتراح');
+      toast.success('Suggestion deleted');
       fetchSuggestions();
       return true;
     } catch (err) {
-      console.error('Error rejecting suggestion:', err);
-      toast.error('فشل في حذف الاقتراح');
+      console.error('Error deleting suggestion:', err);
+      toast.error('Failed to delete suggestion');
       return false;
     }
   };
