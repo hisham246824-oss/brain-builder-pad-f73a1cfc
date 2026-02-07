@@ -132,28 +132,7 @@ export default function PomodoroPage() {
     <div className="min-h-screen relative overflow-hidden">
       <AnimatedBackground color={currentColor} />
       
-      <div className="flex h-screen">
-        {/* Toggle Button - Fixed to left edge */}
-        <motion.div
-          className="fixed top-1/2 -translate-y-1/2 z-20"
-          animate={{ left: isPanelVisible ? 'calc(50% - 16px)' : '0px' }}
-          transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-        >
-          <Button
-            variant="secondary"
-            size="icon"
-            onClick={() => setIsPanelVisible(!isPanelVisible)}
-            className="h-12 w-8 rounded-l-none rounded-r-lg shadow-lg border-l-0"
-          >
-            <motion.div
-              animate={{ rotate: isPanelVisible ? 0 : 180 }}
-              transition={{ duration: 0.3 }}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </motion.div>
-          </Button>
-        </motion.div>
-
+      <div className="flex h-screen relative">
         {/* Left Panel - Sounds & Settings */}
         <AnimatePresence mode="wait">
           {isPanelVisible && (
@@ -162,7 +141,7 @@ export default function PomodoroPage() {
               animate={{ width: '50%', opacity: 1 }}
               exit={{ width: 0, opacity: 0 }}
               transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-              className="h-full bg-card/60 backdrop-blur-md border-r border-border/50 overflow-hidden"
+              className="h-full bg-card/60 backdrop-blur-md border-r border-border/50 overflow-hidden relative"
             >
               <motion.div 
                 initial={{ opacity: 0, x: -20 }}
@@ -191,6 +170,25 @@ export default function PomodoroPage() {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Toggle Button - Anchored to the divider line */}
+        <div className="relative z-20">
+          <div className="absolute top-1/2 -translate-y-1/2 left-0">
+            <Button
+              variant="secondary"
+              size="icon"
+              onClick={() => setIsPanelVisible(!isPanelVisible)}
+              className="h-12 w-8 rounded-l-none rounded-r-lg shadow-lg border-l-0"
+            >
+              <motion.div
+                animate={{ rotate: isPanelVisible ? 0 : 180 }}
+                transition={{ duration: 0.3 }}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </motion.div>
+            </Button>
+          </div>
+        </div>
 
         {/* Right Panel - Timer */}
         <motion.div

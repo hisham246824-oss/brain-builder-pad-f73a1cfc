@@ -17,9 +17,20 @@ import AIChatPage from "./pages/AIChatPage";
 import MessagesPage from "./pages/MessagesPage";
 import AdminDashboard from "./pages/AdminDashboard";
 import SettingsPage from "./pages/SettingsPage";
+import SuggestionsPage from "./pages/SuggestionsPage";
 import NotFound from "./pages/NotFound";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      gcTime: 1000 * 60 * 10, // 10 minutes
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+      retry: 1,
+    },
+  },
+});
 
 // Admin route guard component
 function AdminRoute({ children }: { children: React.ReactNode }) {
@@ -106,6 +117,7 @@ function AppRoutes() {
         <Route path="/ai-chat" element={<AIChatPage />} />
         <Route path="/messages" element={<MessagesPage />} />
         <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/suggestions" element={<SuggestionsPage />} />
       </Route>
       
       <Route path="*" element={<NotFound />} />
