@@ -18,7 +18,7 @@ const DEFAULT_SETTINGS: Omit<UserSettings, 'id' | 'user_id'> = {
   avatar_color: 'primary',
   avatar_icon: null,
   ai_custom_prompt: null,
-  sidebar_order: ['home', 'materials', 'vocabulary', 'ai-chat', 'table-creator', 'pomodoro', 'messages'],
+  sidebar_order: ['home', 'materials', 'vocabulary', 'ai-chat', 'table-creator', 'pomodoro', 'suggestions', 'messages'],
   theme: 'light',
 };
 
