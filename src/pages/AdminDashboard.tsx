@@ -1,50 +1,51 @@
 import { useState } from 'react';
-import { AdminLayout } from '@/components/admin/AdminLayout';
+import { AdminLayout, type AdminTab } from '@/components/admin/AdminLayout';
 import { StatisticsPanel } from '@/components/admin/StatisticsPanel';
 import { AccountsPanel } from '@/components/admin/AccountsPanel';
 import { SuggestionsPanel } from '@/components/admin/SuggestionsPanel';
+import { MessagesPanel } from '@/components/admin/MessagesPanel';
+import { PollsPanel } from '@/components/admin/PollsPanel';
 import { useAdminData } from '@/hooks/useAdminData';
-
-type AdminTab = 'statistics' | 'accounts' | 'suggestions';
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<AdminTab>('statistics');
   const {
-    users,
-    stats,
-    suggestions,
-    isLoading,
-    sendBroadcastMessage,
-    deleteUser,
-    promoteToAdmin,
-    demoteFromAdmin,
-    acceptSuggestion,
-    rejectSuggestion,
+    users, stats, messages, suggestions, polls, isLoading,
+    sendBroadcastMessage, updateMessage, deleteMessage,
+    createPoll, deletePoll, togglePollActive,
+    deleteUser, promoteToAdmin, demoteFromAdmin,
+    acceptSuggestion, rejectSuggestion, fetchUserActivity, refreshData,
   } = useAdminData();
 
   return (
-    <AdminLayout activeTab={activeTab} onTabChange={setActiveTab}>
-      {activeTab === 'statistics' && (
-        <StatisticsPanel stats={stats} isLoading={isLoading} />
-      )}
-      
+    <AdminLayout activeTab={activeTab} onTabChange={setActiveTab} onRefresh={refreshData}>
+      {activeTab === 'statistics' && <StatisticsPanel stats={stats} isLoading={isLoading} />}
       {activeTab === 'accounts' && (
         <AccountsPanel
-          users={users}
-          isLoading={isLoading}
-          onDeleteUser={deleteUser}
-          onPromoteToAdmin={promoteToAdmin}
-          onDemoteFromAdmin={demoteFromAdmin}
-          onSendBroadcast={sendBroadcastMessage}
+          users={users} isLoading={isLoading}
+          onDeleteUser={deleteUser} onPromoteToAdmin={promoteToAdmin}
+          onDemoteFromAdmin={demoteFromAdmin} onSendBroadcast={sendBroadcastMessage}
+          fetchUserActivity={fetchUserActivity}
         />
       )}
-      
+      {activeTab === 'messages' && (
+        <MessagesPanel
+          messages={messages} isLoading={isLoading}
+          onSendBroadcast={sendBroadcastMessage}
+          onUpdateMessage={updateMessage} onDeleteMessage={deleteMessage}
+        />
+      )}
+      {activeTab === 'polls' && (
+        <PollsPanel
+          polls={polls} isLoading={isLoading}
+          onCreatePoll={createPoll} onDeletePoll={deletePoll}
+          onTogglePoll={togglePollActive}
+        />
+      )}
       {activeTab === 'suggestions' && (
         <SuggestionsPanel
-          suggestions={suggestions}
-          isLoading={isLoading}
-          onAccept={acceptSuggestion}
-          onReject={rejectSuggestion}
+          suggestions={suggestions} isLoading={isLoading}
+          onAccept={acceptSuggestion} onReject={rejectSuggestion}
         />
       )}
     </AdminLayout>

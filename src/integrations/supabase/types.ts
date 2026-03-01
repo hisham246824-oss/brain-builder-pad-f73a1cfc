@@ -38,6 +38,33 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_polls: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          options: Json
+          question: string
+          sender_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          options?: Json
+          question: string
+          sender_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          options?: Json
+          question?: string
+          sender_id?: string
+        }
+        Relationships: []
+      }
       ai_chat_conversations: {
         Row: {
           created_at: string
@@ -261,6 +288,38 @@ export type Database = {
           visited_at?: string
         }
         Relationships: []
+      }
+      poll_votes: {
+        Row: {
+          created_at: string
+          id: string
+          option_index: number
+          poll_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          option_index: number
+          poll_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          option_index?: number
+          poll_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "poll_votes_poll_id_fkey"
+            columns: ["poll_id"]
+            isOneToOne: false
+            referencedRelation: "admin_polls"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       pomodoro_settings: {
         Row: {
