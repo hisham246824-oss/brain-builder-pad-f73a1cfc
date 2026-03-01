@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { 
   User, Palette, Bot, Moon, Sun, GripVertical, Check, 
   Star, Heart, Zap, Crown, Flame, Rocket, Diamond,
-  Lock, Eye, EyeOff, ArrowLeft
+  Lock, Eye, EyeOff, ArrowLeft, LogOut
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -51,6 +51,7 @@ const SIDEBAR_LABELS: Record<string, string> = {
   'ai-chat': 'AI Study Chat',
   'table-creator': 'Create Table',
   pomodoro: 'Pomodoro Timer',
+  suggestions: 'Suggestions',
   messages: 'Messages',
 };
 
@@ -92,7 +93,7 @@ function SortableItem({ id }: { id: string }) {
 
 export default function SettingsPage() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const { settings, updateSettings, isLoading, AVATAR_COLORS, AVATAR_ICONS, getAvatarColorClass } = useUserSettings();
   
   const [displayName, setDisplayName] = useState('');
@@ -194,6 +195,11 @@ export default function SettingsPage() {
   const handleSaveSidebarOrder = async () => {
     await updateSettings({ sidebar_order: sidebarOrder });
     toast.success('Sidebar order saved');
+  };
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate('/');
   };
 
   if (isLoading) {
@@ -450,6 +456,30 @@ export default function SettingsPage() {
 
           <Button onClick={handleSaveSidebarOrder} className="w-full mt-4 rounded-xl">
             Save Sidebar Order
+          </Button>
+        </motion.section>
+
+        {/* Logout Section */}
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="bg-card rounded-2xl p-6 shadow-soft"
+        >
+          <div className="flex items-center gap-3 mb-4">
+            <LogOut className="h-5 w-5 text-destructive" />
+            <h2 className="text-lg font-semibold">Account</h2>
+          </div>
+          <p className="text-sm text-muted-foreground mb-4">
+            Sign out of your account on this device.
+          </p>
+          <Button
+            variant="destructive"
+            onClick={handleLogout}
+            className="w-full rounded-xl"
+          >
+            <LogOut className="h-4 w-4 mr-2" />
+            Sign Out
           </Button>
         </motion.section>
       </div>
