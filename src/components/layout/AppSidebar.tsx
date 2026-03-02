@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookOpen, Home, X, GraduationCap, Table2, Timer, BookA, Bot, Mail, Settings, Star, Heart, Zap, Crown, Flame, Rocket, Diamond, Info, ChevronUp, Trash2, MessageSquare, Pencil, Check, Lightbulb } from 'lucide-react';
+import { BookOpen, Home, X, GraduationCap, Table2, Timer, BookA, Bot, Mail, Settings, Star, Heart, Zap, Crown, Flame, Rocket, Diamond, Info, ChevronUp, Trash2, MessageSquare, Pencil, Check, Lightbulb, ListTodo } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useAuth } from '@/contexts/AuthContext';
 import { AuthDialog } from '@/components/auth/AuthDialog';
@@ -25,6 +25,7 @@ const BASE_NAV_ITEMS = [
   { id: 'table-creator', to: '/table-creator', icon: Table2, label: 'Create Table' },
   { id: 'pomodoro', to: '/pomodoro', icon: Timer, label: 'Pomodoro Timer' },
   { id: 'suggestions', to: '/suggestions', icon: Lightbulb, label: 'Suggestions' },
+  { id: 'todos', to: '/todos', icon: ListTodo, label: 'To-Do List' },
   { id: 'messages', to: '/messages', icon: Mail, label: 'Messages' },
 ];
 

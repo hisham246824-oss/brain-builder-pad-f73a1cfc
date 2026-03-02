@@ -60,17 +60,31 @@ function AnimatedHomeBackground() {
   ], []);
 
   return (
-    <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/10" />
+      <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+      {/* Rich gradient base */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-accent/8 to-primary/5 dark:from-primary/15 dark:via-accent/10 dark:to-primary/8" />
+      {/* Secondary gradient sweep */}
+      <motion.div 
+        className="absolute inset-0"
+        animate={{ opacity: [0.3, 0.6, 0.3] }}
+        transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+        style={{ background: 'radial-gradient(ellipse at 30% 20%, hsl(var(--primary) / 0.12) 0%, transparent 60%)' }}
+      />
+      <motion.div 
+        className="absolute inset-0"
+        animate={{ opacity: [0.2, 0.5, 0.2] }}
+        transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 3 }}
+        style={{ background: 'radial-gradient(ellipse at 70% 80%, hsl(var(--primary) / 0.1) 0%, transparent 50%)' }}
+      />
       {orbs.map((orb, i) => (
         <motion.div
           key={i}
-          className={`absolute ${orb.size} rounded-full blur-3xl opacity-[0.07] dark:opacity-[0.12]`}
-          style={{ ...orb.position, backgroundColor: 'hsl(var(--primary))' }}
+          className={`absolute ${orb.size} rounded-full blur-3xl`}
+          style={{ ...orb.position, backgroundColor: 'hsl(var(--primary))', opacity: 0.15 }}
           animate={{
-            x: [0, 40, -20, 0],
-            y: [0, -30, 20, 0],
-            scale: [1, 1.1, 0.95, 1],
+            x: [0, 60, -30, 0],
+            y: [0, -50, 30, 0],
+            scale: [1, 1.2, 0.9, 1],
           }}
           transition={{
             duration: orb.duration,
@@ -81,7 +95,7 @@ function AnimatedHomeBackground() {
         />
       ))}
       {/* Subtle grid pattern */}
-      <div className="absolute inset-0 opacity-[0.015] dark:opacity-[0.03]"
+      <div className="absolute inset-0 opacity-[0.02] dark:opacity-[0.04]"
         style={{
           backgroundImage: `radial-gradient(circle, hsl(var(--foreground)) 1px, transparent 1px)`,
           backgroundSize: '40px 40px',
