@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { toast } from '@/hooks/use-toast';
+import { getPendingActions, setSyncStatus } from '@/lib/offlineCache';
+import { toast } from 'sonner';
 
 export function useNetworkStatus() {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
@@ -8,10 +9,13 @@ export function useNetworkStatus() {
   const handleOnline = useCallback(() => {
     setIsOnline(true);
     if (wasOffline) {
-      toast({
-        title: "أنت متصل بالإنترنت",
-        description: "جاري مزامنة البيانات...",
-      });
+      const pending = getPendingActions();
+      if (pending.length > 0) {
+        setSyncStatus('syncing');
+        toast.info('Back online — syncing your offline changes...', { duration: 3000 });
+      } else {
+        toast.success('You\'re back online!', { duration: 2000 });
+      }
     }
     setWasOffline(false);
   }, [wasOffline]);
@@ -19,17 +23,12 @@ export function useNetworkStatus() {
   const handleOffline = useCallback(() => {
     setIsOnline(false);
     setWasOffline(true);
-    toast({
-      title: "أنت غير متصل بالإنترنت",
-      description: "التطبيق يعمل بالبيانات المحفوظة محلياً",
-      variant: "destructive",
-    });
+    toast.warning('You are offline — changes will be saved locally', { duration: 4000 });
   }, []);
 
   useEffect(() => {
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
-
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);

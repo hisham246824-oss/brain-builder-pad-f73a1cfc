@@ -2,19 +2,36 @@
 const CACHE_KEYS = {
   MATERIALS: 'offline_materials_cache',
   VOCABULARY: 'offline_vocabulary_cache',
+  TODOS: 'offline_todos_cache',
   LAST_SYNC: 'offline_last_sync',
   PENDING_ACTIONS: 'offline_pending_actions',
+  SYNC_STATUS: 'offline_sync_status',
 } as const;
+
+export type SyncStatus = 'synced' | 'pending' | 'syncing';
 
 export interface PendingAction {
   id: string;
   type: 'add' | 'update' | 'delete';
-  table: 'study_materials' | 'lessons' | 'vocabulary' | 'material_files';
+  table: 'study_materials' | 'lessons' | 'vocabulary' | 'material_files' | 'todos';
   data: any;
   timestamp: number;
 }
 
-// Cache materials data
+// --- Sync Status ---
+export function getSyncStatus(): SyncStatus {
+  const pending = getPendingActions();
+  if (pending.length > 0) return 'pending';
+  return (localStorage.getItem(CACHE_KEYS.SYNC_STATUS) as SyncStatus) || 'synced';
+}
+
+export function setSyncStatus(status: SyncStatus) {
+  localStorage.setItem(CACHE_KEYS.SYNC_STATUS, status);
+  // Dispatch custom event so components can react
+  window.dispatchEvent(new CustomEvent('sync-status-change', { detail: status }));
+}
+
+// --- Materials ---
 export function cacheMaterials(materials: any[]) {
   try {
     localStorage.setItem(CACHE_KEYS.MATERIALS, JSON.stringify(materials));
@@ -24,18 +41,14 @@ export function cacheMaterials(materials: any[]) {
   }
 }
 
-// Get cached materials
 export function getCachedMaterials(): any[] | null {
   try {
     const cached = localStorage.getItem(CACHE_KEYS.MATERIALS);
     return cached ? JSON.parse(cached) : null;
-  } catch (error) {
-    console.error('Error getting cached materials:', error);
-    return null;
-  }
+  } catch { return null; }
 }
 
-// Cache vocabulary data
+// --- Vocabulary ---
 export function cacheVocabulary(words: any[]) {
   try {
     localStorage.setItem(CACHE_KEYS.VOCABULARY, JSON.stringify(words));
@@ -45,23 +58,36 @@ export function cacheVocabulary(words: any[]) {
   }
 }
 
-// Get cached vocabulary
 export function getCachedVocabulary(): any[] | null {
   try {
     const cached = localStorage.getItem(CACHE_KEYS.VOCABULARY);
     return cached ? JSON.parse(cached) : null;
+  } catch { return null; }
+}
+
+// --- Todos ---
+export function cacheTodos(todos: any[]) {
+  try {
+    localStorage.setItem(CACHE_KEYS.TODOS, JSON.stringify(todos));
+    localStorage.setItem(CACHE_KEYS.LAST_SYNC, new Date().toISOString());
   } catch (error) {
-    console.error('Error getting cached vocabulary:', error);
-    return null;
+    console.error('Error caching todos:', error);
   }
 }
 
-// Get last sync time
+export function getCachedTodos(): any[] | null {
+  try {
+    const cached = localStorage.getItem(CACHE_KEYS.TODOS);
+    return cached ? JSON.parse(cached) : null;
+  } catch { return null; }
+}
+
+// --- Last Sync ---
 export function getLastSyncTime(): string | null {
   return localStorage.getItem(CACHE_KEYS.LAST_SYNC);
 }
 
-// Add pending action for sync when online
+// --- Pending Actions Queue ---
 export function addPendingAction(action: Omit<PendingAction, 'id' | 'timestamp'>) {
   try {
     const pending = getPendingActions();
@@ -72,6 +98,7 @@ export function addPendingAction(action: Omit<PendingAction, 'id' | 'timestamp'>
     };
     pending.push(newAction);
     localStorage.setItem(CACHE_KEYS.PENDING_ACTIONS, JSON.stringify(pending));
+    setSyncStatus('pending');
     return newAction;
   } catch (error) {
     console.error('Error adding pending action:', error);
@@ -79,34 +106,30 @@ export function addPendingAction(action: Omit<PendingAction, 'id' | 'timestamp'>
   }
 }
 
-// Get pending actions
 export function getPendingActions(): PendingAction[] {
   try {
     const pending = localStorage.getItem(CACHE_KEYS.PENDING_ACTIONS);
     return pending ? JSON.parse(pending) : [];
-  } catch (error) {
-    console.error('Error getting pending actions:', error);
-    return [];
-  }
+  } catch { return []; }
 }
 
-// Remove pending action after sync
 export function removePendingAction(actionId: string) {
   try {
     const pending = getPendingActions();
     const filtered = pending.filter(a => a.id !== actionId);
     localStorage.setItem(CACHE_KEYS.PENDING_ACTIONS, JSON.stringify(filtered));
+    if (filtered.length === 0) setSyncStatus('synced');
   } catch (error) {
     console.error('Error removing pending action:', error);
   }
 }
 
-// Clear all pending actions
 export function clearPendingActions() {
   localStorage.removeItem(CACHE_KEYS.PENDING_ACTIONS);
+  setSyncStatus('synced');
 }
 
-// Clear all cache (on logout)
+// --- Clear All ---
 export function clearOfflineCache() {
   Object.values(CACHE_KEYS).forEach(key => {
     localStorage.removeItem(key);

@@ -1,5 +1,6 @@
 import { Menu, GraduationCap } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { SyncStatusIndicator } from '@/components/SyncStatusIndicator';
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -30,6 +31,9 @@ export function Header({ onMenuClick }: HeaderProps) {
             </span>
           </div>
         </div>
+
+        {/* Sync status indicator */}
+        <SyncStatusIndicator />
       </div>
     </motion.header>
   );
