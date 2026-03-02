@@ -18,6 +18,7 @@ import MessagesPage from "./pages/MessagesPage";
 import AdminDashboard from "./pages/AdminDashboard";
 import SettingsPage from "./pages/SettingsPage";
 import SuggestionsPage from "./pages/SuggestionsPage";
+import TodoPage from "./pages/TodoPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -118,6 +119,7 @@ function AppRoutes() {
         <Route path="/messages" element={<MessagesPage />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/suggestions" element={<SuggestionsPage />} />
+        <Route path="/todos" element={<TodoPage />} />
       </Route>
       
       <Route path="*" element={<NotFound />} />

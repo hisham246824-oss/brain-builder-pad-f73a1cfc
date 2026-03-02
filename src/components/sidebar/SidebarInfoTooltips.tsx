@@ -31,4 +31,8 @@ export const sidebarInfoMap: Record<string, { title: string; description: string
     title: 'Suggestions',
     description: 'Share your ideas to improve the platform. Vote on other users\' suggestions and help shape the future of the site.',
   },
+  todos: {
+    title: 'To-Do List',
+    description: 'Manage your tasks with priority levels and deadlines. Stay organized with color-coded importance and countdown timers.',
+  },
 };
