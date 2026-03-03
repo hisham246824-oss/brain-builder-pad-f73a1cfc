@@ -55,6 +55,7 @@ export function VocabularyCard({ word, index, onDelete, onEdit }: VocabularyCard
         <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm">
           <BookOpen className="h-6 w-6 text-primary-foreground" />
         </div>
+        {/* All buttons horizontal */}
         <div className="flex items-center gap-1">
           <button
             onClick={speakWord}
@@ -102,7 +103,7 @@ export function VocabularyCard({ word, index, onDelete, onEdit }: VocabularyCard
           </div>
         ) : (
           <>
-            <h3 className="text-2xl font-bold text-card-foreground">{word.word}</h3>
+            <h3 className="text-2xl font-bold text-primary text-center">{word.word}</h3>
             <span className="text-xs font-semibold text-destructive">العربية</span>
             <p className="text-lg text-destructive font-medium text-right" dir="rtl">{word.meanings}</p>
             {word.notes && <p className="text-sm text-muted-foreground" dir="auto">{word.notes}</p>}

@@ -65,7 +65,7 @@ export default function VocabularyPage() {
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="pb-20">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground">Vocabulary</h1>
+        <h1 className="text-3xl font-bold text-primary">Vocabulary</h1>
         <p className="mt-1 text-muted-foreground">
           {totalWords} {totalWords === 1 ? 'word' : 'words'} · {masteredCount} mastered
         </p>
