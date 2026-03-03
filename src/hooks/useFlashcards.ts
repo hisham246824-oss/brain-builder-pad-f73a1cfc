@@ -13,9 +13,25 @@ export interface FlashcardWord {
   next_review_at: string;
 }
 
+export type TestMode = 'flashcard' | 'mcq';
+export type TestFormat = 'random' | 'focus' | 'smart';
+export type TestCount = 10 | 20 | 30 | 40 | 50 | 'all';
+
+export interface TestResult {
+  wordId: string;
+  word: string;
+  meanings: string;
+  quality: number; // 1-5
+}
+
+export interface MCQOption {
+  text: string;
+  isCorrect: boolean;
+}
+
 // SM-2 Algorithm implementation
 function calculateNextReview(
-  quality: number, // 0-5 rating (0-2 = fail, 3-5 = pass)
+  quality: number,
   easeFactor: number,
   intervalDays: number,
   repetitions: number
@@ -25,11 +41,9 @@ function calculateNextReview(
   let newRepetitions = repetitions;
 
   if (quality < 3) {
-    // Failed - reset
     newRepetitions = 0;
     newIntervalDays = 1;
   } else {
-    // Passed
     if (newRepetitions === 0) {
       newIntervalDays = 1;
     } else if (newRepetitions === 1) {
@@ -40,7 +54,6 @@ function calculateNextReview(
     newRepetitions += 1;
   }
 
-  // Update ease factor
   newEaseFactor = easeFactor + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02));
   if (newEaseFactor < 1.3) newEaseFactor = 1.3;
 
@@ -55,47 +68,120 @@ function calculateNextReview(
   };
 }
 
+function shuffleArray<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 export function useFlashcards() {
   const { user } = useAuth();
+  const [allWords, setAllWords] = useState<FlashcardWord[]>([]);
   const [cards, setCards] = useState<FlashcardWord[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [isFlipped, setIsFlipped] = useState(false);
+  const [testStarted, setTestStarted] = useState(false);
+  const [testFinished, setTestFinished] = useState(false);
+  const [results, setResults] = useState<TestResult[]>([]);
+  const [testMode, setTestMode] = useState<TestMode>('flashcard');
+  const [mcqOptions, setMcqOptions] = useState<MCQOption[]>([]);
+  const [mcqAnswered, setMcqAnswered] = useState(false);
+  const [mcqSelectedIndex, setMcqSelectedIndex] = useState<number | null>(null);
+  const [totalTestCards, setTotalTestCards] = useState(0);
 
-  const fetchDueCards = useCallback(async () => {
+  const fetchAllWords = useCallback(async () => {
     if (!user) {
-      setCards([]);
+      setAllWords([]);
       setIsLoading(false);
       return;
     }
 
     setIsLoading(true);
-    const now = new Date().toISOString();
-    
     const { data, error } = await supabase
       .from('vocabulary')
       .select('id, word, meanings, notes, ease_factor, interval_days, repetitions, next_review_at')
       .eq('user_id', user.id)
-      .lte('next_review_at', now)
-      .order('next_review_at', { ascending: true });
+      .order('created_at', { ascending: false });
 
     if (error) {
       console.error('Error fetching flashcards:', error);
     } else {
-      setCards((data || []).map(card => ({
+      setAllWords((data || []).map(card => ({
         ...card,
         ease_factor: Number(card.ease_factor) || 2.5,
         interval_days: card.interval_days || 0,
         repetitions: card.repetitions || 0,
-        next_review_at: card.next_review_at || now,
+        next_review_at: card.next_review_at || new Date().toISOString(),
       })));
     }
     setIsLoading(false);
   }, [user]);
 
   useEffect(() => {
-    fetchDueCards();
-  }, [fetchDueCards]);
+    fetchAllWords();
+  }, [fetchAllWords]);
+
+  const generateMCQOptions = useCallback((correctCard: FlashcardWord, pool: FlashcardWord[]) => {
+    const others = pool.filter(w => w.id !== correctCard.id);
+    const wrongChoices = shuffleArray(others).slice(0, 3).map(w => w.meanings);
+    
+    // Pad with placeholder if not enough words
+    while (wrongChoices.length < 3) {
+      wrongChoices.push('—');
+    }
+    
+    const options: MCQOption[] = shuffleArray([
+      { text: correctCard.meanings, isCorrect: true },
+      ...wrongChoices.map(t => ({ text: t, isCorrect: false })),
+    ]);
+    setMcqOptions(options);
+    setMcqAnswered(false);
+    setMcqSelectedIndex(null);
+  }, []);
+
+  const startTest = useCallback((count: TestCount, mode: TestMode, format: TestFormat) => {
+    let filtered: FlashcardWord[];
+    const now = new Date();
+
+    if (format === 'focus') {
+      // Words rated poor/difficult: ease_factor < 2.0 or repetitions <= 1
+      filtered = allWords.filter(w => w.ease_factor < 2.0 || w.repetitions <= 1);
+    } else if (format === 'smart') {
+      // Words due for review or not reviewed in a long time
+      filtered = [...allWords].sort((a, b) => {
+        const aDate = new Date(a.next_review_at);
+        const bDate = new Date(b.next_review_at);
+        // Prioritize overdue words, then by longest since last review
+        const aOverdue = aDate <= now ? -aDate.getTime() : aDate.getTime();
+        const bOverdue = bDate <= now ? -bDate.getTime() : bDate.getTime();
+        return aOverdue - bOverdue;
+      });
+    } else {
+      filtered = shuffleArray(allWords);
+    }
+
+    if (filtered.length === 0) filtered = shuffleArray(allWords);
+
+    const limit = count === 'all' ? filtered.length : Math.min(count, filtered.length);
+    const selected = filtered.slice(0, limit);
+
+    setCards(format === 'random' ? shuffleArray(selected) : selected);
+    setTotalTestCards(selected.length);
+    setCurrentIndex(0);
+    setIsFlipped(false);
+    setTestStarted(true);
+    setTestFinished(false);
+    setResults([]);
+    setTestMode(mode);
+
+    if (mode === 'mcq' && selected.length > 0) {
+      generateMCQOptions(selected[0], allWords);
+    }
+  }, [allWords, generateMCQOptions]);
 
   const currentCard = cards[currentIndex] || null;
 
@@ -113,7 +199,6 @@ export function useFlashcards() {
       currentCard.repetitions
     );
 
-    // Update in database
     await supabase
       .from('vocabulary')
       .update({
@@ -125,26 +210,72 @@ export function useFlashcards() {
       .eq('id', currentCard.id)
       .eq('user_id', user.id);
 
-    // Move to next card
-    setCards(prev => prev.filter((_, i) => i !== currentIndex));
-    setIsFlipped(false);
-    
-    if (currentIndex >= cards.length - 1) {
-      setCurrentIndex(0);
-    }
-  }, [user, currentCard, currentIndex, cards.length]);
+    setResults(prev => [...prev, {
+      wordId: currentCard.id,
+      word: currentCard.word,
+      meanings: currentCard.meanings,
+      quality,
+    }]);
 
-  const totalDue = cards.length;
-  const remaining = cards.length - currentIndex;
+    const nextIndex = currentIndex + 1;
+    if (nextIndex >= cards.length) {
+      setTestFinished(true);
+    } else {
+      setCurrentIndex(nextIndex);
+      setIsFlipped(false);
+      if (testMode === 'mcq') {
+        generateMCQOptions(cards[nextIndex], allWords);
+      }
+    }
+  }, [user, currentCard, currentIndex, cards, testMode, allWords, generateMCQOptions]);
+
+  const answerMCQ = useCallback((optionIndex: number) => {
+    if (mcqAnswered) return;
+    setMcqAnswered(true);
+    setMcqSelectedIndex(optionIndex);
+    const isCorrect = mcqOptions[optionIndex]?.isCorrect;
+    
+    // Auto-rate: correct = 4 (Good), wrong = 1 (Again)
+    setTimeout(() => {
+      rateCard(isCorrect ? 4 : 1);
+    }, 1200);
+  }, [mcqAnswered, mcqOptions, rateCard]);
+
+  const resetTest = useCallback(() => {
+    setTestStarted(false);
+    setTestFinished(false);
+    setCards([]);
+    setResults([]);
+    setCurrentIndex(0);
+    setIsFlipped(false);
+    fetchAllWords();
+  }, [fetchAllWords]);
+
+  const completedCount = results.length;
+  const remaining = totalTestCards - completedCount;
+  const progress = totalTestCards > 0 ? (completedCount / totalTestCards) * 100 : 0;
 
   return {
+    allWords,
     currentCard,
     isFlipped,
     isLoading,
-    totalDue,
+    totalTestCards,
     remaining,
+    completedCount,
+    progress,
+    testStarted,
+    testFinished,
+    testMode,
+    results,
+    mcqOptions,
+    mcqAnswered,
+    mcqSelectedIndex,
     flipCard,
     rateCard,
-    refetch: fetchDueCards,
+    answerMCQ,
+    startTest,
+    resetTest,
+    refetch: fetchAllWords,
   };
 }
