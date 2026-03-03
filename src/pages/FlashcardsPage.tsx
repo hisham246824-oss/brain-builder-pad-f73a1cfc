@@ -134,13 +134,23 @@ function TestResults({ results, onRestart }: { results: ReturnType<typeof useFla
       {/* Difficult words to review */}
       {difficultWords.length > 0 && (
         <div>
-          <h3 className="text-lg font-semibold text-foreground mb-3">Words to Review</h3>
+          <h3 className="text-lg font-semibold text-foreground mb-3">⚠️ Words to Review</h3>
           <div className="space-y-2">
             {difficultWords.map(w => (
-              <div key={w.wordId} className="bg-red-500/5 border border-red-500/20 rounded-xl p-3 flex justify-between items-center">
-                <span className="font-medium text-foreground">{w.word}</span>
-                <span className="text-destructive font-medium" dir="rtl">{w.meanings}</span>
-              </div>
+              <motion.div
+                key={w.wordId}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="bg-gradient-to-r from-destructive/10 to-destructive/5 border border-destructive/25 rounded-2xl p-4 shadow-sm"
+              >
+                <div className="flex justify-between items-center">
+                  <div>
+                    <p className="font-bold text-primary text-lg">{w.word}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">Needs more practice</p>
+                  </div>
+                  <p className="text-destructive font-semibold text-lg" dir="rtl">{w.meanings}</p>
+                </div>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -171,7 +181,7 @@ function MCQCard({ card, options, answered, selectedIndex, onAnswer }: {
     <div className="space-y-6">
       <div className="bg-card border-2 border-primary/20 rounded-3xl p-8 text-center shadow-lg">
         <p className="text-sm text-muted-foreground mb-2">What does this word mean?</p>
-        <h2 className="text-3xl font-bold text-foreground">{card.word}</h2>
+        <h2 className="text-4xl font-bold text-primary">{card.word}</h2>
       </div>
       <div className="grid grid-cols-1 gap-3">
         {options.map((opt, i) => {

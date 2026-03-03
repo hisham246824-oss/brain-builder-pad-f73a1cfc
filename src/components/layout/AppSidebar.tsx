@@ -8,6 +8,7 @@ import { useAdminMessages } from '@/hooks/useAdminMessages';
 import { useUserSettings } from '@/hooks/useUserSettings';
 import { useAIChat } from '@/hooks/useAIChat';
 import { sidebarInfoMap } from '@/components/sidebar/SidebarInfoTooltips';
+import { SidebarInfoModal } from '@/components/sidebar/SidebarInfoModal';
 import { cn } from '@/lib/utils';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -132,21 +133,7 @@ export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
           </div>
         </div>
 
-        {/* Info tooltip */}
-        <AnimatePresence>
-          {activeInfo === item.id && info && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="mx-4 mb-2 overflow-hidden"
-            >
-              <div className="p-3 rounded-xl bg-sidebar-accent/70 text-xs text-sidebar-foreground/70 leading-relaxed">
-                {info.description}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* Info tooltip - now uses floating modal via state, rendered at bottom */}
 
         {/* Conversations panel for AI Chat */}
         <AnimatePresence>
@@ -288,11 +275,7 @@ export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
                           )}
                         </div>
                         <AnimatePresence>
-                          {activeInfo === 'messages' && (
-                            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="mx-4 mb-2 overflow-hidden">
-                              <div className="p-3 rounded-xl bg-sidebar-accent/70 text-xs text-sidebar-foreground/70 leading-relaxed">{sidebarInfoMap.messages.description}</div>
-                            </motion.div>
-                          )}
+                          {/* Info modal handled globally below */}
                         </AnimatePresence>
                       </motion.li>
                     )}
@@ -334,6 +317,15 @@ export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
         )}
       </AnimatePresence>
       <AuthDialog isOpen={showAuthDialog} onClose={() => setShowAuthDialog(false)} />
+      {activeInfo && sidebarInfoMap[activeInfo] && (
+        <SidebarInfoModal
+          isOpen={true}
+          onClose={() => setActiveInfo(null)}
+          title={sidebarInfoMap[activeInfo].title}
+          description={sidebarInfoMap[activeInfo].description}
+          itemId={activeInfo}
+        />
+      )}
     </>
   );
 }

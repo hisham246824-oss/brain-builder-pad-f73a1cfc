@@ -1,38 +1,38 @@
 export const sidebarInfoMap: Record<string, { title: string; description: string }> = {
   home: {
     title: 'Home',
-    description: 'Your dashboard showing study statistics, recent activity, and quick access to all features.',
+    description: 'Your personal dashboard showing study statistics, recent activity, and quick access to all features. Track your daily progress and stay motivated with an overview of your learning journey.',
   },
   materials: {
     title: 'Study Materials',
-    description: 'Organize your courses and subjects. Add lessons, write notes with rich formatting, and export them as PDFs. Upload files for each course.',
+    description: 'Organize your courses and subjects into structured modules. Add lessons with rich text formatting, write detailed notes, upload supplementary files, and export everything as PDFs for offline studying.',
   },
   vocabulary: {
     title: 'Vocabulary',
-    description: 'Build your vocabulary with flashcards. Add words with meanings and notes, then practice with spaced repetition flashcards.',
+    description: 'Build and manage your English-Arabic vocabulary. Add words with meanings and notes, track mastery with spaced repetition, practice with flashcards or multiple-choice quizzes, and focus on difficult words that need extra review.',
   },
   'ai-chat': {
     title: 'AI Study Chat',
-    description: 'Chat with an AI assistant to get help with your studies. Ask questions, get explanations, analyze images, and get study guidance.',
+    description: 'Chat with an intelligent AI assistant powered by advanced models. Get explanations for complex topics, analyze images, generate study plans, and receive personalized learning guidance across all your subjects.',
   },
   'table-creator': {
     title: 'Create Table',
-    description: 'Create and edit tables for organizing study data. Export tables as images for easy sharing and reference.',
+    description: 'Design and edit custom tables to organize study data, comparisons, and schedules. Export your tables as high-quality images for easy sharing with classmates or embedding in your notes.',
   },
   pomodoro: {
     title: 'Pomodoro Timer',
-    description: 'Use the Pomodoro technique to stay focused. Customize study and break durations, colors, and alarm sounds.',
+    description: 'Stay focused using the proven Pomodoro technique. Customize study and break durations, choose calming color themes, set alarm sounds, and enjoy ambient nature sounds to enhance concentration.',
   },
   messages: {
     title: 'Messages',
-    description: 'Read announcements and messages from the admin. Like messages and stay updated with the latest news.',
+    description: 'Read announcements and important updates from the platform admin. Like messages to show engagement and stay informed about new features, tips, and community news.',
   },
   suggestions: {
     title: 'Suggestions',
-    description: 'Share your ideas to improve the platform. Vote on other users\' suggestions and help shape the future of the site.',
+    description: 'Share your ideas to help improve the platform. Submit feature requests, vote on other users\' suggestions, and contribute to shaping the future of the learning experience.',
   },
   todos: {
     title: 'To-Do List',
-    description: 'Manage your tasks with priority levels and deadlines. Stay organized with color-coded importance and countdown timers.',
+    description: 'Manage all your tasks with color-coded priority levels (Urgent, Medium, Low). Set precise deadlines with live countdown timers, track completion progress, and celebrate achievements with fun animations.',
   },
 };
