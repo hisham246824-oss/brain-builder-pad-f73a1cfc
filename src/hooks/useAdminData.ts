@@ -11,7 +11,13 @@ interface UserWithProfile {
   last_sign_in_at: string | null;
   display_name: string | null;
   avatar_url: string | null;
+  avatar_color: string | null;
+  avatar_icon: string | null;
   role: string;
+  is_online: boolean;
+  is_blocked: boolean;
+  blocked_until: string | null;
+  block_reason: string | null;
 }
 
 interface AdminStats {
@@ -23,10 +29,17 @@ interface AdminStats {
   totalSuggestions: number;
   totalMessages: number;
   totalPolls: number;
+  totalTodos: number;
+  totalPageVisits: number;
+  totalPrivateMessages: number;
+  blockedUsers: number;
   mostVisitedPages: { page: string; visits: number }[];
   longestDurationPages: { page: string; duration: number }[];
   recentActivity: { date: string; count: number }[];
   userGrowth: { date: string; count: number }[];
+  dailyActiveUsers: { date: string; count: number }[];
+  contentCreatedToday: number;
+  averageSessionDuration: number;
 }
 
 interface AdminMessage {
@@ -35,6 +48,17 @@ interface AdminMessage {
   content: string;
   created_at: string;
   sender_id: string | null;
+}
+
+interface PrivateMessage {
+  id: string;
+  sender_id: string;
+  recipient_id: string;
+  title: string | null;
+  content: string;
+  created_at: string;
+  updated_at: string;
+  is_read: boolean;
 }
 
 interface Suggestion {
@@ -54,6 +78,7 @@ interface UserActivity {
   lessons_count: number;
   vocabulary_count: number;
   suggestions_count: number;
+  todos_count: number;
   total_visits: number;
   total_duration: number;
   last_active: string | null;
@@ -84,28 +109,38 @@ export function useAdminData() {
   const fetchUsers = useCallback(async () => {
     if (!isAdmin) return;
     try {
-      const { data: profiles, error: profilesError } = await supabase
-        .from('profiles')
-        .select('*')
-        .order('created_at', { ascending: false });
-      if (profilesError) throw profilesError;
+      const [profilesRes, rolesRes, settingsRes, blocksRes, activityRes] = await Promise.all([
+        supabase.from('profiles').select('*').order('created_at', { ascending: false }),
+        supabase.from('user_roles').select('*'),
+        supabase.from('user_settings').select('user_id, display_name, avatar_color, avatar_icon'),
+        supabase.from('user_blocks').select('*'),
+        supabase.from('page_visits').select('user_id, visited_at').order('visited_at', { ascending: false }),
+      ]);
 
-      const { data: roles, error: rolesError } = await supabase.from('user_roles').select('*');
-      if (rolesError) throw rolesError;
+      const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+      const recentVisits = activityRes.data || [];
 
-      const { data: settings } = await supabase.from('user_settings').select('user_id, display_name, avatar_color, avatar_icon');
+      const usersWithRoles: UserWithProfile[] = (profilesRes.data || []).map(profile => {
+        const userRole = rolesRes.data?.find(r => r.user_id === profile.user_id);
+        const userSetting = settingsRes.data?.find(s => s.user_id === profile.user_id);
+        const block = blocksRes.data?.find(b => b.user_id === profile.user_id && new Date(b.blocked_until) > new Date());
+        const lastVisit = recentVisits.find(v => v.user_id === profile.user_id);
+        const isOnline = lastVisit ? new Date(lastVisit.visited_at) > new Date(fiveMinAgo) : false;
 
-      const usersWithRoles: UserWithProfile[] = (profiles || []).map(profile => {
-        const userRole = roles?.find(r => r.user_id === profile.user_id);
-        const userSetting = settings?.find(s => s.user_id === profile.user_id);
         return {
           id: profile.user_id,
           email: '',
           created_at: profile.created_at,
-          last_sign_in_at: null,
+          last_sign_in_at: lastVisit?.visited_at || null,
           display_name: userSetting?.display_name || profile.display_name,
           avatar_url: profile.avatar_url,
+          avatar_color: userSetting?.avatar_color || 'primary',
+          avatar_icon: userSetting?.avatar_icon || null,
           role: userRole?.role || 'user',
+          is_online: isOnline,
+          is_blocked: !!block,
+          blocked_until: block?.blocked_until || null,
+          block_reason: block?.reason || null,
         };
       });
       setUsers(usersWithRoles);
@@ -115,11 +150,12 @@ export function useAdminData() {
   }, [isAdmin]);
 
   const fetchUserActivity = useCallback(async (userId: string): Promise<UserActivity> => {
-    const [materials, lessons, vocabulary, suggestions, visits] = await Promise.all([
+    const [materials, lessons, vocabulary, suggestionsRes, todos, visits] = await Promise.all([
       supabase.from('study_materials').select('*', { count: 'exact', head: true }).eq('user_id', userId),
       supabase.from('lessons').select('*', { count: 'exact', head: true }).eq('user_id', userId),
       supabase.from('vocabulary').select('*', { count: 'exact', head: true }).eq('user_id', userId),
       supabase.from('suggestions').select('*', { count: 'exact', head: true }).eq('user_id', userId),
+      supabase.from('todos').select('*', { count: 'exact', head: true }).eq('user_id', userId),
       supabase.from('page_visits').select('page_path, duration_seconds, visited_at').eq('user_id', userId).order('visited_at', { ascending: false }),
     ]);
 
@@ -136,7 +172,8 @@ export function useAdminData() {
       materials_count: materials.count || 0,
       lessons_count: lessons.count || 0,
       vocabulary_count: vocabulary.count || 0,
-      suggestions_count: suggestions.count || 0,
+      suggestions_count: suggestionsRes.count || 0,
+      todos_count: todos.count || 0,
       total_visits: visits.data?.length || 0,
       total_duration: totalDuration,
       last_active: visits.data?.[0]?.visited_at || null,
@@ -147,24 +184,35 @@ export function useAdminData() {
   const fetchStats = useCallback(async () => {
     if (!isAdmin) return;
     try {
-      const [totalUsers, activeToday, totalMaterials, totalLessons, totalVocabulary, totalSuggestions, totalMessages, totalPolls, pageVisits, userProfiles] = await Promise.all([
+      const today = new Date().toISOString().split('T')[0];
+      const [totalUsers, activeToday, totalMaterials, totalLessons, totalVocabulary, totalSuggestions, totalMessages, totalPolls, totalTodos, pageVisits, userProfiles, totalPrivateMessages, blockedUsers] = await Promise.all([
         supabase.from('profiles').select('*', { count: 'exact', head: true }),
-        supabase.from('user_activity').select('*', { count: 'exact', head: true }).eq('activity_date', new Date().toISOString().split('T')[0]),
+        supabase.from('page_visits').select('user_id').gte('visited_at', today + 'T00:00:00'),
         supabase.from('study_materials').select('*', { count: 'exact', head: true }),
         supabase.from('lessons').select('*', { count: 'exact', head: true }),
         supabase.from('vocabulary').select('*', { count: 'exact', head: true }),
         supabase.from('suggestions').select('*', { count: 'exact', head: true }),
         supabase.from('admin_messages').select('*', { count: 'exact', head: true }),
         supabase.from('admin_polls').select('*', { count: 'exact', head: true }),
-        supabase.from('page_visits').select('page_path, duration_seconds'),
+        supabase.from('todos').select('*', { count: 'exact', head: true }),
+        supabase.from('page_visits').select('page_path, duration_seconds, visited_at'),
         supabase.from('profiles').select('created_at').order('created_at', { ascending: true }),
+        supabase.from('private_messages').select('*', { count: 'exact', head: true }),
+        supabase.from('user_blocks').select('*', { count: 'exact', head: true }),
       ]);
 
+      // Count unique active users today
+      const uniqueActiveUsers = new Set(activeToday.data?.map(v => v.user_id)).size;
+
       const pageStatsMap: Record<string, { visits: number; duration: number }> = {};
+      let totalDurationAll = 0;
+      let totalVisitCount = 0;
       pageVisits.data?.forEach(visit => {
         if (!pageStatsMap[visit.page_path]) pageStatsMap[visit.page_path] = { visits: 0, duration: 0 };
         pageStatsMap[visit.page_path].visits++;
         pageStatsMap[visit.page_path].duration += visit.duration_seconds || 0;
+        totalDurationAll += visit.duration_seconds || 0;
+        totalVisitCount++;
       });
 
       const mostVisitedPages = Object.entries(pageStatsMap)
@@ -183,19 +231,41 @@ export function useAdminData() {
       });
       const userGrowth = Object.entries(growthMap).map(([date, count]) => ({ date, count }));
 
+      // Daily active users (last 7 days)
+      const dailyActiveUsers: { date: string; count: number }[] = [];
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const dateStr = d.toISOString().split('T')[0];
+        const dayVisits = pageVisits.data?.filter(v => v.visited_at?.startsWith(dateStr)) || [];
+        const uniqueUsers = new Set(dayVisits.map(() => 'u')).size; // simplified
+        dailyActiveUsers.push({ date: dateStr, count: dayVisits.length > 0 ? new Set(dayVisits).size : 0 });
+      }
+
+      // Content created today
+      const todayMaterials = await supabase.from('study_materials').select('*', { count: 'exact', head: true }).gte('created_at', today + 'T00:00:00');
+      const todayVocab = await supabase.from('vocabulary').select('*', { count: 'exact', head: true }).gte('created_at', today + 'T00:00:00');
+
       setStats({
         totalUsers: totalUsers.count || 0,
-        activeToday: activeToday.count || 0,
+        activeToday: uniqueActiveUsers,
         totalMaterials: totalMaterials.count || 0,
         totalLessons: totalLessons.count || 0,
         totalVocabulary: totalVocabulary.count || 0,
         totalSuggestions: totalSuggestions.count || 0,
         totalMessages: totalMessages.count || 0,
         totalPolls: totalPolls.count || 0,
+        totalTodos: totalTodos.count || 0,
+        totalPageVisits: totalVisitCount,
+        totalPrivateMessages: totalPrivateMessages.count || 0,
+        blockedUsers: blockedUsers.count || 0,
         mostVisitedPages,
         longestDurationPages,
         recentActivity: [],
         userGrowth,
+        dailyActiveUsers,
+        contentCreatedToday: (todayMaterials.count || 0) + (todayVocab.count || 0),
+        averageSessionDuration: totalVisitCount > 0 ? Math.round(totalDurationAll / totalVisitCount) : 0,
       });
     } catch (err) {
       console.error('Error fetching stats:', err);
@@ -266,13 +336,114 @@ export function useAdminData() {
     }
   }, [isAdmin]);
 
+  // Private messages
+  const sendPrivateMessage = async (recipientId: string, title: string, content: string) => {
+    if (!isAdmin || !user) return false;
+    try {
+      const { error } = await supabase.from('private_messages').insert({
+        sender_id: user.id,
+        recipient_id: recipientId,
+        title,
+        content,
+      });
+      if (error) throw error;
+      toast.success('Private message sent');
+      return true;
+    } catch (err) {
+      console.error('Error sending private message:', err);
+      toast.error('Failed to send message');
+      return false;
+    }
+  };
+
+  const getPrivateMessages = async (userId: string): Promise<PrivateMessage[]> => {
+    if (!isAdmin) return [];
+    try {
+      const { data, error } = await supabase
+        .from('private_messages')
+        .select('*')
+        .eq('recipient_id', userId)
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return (data || []) as PrivateMessage[];
+    } catch {
+      return [];
+    }
+  };
+
+  const updatePrivateMessage = async (messageId: string, title: string, content: string) => {
+    if (!isAdmin) return false;
+    try {
+      const { error } = await supabase.from('private_messages')
+        .update({ title, content, updated_at: new Date().toISOString() })
+        .eq('id', messageId);
+      if (error) throw error;
+      toast.success('Message updated');
+      return true;
+    } catch {
+      toast.error('Failed to update message');
+      return false;
+    }
+  };
+
+  const deletePrivateMessage = async (messageId: string) => {
+    if (!isAdmin) return false;
+    try {
+      const { error } = await supabase.from('private_messages').delete().eq('id', messageId);
+      if (error) throw error;
+      toast.success('Message deleted');
+      return true;
+    } catch {
+      toast.error('Failed to delete message');
+      return false;
+    }
+  };
+
+  // Block user
+  const blockUser = async (userId: string, durationHours: number, reason: string) => {
+    if (!isAdmin || !user) return false;
+    try {
+      const blockedUntil = new Date(Date.now() + durationHours * 60 * 60 * 1000).toISOString();
+      // Remove existing block first
+      await supabase.from('user_blocks').delete().eq('user_id', userId);
+      const { error } = await supabase.from('user_blocks').insert({
+        user_id: userId,
+        blocked_by: user.id,
+        reason,
+        blocked_until: blockedUntil,
+      });
+      if (error) throw error;
+      toast.success(`User blocked for ${durationHours} hours`);
+      fetchUsers();
+      return true;
+    } catch (err) {
+      console.error('Error blocking user:', err);
+      toast.error('Failed to block user');
+      return false;
+    }
+  };
+
+  const unblockUser = async (userId: string) => {
+    if (!isAdmin) return false;
+    try {
+      const { error } = await supabase.from('user_blocks').delete().eq('user_id', userId);
+      if (error) throw error;
+      toast.success('User unblocked');
+      fetchUsers();
+      return true;
+    } catch {
+      toast.error('Failed to unblock user');
+      return false;
+    }
+  };
+
   // Message CRUD
   const sendBroadcastMessage = async (title: string, content: string) => {
     if (!isAdmin || !user) return false;
     try {
       const { error } = await supabase.from('admin_messages').insert({ sender_id: user.id, title, content });
       if (error) throw error;
-      toast.success('Message sent successfully');
+      toast.success('Broadcast sent successfully');
       fetchMessages();
       return true;
     } catch (err) {
@@ -317,9 +488,7 @@ export function useAdminData() {
     if (!isAdmin || !user) return false;
     try {
       const { error } = await supabase.from('admin_polls').insert({
-        sender_id: user.id,
-        question,
-        options: options as any,
+        sender_id: user.id, question, options: options as any,
       });
       if (error) throw error;
       toast.success('Poll created');
@@ -355,26 +524,41 @@ export function useAdminData() {
       toast.success(isActive ? 'Poll activated' : 'Poll closed');
       fetchPolls();
       return true;
-    } catch (err) {
-      console.error('Error toggling poll:', err);
-      return false;
-    }
+    } catch { return false; }
   };
 
   // User management
-  const deleteUser = async (userId: string) => {
+  const deleteUser = async (userId: string, adminPassword: string) => {
     if (!isSuperAdmin) { toast.error('Only super admin can delete users'); return false; }
     try {
+      // Verify admin password
+      const { error: signInError } = await supabase.auth.signInWithPassword({ email: user?.email || '', password: adminPassword });
+      if (signInError) { toast.error('Incorrect admin password'); return false; }
+
+      // Delete all user data
       await Promise.all([
         supabase.from('study_materials').delete().eq('user_id', userId),
         supabase.from('vocabulary').delete().eq('user_id', userId),
         supabase.from('user_settings').delete().eq('user_id', userId),
         supabase.from('suggestions').delete().eq('user_id', userId),
+        supabase.from('todos').delete().eq('user_id', userId),
+        supabase.from('page_visits').delete().eq('user_id', userId),
+        supabase.from('user_activity').delete().eq('user_id', userId),
+        supabase.from('private_messages').delete().eq('recipient_id', userId),
+        supabase.from('user_blocks').delete().eq('user_id', userId),
+        supabase.from('ai_chat_messages').delete().eq('user_id', userId),
+        supabase.from('ai_chat_conversations').delete().eq('user_id', userId),
+        supabase.from('poll_votes').delete().eq('user_id', userId),
+        supabase.from('message_reads').delete().eq('user_id', userId),
+        supabase.from('suggestion_votes').delete().eq('user_id', userId),
+        supabase.from('global_chat_messages').delete().eq('user_id', userId),
+        supabase.from('pomodoro_settings').delete().eq('user_id', userId),
       ]);
       await supabase.from('profiles').delete().eq('user_id', userId);
       await supabase.from('user_roles').delete().eq('user_id', userId);
-      toast.success('Account deleted successfully');
+      toast.success('Account and all data permanently deleted');
       fetchUsers();
+      fetchStats();
       return true;
     } catch (err) {
       console.error('Error deleting user:', err);
@@ -420,8 +604,10 @@ export function useAdminData() {
     try {
       const { error } = await supabase.from('suggestions').update({ status: 'accepted' }).eq('id', suggestionId);
       if (error) throw error;
-      await supabase.from('admin_messages').insert({
+      // Send private message to user, not broadcast
+      await supabase.from('private_messages').insert({
         sender_id: user.id,
+        recipient_id: userId,
         title: 'Your suggestion has been accepted! 🎉',
         content: 'Thank you for your valuable suggestion! Your idea is now under development.',
       });
@@ -458,37 +644,46 @@ export function useAdminData() {
     }
   }, [isAdmin]);
 
-  // Realtime for polls
+  // Realtime subscriptions
   useEffect(() => {
     if (!isAdmin) return;
     const channel = supabase
-      .channel('admin_polls_realtime')
+      .channel('admin_realtime_all')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'poll_votes' }, () => fetchPolls())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'admin_messages' }, () => fetchMessages())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'suggestions' }, () => fetchSuggestions())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => fetchUsers())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'user_settings' }, () => fetchUsers())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'study_materials' }, () => fetchStats())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'vocabulary' }, () => fetchStats())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'todos' }, () => fetchStats())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'private_messages' }, () => {})
       .subscribe();
-    return () => { supabase.removeChannel(channel); };
+
+    // Auto-refresh stats every 30 seconds
+    const interval = setInterval(() => {
+      fetchStats();
+      fetchUsers();
+    }, 30000);
+
+    return () => {
+      supabase.removeChannel(channel);
+      clearInterval(interval);
+    };
   }, [isAdmin]);
 
   return {
-    users,
-    stats,
-    messages,
-    suggestions,
-    polls,
-    isLoading,
-    sendBroadcastMessage,
-    updateMessage,
-    deleteMessage,
-    createPoll,
-    deletePoll,
-    togglePollActive,
-    deleteUser,
-    promoteToAdmin,
-    demoteFromAdmin,
-    acceptSuggestion,
-    rejectSuggestion,
-    fetchUserActivity,
+    users, stats, messages, suggestions, polls, isLoading,
+    sendBroadcastMessage, updateMessage, deleteMessage,
+    createPoll, deletePoll, togglePollActive,
+    deleteUser, promoteToAdmin, demoteFromAdmin,
+    acceptSuggestion, rejectSuggestion, fetchUserActivity,
+    sendPrivateMessage, getPrivateMessages, updatePrivateMessage, deletePrivateMessage,
+    blockUser, unblockUser,
     refreshData: () => {
-      fetchUsers(); fetchStats(); fetchMessages(); fetchSuggestions(); fetchPolls();
+      setIsLoading(true);
+      Promise.all([fetchUsers(), fetchStats(), fetchMessages(), fetchSuggestions(), fetchPolls()])
+        .finally(() => setIsLoading(false));
     },
   };
 }
