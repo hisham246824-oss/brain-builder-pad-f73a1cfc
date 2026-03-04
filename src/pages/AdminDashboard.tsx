@@ -15,6 +15,8 @@ export default function AdminDashboard() {
     createPoll, deletePoll, togglePollActive,
     deleteUser, promoteToAdmin, demoteFromAdmin,
     acceptSuggestion, rejectSuggestion, fetchUserActivity, refreshData,
+    sendPrivateMessage, getPrivateMessages, updatePrivateMessage, deletePrivateMessage,
+    blockUser, unblockUser,
   } = useAdminData();
 
   return (
@@ -26,6 +28,11 @@ export default function AdminDashboard() {
           onDeleteUser={deleteUser} onPromoteToAdmin={promoteToAdmin}
           onDemoteFromAdmin={demoteFromAdmin} onSendBroadcast={sendBroadcastMessage}
           fetchUserActivity={fetchUserActivity}
+          onBlockUser={blockUser} onUnblockUser={unblockUser}
+          onSendPrivateMessage={sendPrivateMessage}
+          onGetPrivateMessages={getPrivateMessages}
+          onUpdatePrivateMessage={updatePrivateMessage}
+          onDeletePrivateMessage={deletePrivateMessage}
         />
       )}
       {activeTab === 'messages' && (
