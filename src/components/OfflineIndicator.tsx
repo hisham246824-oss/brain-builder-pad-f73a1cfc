@@ -1,13 +1,15 @@
-import { WifiOff } from 'lucide-react';
+import { useState } from 'react';
+import { WifiOff, X } from 'lucide-react';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export function OfflineIndicator() {
   const { isOnline } = useNetworkStatus();
+  const [hidden, setHidden] = useState(false);
 
   return (
     <AnimatePresence>
-      {!isOnline && (
+      {!isOnline && !hidden && (
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -16,6 +18,9 @@ export function OfflineIndicator() {
         >
           <WifiOff className="h-4 w-4" />
           <span>You are offline — data is saved locally</span>
+          <button onClick={() => setHidden(true)} className="ml-2 p-1 rounded-full hover:bg-destructive-foreground/20 transition-colors">
+            <X className="h-3.5 w-3.5" />
+          </button>
         </motion.div>
       )}
     </AnimatePresence>
