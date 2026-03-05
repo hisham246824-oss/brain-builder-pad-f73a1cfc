@@ -11,6 +11,7 @@ export interface UserSettings {
   ai_custom_prompt: string | null;
   sidebar_order: string[];
   theme: string;
+  language: string;
 }
 
 const DEFAULT_SETTINGS: Omit<UserSettings, 'id' | 'user_id'> = {
@@ -20,6 +21,7 @@ const DEFAULT_SETTINGS: Omit<UserSettings, 'id' | 'user_id'> = {
   ai_custom_prompt: null,
   sidebar_order: ['home', 'materials', 'vocabulary', 'ai-chat', 'table-creator', 'pomodoro', 'suggestions', 'todos', 'messages'],
   theme: 'light',
+  language: 'en',
 };
 
 const AVATAR_COLORS = [
