@@ -1,8 +1,11 @@
 import { motion } from 'framer-motion';
 import { Table2 } from 'lucide-react';
 import { TableEditor } from '@/components/table/TableEditor';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function TableCreatorPage() {
+  const { t } = useLanguage();
+  
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -14,10 +17,10 @@ export default function TableCreatorPage() {
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl gradient-primary shadow-glow">
             <Table2 className="h-6 w-6 text-primary-foreground" />
           </div>
-          <h1 className="text-3xl font-bold text-foreground">Create Table</h1>
+          <h1 className="text-3xl font-bold text-foreground">{t('tableCreatorTitle')}</h1>
         </div>
         <p className="text-muted-foreground">
-          Design beautiful tables with custom formatting and download as images.
+          {t('tableCreatorDesc')}
         </p>
       </div>
 
