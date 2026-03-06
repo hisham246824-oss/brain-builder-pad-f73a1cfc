@@ -3,10 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { BookOpen, Home, X, GraduationCap, Table2, Timer, BookA, Bot, Mail, Settings, Star, Heart, Zap, Crown, Flame, Rocket, Diamond, Info, ChevronUp, Trash2, MessageSquare, Pencil, Check, Lightbulb, ListTodo } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useAuth } from '@/contexts/AuthContext';
-import { AuthDialog } from '@/components/auth/AuthDialog';
 import { useAdminMessages } from '@/hooks/useAdminMessages';
 import { useUserSettings } from '@/hooks/useUserSettings';
 import { useAIChat } from '@/hooks/useAIChat';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { sidebarInfoMap } from '@/components/sidebar/SidebarInfoTooltips';
 import { SidebarInfoModal } from '@/components/sidebar/SidebarInfoModal';
 import { cn } from '@/lib/utils';
@@ -19,16 +19,22 @@ interface AppSidebarProps {
 }
 
 const BASE_NAV_ITEMS = [
-  { id: 'home', to: '/', icon: Home, label: 'Home' },
-  { id: 'materials', to: '/materials', icon: BookOpen, label: 'Study Materials' },
-  { id: 'vocabulary', to: '/vocabulary', icon: BookA, label: 'Vocabulary' },
-  { id: 'ai-chat', to: '/ai-chat', icon: Bot, label: 'AI Study Chat' },
-  { id: 'table-creator', to: '/table-creator', icon: Table2, label: 'Create Table' },
-  { id: 'pomodoro', to: '/pomodoro', icon: Timer, label: 'Pomodoro Timer' },
-  { id: 'suggestions', to: '/suggestions', icon: Lightbulb, label: 'Suggestions' },
-  { id: 'todos', to: '/todos', icon: ListTodo, label: 'To-Do List' },
-  { id: 'messages', to: '/messages', icon: Mail, label: 'Messages' },
+  { id: 'home', to: '/', icon: Home },
+  { id: 'materials', to: '/materials', icon: BookOpen },
+  { id: 'vocabulary', to: '/vocabulary', icon: BookA },
+  { id: 'ai-chat', to: '/ai-chat', icon: Bot },
+  { id: 'table-creator', to: '/table-creator', icon: Table2 },
+  { id: 'pomodoro', to: '/pomodoro', icon: Timer },
+  { id: 'suggestions', to: '/suggestions', icon: Lightbulb },
+  { id: 'todos', to: '/todos', icon: ListTodo },
+  { id: 'messages', to: '/messages', icon: Mail },
 ];
+
+const LABEL_KEYS: Record<string, string> = {
+  home: 'home', materials: 'studyMaterials', vocabulary: 'vocabulary',
+  'ai-chat': 'aiStudyChat', 'table-creator': 'createTable', pomodoro: 'pomodoroTimer',
+  suggestions: 'suggestions', todos: 'todoList', messages: 'messages',
+};
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   star: Star, heart: Heart, zap: Zap, crown: Crown, flame: Flame, rocket: Rocket, diamond: Diamond,
@@ -44,7 +50,7 @@ export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
   const { user, isLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [showAuthDialog, setShowAuthDialog] = useState(false);
+  const { t, isRTL } = useLanguage();
   const { hasUnread, unreadCount } = useAdminMessages();
   const { settings } = useUserSettings();
   const { conversations, currentConversation, setCurrentConversation, deleteConversation, renameConversation } = useAIChat();
@@ -93,9 +99,15 @@ export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
     setEditingConvId(null);
   };
 
+  const handleAuthClick = () => {
+    navigate('/auth');
+    onClose();
+  };
+
   const renderNavItem = (item: typeof BASE_NAV_ITEMS[0]) => {
     const isAiChat = item.id === 'ai-chat';
     const info = sidebarInfoMap[item.id];
+    const label = t(LABEL_KEYS[item.id] || item.id);
 
     return (
       <li key={item.to} className="relative">
@@ -107,7 +119,7 @@ export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
             activeClassName="bg-sidebar-accent text-sidebar-primary font-medium"
           >
             <item.icon className="h-5 w-5" />
-            <span className="flex-1">{item.label}</span>
+            <span className="flex-1">{label}</span>
           </NavLink>
           
           <div className="flex items-center gap-0.5 pr-1">
@@ -132,8 +144,6 @@ export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
             )}
           </div>
         </div>
-
-        {/* Info tooltip - now uses floating modal via state, rendered at bottom */}
 
         {/* Conversations panel for AI Chat */}
         <AnimatePresence>
@@ -203,6 +213,10 @@ export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
     );
   };
 
+  // Sidebar slide direction based on RTL
+  const slideFrom = isRTL ? { x: '100%' } : { x: '-100%' };
+  const slideTo = { x: 0 };
+
   return (
     <>
       <AnimatePresence>
@@ -218,11 +232,14 @@ export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
             />
             
             <motion.aside
-              initial={{ x: '-100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '-100%' }}
+              initial={slideFrom}
+              animate={slideTo}
+              exit={slideFrom}
               transition={{ type: 'spring', damping: 30, stiffness: 350 }}
-              className="fixed left-0 top-0 z-50 h-full w-72 bg-sidebar shadow-soft rounded-r-3xl"
+              className={cn(
+                "fixed top-0 z-50 h-full w-72 bg-sidebar shadow-soft",
+                isRTL ? "right-0 rounded-l-3xl" : "left-0 rounded-r-3xl"
+              )}
             >
               <div className="flex h-full flex-col">
                 <div className="flex items-center justify-between border-b border-sidebar-border p-5">
@@ -258,7 +275,7 @@ export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
                             <motion.div animate={{ rotate: [0, -10, 10, -10, 0] }} transition={{ repeat: Infinity, duration: 0.5, repeatDelay: 2 }}>
                               <Mail className="h-5 w-5" />
                             </motion.div>
-                            <span>Messages</span>
+                            <span>{t('messages')}</span>
                             {unreadCount > 0 && (
                               <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-destructive px-1.5 text-xs font-bold text-destructive-foreground">
                                 {unreadCount}
@@ -274,9 +291,6 @@ export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
                             </button>
                           )}
                         </div>
-                        <AnimatePresence>
-                          {/* Info modal handled globally below */}
-                        </AnimatePresence>
                       </motion.li>
                     )}
 
@@ -296,18 +310,18 @@ export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
                         {IconComponent ? <IconComponent className="h-5 w-5" /> : avatarLetter}
                       </div>
                       <div className="flex-1 text-left min-w-0">
-                        <p className="font-medium truncate text-sidebar-foreground">{settings?.display_name || 'My Profile'}</p>
+                        <p className="font-medium truncate text-sidebar-foreground">{settings?.display_name || t('myProfile')}</p>
                         <p className="text-xs text-sidebar-foreground/60 truncate">{user.email}</p>
                       </div>
                       <Settings className="h-5 w-5 shrink-0 text-sidebar-foreground/50" />
                     </button>
                   ) : (
                     <button
-                      onClick={() => setShowAuthDialog(true)}
+                      onClick={handleAuthClick}
                       className="w-full flex items-center gap-3 rounded-xl px-4 py-3 text-sidebar-foreground/80 transition-all hover:bg-sidebar-accent hover:text-sidebar-foreground"
                     >
                       <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-medium">?</div>
-                      <span>Sign In / Create Account</span>
+                      <span>{t('signIn')}</span>
                     </button>
                   )}
                 </div>
@@ -316,7 +330,6 @@ export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
           </>
         )}
       </AnimatePresence>
-      <AuthDialog isOpen={showAuthDialog} onClose={() => setShowAuthDialog(false)} />
       {activeInfo && sidebarInfoMap[activeInfo] && (
         <SidebarInfoModal
           isOpen={true}

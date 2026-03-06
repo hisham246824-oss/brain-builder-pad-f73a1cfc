@@ -20,13 +20,14 @@ import AdminDashboard from "./pages/AdminDashboard";
 import SettingsPage from "./pages/SettingsPage";
 import SuggestionsPage from "./pages/SuggestionsPage";
 import TodoPage from "./pages/TodoPage";
+import AuthPage from "./pages/AuthPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 5, // 5 minutes
-      gcTime: 1000 * 60 * 10, // 10 minutes
+      staleTime: 1000 * 60 * 5,
+      gcTime: 1000 * 60 * 10,
       refetchOnWindowFocus: false,
       refetchOnReconnect: false,
       retry: 1,
@@ -34,7 +35,6 @@ const queryClient = new QueryClient({
   },
 });
 
-// Admin route guard component
 function AdminRoute({ children }: { children: React.ReactNode }) {
   const { isAdmin, isLoading } = useUserRole();
   const { user, isLoading: authLoading } = useAuth();
@@ -54,7 +54,6 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-// Regular user route - redirects admin to dashboard
 function UserRoute({ children }: { children: React.ReactNode }) {
   const { isAdmin, isLoading } = useUserRole();
   const { isLoading: authLoading } = useAuth();
@@ -74,7 +73,6 @@ function UserRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-// Root redirect component
 function RootRedirect() {
   const { isAdmin, isLoading } = useUserRole();
   const { isLoading: authLoading } = useAuth();
@@ -97,6 +95,9 @@ function RootRedirect() {
 function AppRoutes() {
   return (
     <Routes>
+      {/* Auth pages - full screen, no layout */}
+      <Route path="/auth" element={<AuthPage />} />
+
       {/* Admin routes */}
       <Route
         path="/admin"
