@@ -326,6 +326,10 @@ const translations: Record<Language, Translations> = {
     tableCreatorTitle: 'Créer un tableau',
     tableCreatorDesc: 'Créez de beaux tableaux avec un formatage personnalisé.',
     study: 'Étude', shortBreak: 'Pause courte', longBreak: 'Pause longue',
+    addNewWord: 'Ajouter un nouveau mot', englishWord: 'Mot en anglais', enterEnglishWord: 'Entrez le mot en anglais...',
+    meaningLabel: 'Signification', enterMeaning: 'Entrez la signification...', notesOptional: 'Notes (Optionnel)',
+    addNotes: 'Ajoutez des notes supplémentaires...', adding: 'Ajout...', letters: 'lettres',
+    english: 'ANGLAIS', targetLanguage: 'SIGNIFICATION',
   },
   zh: {
     home: '首页', studyMaterials: '学习资料', vocabulary: '词汇',
