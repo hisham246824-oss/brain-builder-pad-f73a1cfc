@@ -33,6 +33,7 @@ export function useStudyDataSupabase() {
   const [isLoading, setIsLoading] = useState(true);
   const isLocalChange = useRef(false);
   const hasSyncedPending = useRef(false);
+  const hasLoadedOnce = useRef(false);
 
   // Sync pending actions when coming back online
   const syncPendingActions = useCallback(async () => {
@@ -87,7 +88,7 @@ export function useStudyDataSupabase() {
       return;
     }
 
-    if (showLoading) {
+    if (showLoading && !hasLoadedOnce.current) {
       setIsLoading(true);
     }
 
@@ -146,8 +147,8 @@ export function useStudyDataSupabase() {
     }));
 
     setMaterials(materialsWithRelations);
-    // Cache for offline use
     cacheMaterials(materialsWithRelations);
+    hasLoadedOnce.current = true;
     setIsLoading(false);
   }, [user, isOnline]);
 

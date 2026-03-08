@@ -24,6 +24,7 @@ export function useTodos() {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const hasSyncedPending = useRef(false);
+  const hasLoadedOnce = useRef(false);
 
   // Sync pending todo actions
   const syncPendingActions = useCallback(async () => {
@@ -70,6 +71,8 @@ export function useTodos() {
       return;
     }
 
+    if (!hasLoadedOnce.current) setIsLoading(true);
+
     const { data, error } = await supabase
       .from('todos')
       .select('*')
@@ -83,6 +86,7 @@ export function useTodos() {
     } else {
       setTodos((data as Todo[]) || []);
       cacheTodos(data || []);
+      hasLoadedOnce.current = true;
     }
     setIsLoading(false);
   }, [user, isOnline]);

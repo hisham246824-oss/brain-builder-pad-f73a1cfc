@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -21,8 +21,9 @@ export function useAdminMessages() {
     } catch { return 0; }
   });
   const [isLoading, setIsLoading] = useState(true);
+  const hasLoadedOnce = useRef(false);
 
-  const fetchMessages = async () => {
+  const fetchMessages = async (silent = false) => {
     if (!user) {
       setMessages([]);
       setUnreadCount(0);
@@ -30,6 +31,7 @@ export function useAdminMessages() {
       return;
     }
 
+    if (!silent && !hasLoadedOnce.current) setIsLoading(true);
     try {
       // Get all admin messages
       const { data: messagesData, error: messagesError } = await supabase
@@ -61,6 +63,7 @@ export function useAdminMessages() {
       });
 
       setMessages(messagesWithStatus);
+      hasLoadedOnce.current = true;
       const count = messagesWithStatus.filter(m => !m.isRead).length;
       setUnreadCount(count);
       try { localStorage.setItem('studyhub-unread-count', String(count)); } catch {}
@@ -162,7 +165,7 @@ export function useAdminMessages() {
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'admin_messages' },
-        () => { fetchMessages(); }
+        () => { fetchMessages(true); }
       )
       .subscribe();
 
@@ -173,7 +176,7 @@ export function useAdminMessages() {
   useEffect(() => {
     const handleVisibility = () => {
       if (document.visibilityState === 'visible' && user) {
-        fetchMessages();
+        fetchMessages(true);
       }
     };
     document.addEventListener('visibilitychange', handleVisibility);

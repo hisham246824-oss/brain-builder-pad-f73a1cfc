@@ -21,6 +21,7 @@ export function useVocabulary() {
   const [searchQuery, setSearchQuery] = useState('');
   const isLocalChange = useRef(false);
   const hasSyncedPending = useRef(false);
+  const hasLoadedOnce = useRef(false);
 
   // Sync pending vocabulary actions when coming back online
   const syncPendingActions = useCallback(async () => {
@@ -72,7 +73,7 @@ export function useVocabulary() {
       return;
     }
 
-    setIsLoading(true);
+    if (!hasLoadedOnce.current) setIsLoading(true);
     const { data, error } = await supabase
       .from('vocabulary')
       .select('*')
@@ -88,8 +89,8 @@ export function useVocabulary() {
       }
     } else {
       setWords(data || []);
-      // Cache for offline use
       cacheVocabulary(data || []);
+      hasLoadedOnce.current = true;
     }
     setIsLoading(false);
   }, [user, isOnline]);

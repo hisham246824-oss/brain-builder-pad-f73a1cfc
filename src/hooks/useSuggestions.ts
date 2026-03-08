@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
@@ -22,8 +22,10 @@ export function useSuggestions() {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchSuggestions = useCallback(async () => {
-    setIsLoading(true);
+  const hasLoadedOnce = useRef(false);
+
+  const fetchSuggestions = useCallback(async (silent = false) => {
+    if (!silent && !hasLoadedOnce.current) setIsLoading(true);
     try {
       const { data: suggestionsData, error } = await supabase
         .from('suggestions')
@@ -69,10 +71,12 @@ export function useSuggestions() {
       // Sort by votes (most voted first)
       enriched.sort((a, b) => b.votes_count - a.votes_count);
       setSuggestions(enriched);
+      hasLoadedOnce.current = true;
     } catch (err) {
       console.error('Error fetching suggestions:', err);
     } finally {
-      setIsLoading(false);
+      if (!hasLoadedOnce.current) setIsLoading(false);
+      else setIsLoading(false);
     }
   }, [user]);
 
@@ -85,10 +89,10 @@ export function useSuggestions() {
     const channel = supabase
       .channel('suggestions-realtime')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'suggestions' }, () => {
-        fetchSuggestions();
+        fetchSuggestions(true);
       })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'suggestion_votes' }, () => {
-        fetchSuggestions();
+        fetchSuggestions(true);
       })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
@@ -98,7 +102,7 @@ export function useSuggestions() {
   useEffect(() => {
     const handleVisibility = () => {
       if (document.visibilityState === 'visible') {
-        fetchSuggestions();
+        fetchSuggestions(true);
       }
     };
     document.addEventListener('visibilitychange', handleVisibility);

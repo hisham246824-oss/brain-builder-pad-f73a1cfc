@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
@@ -25,10 +25,11 @@ export function useSupportTickets() {
   const { user } = useAuth();
   const [tickets, setTickets] = useState<SupportTicket[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const hasLoadedOnce = useRef(false);
 
-  const fetchTickets = useCallback(async () => {
+  const fetchTickets = useCallback(async (silent = false) => {
     if (!user) return;
-    setIsLoading(true);
+    if (!silent && !hasLoadedOnce.current) setIsLoading(true);
     try {
       const { data, error } = await supabase
         .from('support_tickets')
@@ -36,6 +37,7 @@ export function useSupportTickets() {
         .order('updated_at', { ascending: false });
       if (error) throw error;
       setTickets(data || []);
+      hasLoadedOnce.current = true;
     } catch (err) {
       console.error('Error fetching tickets:', err);
     } finally {
@@ -53,7 +55,7 @@ export function useSupportTickets() {
     const channel = supabase
       .channel('support-tickets-realtime')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'support_tickets' }, () => {
-        fetchTickets();
+        fetchTickets(true);
       })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
