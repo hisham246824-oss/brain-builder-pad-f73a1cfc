@@ -163,7 +163,7 @@ function TodoCard({ todo, onToggle, onDelete, index }: { todo: Todo; onToggle: (
             {timeLeft?.overdue && !todo.completed && (
               <div className="flex items-center gap-1.5 text-xs text-destructive font-medium">
                 <AlertTriangle className="h-3 w-3" />
-                {(() => { const { t } = useLanguage(); return t('overdueWarning'); })()}
+                {t('overdueWarning')}
               </div>
             )}
           </div>
