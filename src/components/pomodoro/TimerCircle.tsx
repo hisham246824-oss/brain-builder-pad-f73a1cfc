@@ -38,8 +38,9 @@ export function TimerCircle({ minutes, seconds, totalSeconds, remainingSeconds, 
           strokeDasharray={circumference}
           strokeDashoffset={strokeDashoffset}
           style={{
-            transition: 'stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.5s ease',
+            transition: 'stroke-dashoffset 0.5s cubic-bezier(0.22, 1, 0.36, 1), stroke 0.3s ease',
             transformOrigin: 'center',
+            willChange: 'stroke-dashoffset',
           }}
         />
         {/* Pulse glow when running */}

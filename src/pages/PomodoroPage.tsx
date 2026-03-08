@@ -103,9 +103,10 @@ export default function PomodoroPage() {
           </div>
         </div>
         <motion.div
+          layout
           animate={{ width: isPanelVisible ? '60%' : '100%' }}
-          transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-          className="flex flex-col items-center justify-center p-8"
+          transition={{ duration: 0.333, ease: [0.22, 1, 0.36, 1] }}
+          className="flex flex-col items-center justify-center p-8 composite-layer"
         >
           <div className="flex flex-col items-center gap-8">
             <TimerCircle minutes={minutes} seconds={seconds} totalSeconds={totalSeconds} remainingSeconds={remainingSeconds} color={currentColor} isRunning={isRunning} />

@@ -116,7 +116,7 @@ export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
               initial={slideFrom}
               animate={slideTo}
               exit={slideFrom}
-              transition={{ type: 'spring', damping: 30, stiffness: 350 }}
+              transition={{ type: 'spring', damping: 32, stiffness: 400, mass: 0.8 }}
               className={cn(
                 "fixed top-0 z-50 h-full w-72 bg-sidebar shadow-soft gpu-accelerated will-change-transform",
                 isRTL ? "right-0 rounded-l-3xl" : "left-0 rounded-r-3xl"

@@ -22,20 +22,19 @@ export function AppLayout() {
       <OfflineIndicator />
       <Header onMenuClick={() => setSidebarOpen(true)} />
       <AppSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      <main className="flex-1 mx-auto max-w-5xl px-4 py-6 md:px-6 md:py-8 w-full">
+      <main className="flex-1 mx-auto max-w-5xl px-4 py-6 md:px-6 md:py-8 w-full contain-paint">
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={location.pathname}
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
+            exit={{ opacity: 0, y: -4 }}
             transition={{ 
-              duration: 0.2, 
-              ease: [0.25, 0.1, 0.25, 1],
-              opacity: { duration: 0.15 }
+              duration: 0.166, 
+              ease: [0.22, 1, 0.36, 1],
+              opacity: { duration: 0.133 }
             }}
-            className="h-full will-change-[transform,opacity]"
-            style={{ transform: 'translateZ(0)' }}
+            className="h-full composite-layer"
           >
             <Outlet />
           </motion.div>
