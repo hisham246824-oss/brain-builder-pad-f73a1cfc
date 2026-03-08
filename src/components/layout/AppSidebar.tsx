@@ -18,6 +18,7 @@ const BASE_NAV_ITEMS = [
   { id: 'home', to: '/', icon: Home },
   { id: 'materials', to: '/materials', icon: BookOpen },
   { id: 'vocabulary', to: '/vocabulary', icon: BookA },
+  { id: 'table-creator', to: '/table-creator', icon: Table2 },
   { id: 'pomodoro', to: '/pomodoro', icon: Timer },
   { id: 'suggestions', to: '/suggestions', icon: Lightbulb },
   { id: 'todos', to: '/todos', icon: ListTodo },
