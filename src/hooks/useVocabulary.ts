@@ -21,6 +21,7 @@ export function useVocabulary() {
   const [searchQuery, setSearchQuery] = useState('');
   const isLocalChange = useRef(false);
   const hasSyncedPending = useRef(false);
+  const hasLoadedOnce = useRef(false);
 
   // Sync pending vocabulary actions when coming back online
   const syncPendingActions = useCallback(async () => {
