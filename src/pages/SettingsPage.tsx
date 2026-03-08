@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
-  User, Palette, Bot, Moon, Sun, GripVertical, Check, 
+  User, Palette, Moon, Sun, GripVertical, Check, 
   Star, Heart, Zap, Crown, Flame, Rocket, Diamond,
   Lock, Eye, EyeOff, ArrowLeft, LogOut, Globe, Copy, Hash
 } from 'lucide-react';
