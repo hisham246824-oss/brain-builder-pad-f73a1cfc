@@ -14,7 +14,12 @@ interface AdminMessage {
 export function useAdminMessages() {
   const { user } = useAuth();
   const [messages, setMessages] = useState<AdminMessage[]>([]);
-  const [unreadCount, setUnreadCount] = useState(0);
+  const [unreadCount, setUnreadCount] = useState(() => {
+    try {
+      const cached = localStorage.getItem('studyhub-unread-count');
+      return cached ? parseInt(cached, 10) : 0;
+    } catch { return 0; }
+  });
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchMessages = async () => {
