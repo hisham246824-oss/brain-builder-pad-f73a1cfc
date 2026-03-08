@@ -46,31 +46,28 @@ export function VocabularyCard({ word, index, onDelete, onEdit }: VocabularyCard
 
   return (
     <motion.div
-      layout="position"
-      initial={{ opacity: 0, y: 16, scale: 0.98 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.96, y: -8 }}
-      transition={{ delay: Math.min(index * 0.04, 0.3), type: 'spring', stiffness: 400, damping: 28, mass: 0.8 }}
-      whileHover={{ y: -2, scale: 1.008, transition: { duration: 0.166 } }}
-      className="relative bg-card rounded-3xl overflow-hidden shadow-card hover:shadow-[0_8px_25px_hsl(var(--primary)/0.12)] transition-shadow duration-200 composite-layer"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.15, delay: Math.min(index * 0.03, 0.2) }}
+      className="relative bg-card rounded-3xl overflow-hidden shadow-card gpu"
     >
       {/* Header with action buttons */}
       <div className="bg-gradient-to-r from-primary to-primary/80 p-4 flex items-center justify-between">
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm">
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20">
           <BookOpen className="h-6 w-6 text-primary-foreground" />
         </div>
-        {/* All buttons horizontal */}
         <div className="flex items-center gap-1">
           <button
             onClick={speakWord}
-            className="p-2 rounded-lg text-primary-foreground/70 hover:text-primary-foreground hover:bg-white/10 transition-colors"
+            className="p-2 rounded-lg text-primary-foreground/70 hover:text-primary-foreground hover:bg-white/10 transition-colors duration-150 active:scale-[0.98]"
             aria-label="Pronounce word"
           >
             <Volume2 className="h-5 w-5" />
           </button>
           <button
             onClick={() => isEditing ? handleSave() : setIsEditing(true)}
-            className="p-2 rounded-lg text-primary-foreground/70 hover:text-primary-foreground hover:bg-white/10 transition-colors"
+            className="p-2 rounded-lg text-primary-foreground/70 hover:text-primary-foreground hover:bg-white/10 transition-colors duration-150 active:scale-[0.98]"
             aria-label={isEditing ? "Save" : "Edit word"}
           >
             {isEditing ? <Check className="h-5 w-5" /> : <Pencil className="h-5 w-5" />}
@@ -78,7 +75,7 @@ export function VocabularyCard({ word, index, onDelete, onEdit }: VocabularyCard
           {isEditing ? (
             <button
               onClick={handleCancel}
-              className="p-2 rounded-lg text-primary-foreground/70 hover:text-primary-foreground hover:bg-white/10 transition-colors"
+              className="p-2 rounded-lg text-primary-foreground/70 hover:text-primary-foreground hover:bg-white/10 transition-colors duration-150 active:scale-[0.98]"
               aria-label="Cancel"
             >
               <X className="h-5 w-5" />
@@ -86,7 +83,7 @@ export function VocabularyCard({ word, index, onDelete, onEdit }: VocabularyCard
           ) : (
             <button
               onClick={() => onDelete(word.id)}
-              className="p-2 rounded-lg text-primary-foreground/70 hover:text-primary-foreground hover:bg-white/10 transition-colors"
+              className="p-2 rounded-lg text-primary-foreground/70 hover:text-primary-foreground hover:bg-white/10 transition-colors duration-150 active:scale-[0.98]"
               aria-label="Delete word"
             >
               <Trash2 className="h-5 w-5" />

@@ -28,15 +28,13 @@ export function MaterialCard({ material, index, onUpdateIcon }: MaterialCardProp
   return (
     <>
       <motion.div
-        layout="position"
-        initial={{ opacity: 0, y: 16, scale: 0.98 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ delay: Math.min(index * 0.06, 0.4), type: 'spring', stiffness: 400, damping: 28, mass: 0.8 }}
-        whileHover={{ y: -3, scale: 1.015, transition: { duration: 0.166 } }}
-        className="composite-layer"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.15, delay: Math.min(index * 0.04, 0.3) }}
+        className="gpu"
       >
         <Link to={`/materials/${material.id}`}>
-          <div className="group relative overflow-hidden rounded-3xl bg-card p-6 shadow-card transition-shadow duration-200 hover:shadow-[0_8px_30px_hsl(var(--primary)/0.12)] contain-paint">
+          <div className="group relative overflow-hidden rounded-3xl bg-card p-6 shadow-card transition-shadow duration-150 hover:shadow-soft contain-paint active:scale-[0.99]">
             {/* Color accent bar */}
             <div
               className="absolute left-0 top-0 h-full w-1.5 rounded-l-3xl"
@@ -46,18 +44,16 @@ export function MaterialCard({ material, index, onUpdateIcon }: MaterialCardProp
             <div className="flex items-start justify-between">
               <div className="flex-1 pl-3">
                 <div className="flex items-center gap-2">
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
+                  <button
                     onClick={handleIconClick}
-                    className="p-1 rounded-lg transition-colors hover:bg-secondary"
+                    className="p-1 rounded-lg transition-colors duration-150 hover:bg-secondary active:scale-[0.95]"
                     title="Click to change icon"
                   >
                     <MaterialIcon
                       className="h-5 w-5"
                       style={{ color: material.color }}
                     />
-                  </motion.button>
+                  </button>
                   <h3 className="font-semibold text-card-foreground">
                     {material.title}
                   </h3>
@@ -80,12 +76,9 @@ export function MaterialCard({ material, index, onUpdateIcon }: MaterialCardProp
                   
                   {/* Progress bar */}
                   <div className="mt-2 h-2 overflow-hidden rounded-full bg-secondary">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${progress}%` }}
-                      transition={{ delay: index * 0.1 + 0.3, duration: 0.5 }}
-                      className="h-full rounded-full"
-                      style={{ backgroundColor: material.color }}
+                    <div
+                      className="h-full rounded-full transition-[width] duration-300 ease-out"
+                      style={{ backgroundColor: material.color, width: `${progress}%` }}
                     />
                   </div>
                 </div>
@@ -96,9 +89,7 @@ export function MaterialCard({ material, index, onUpdateIcon }: MaterialCardProp
                     {material.lessons.map((lesson) => (
                       <div key={lesson.id} title={lesson.title}>
                         {lesson.completed ? (
-                          <CheckCircle2
-                            className="h-4 w-4 text-success"
-                          />
+                          <CheckCircle2 className="h-4 w-4 text-success" />
                         ) : (
                           <Circle className="h-4 w-4 text-muted-foreground/40" />
                         )}
@@ -111,7 +102,7 @@ export function MaterialCard({ material, index, onUpdateIcon }: MaterialCardProp
 
             {/* Hover effect */}
             <div
-              className="absolute -right-8 -top-8 h-24 w-24 rounded-full opacity-10 transition-all group-hover:scale-150 group-hover:opacity-20"
+              className="absolute -right-8 -top-8 h-24 w-24 rounded-full opacity-10 transition-opacity duration-150 group-hover:opacity-20"
               style={{ backgroundColor: material.color }}
             />
           </div>

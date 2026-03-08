@@ -38,38 +38,17 @@ export function TimerCircle({ minutes, seconds, totalSeconds, remainingSeconds, 
           strokeDasharray={circumference}
           strokeDashoffset={strokeDashoffset}
           style={{
-            transition: 'stroke-dashoffset 0.5s cubic-bezier(0.22, 1, 0.36, 1), stroke 0.3s ease',
+            transition: 'stroke-dashoffset 0.4s ease-out, stroke 0.2s ease-out',
             transformOrigin: 'center',
-            willChange: 'stroke-dashoffset',
           }}
         />
-        {/* Pulse glow when running */}
-        {isRunning && (
-          <circle
-            cx="160"
-            cy="160"
-            r="140"
-            fill="none"
-            stroke={color}
-            strokeWidth="4"
-            strokeLinecap="round"
-            strokeDasharray={circumference}
-            strokeDashoffset={strokeDashoffset}
-            className="animate-[pulse_2s_cubic-bezier(0.4,0,0.6,1)_infinite]"
-            style={{
-              filter: 'blur(8px)',
-              opacity: 0.5,
-              transformOrigin: 'center',
-            }}
-          />
-        )}
       </svg>
       
       {/* Time display */}
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <span
-          className={`text-6xl font-bold tabular-nums text-foreground transition-transform duration-300 ${isRunning ? 'scale-100' : 'scale-95 opacity-80'}`}
-          style={{ direction: 'ltr' }}
+          className="text-6xl font-bold tabular-nums text-foreground"
+          style={{ direction: 'ltr', opacity: isRunning ? 1 : 0.8 }}
         >
           {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
         </span>

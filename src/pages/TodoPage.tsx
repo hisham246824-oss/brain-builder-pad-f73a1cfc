@@ -71,25 +71,25 @@ function TodoCard({ todo, onToggle, onDelete, index }: { todo: Todo; onToggle: (
   return (
     <motion.div
       layout="position"
-      initial={{ opacity: 0, y: 16, scale: 0.98 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, x: -80, scale: 0.96 }}
-      transition={{ delay: Math.min(index * 0.04, 0.3), type: 'spring', stiffness: 400, damping: 28, mass: 0.8 }}
-      whileHover={{ y: -2, scale: 1.004, transition: { duration: 0.166 } }}
-      className={`relative rounded-[1.25rem] border-2 overflow-hidden transition-all ${
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.15, delay: Math.min(index * 0.03, 0.2) }}
+      className={`relative rounded-[1.25rem] border-2 overflow-hidden ${
         todo.completed
           ? 'border-border/20 bg-muted/20 opacity-50'
-          : `${config.border} bg-gradient-to-br ${config.gradient} ${config.glow}`
+          : `${config.border} bg-gradient-to-br ${config.gradient}`
       }`}
     >
       {/* Celebration overlay */}
       <AnimatePresence>
         {showCelebration && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            className="absolute inset-0 z-10 flex items-center justify-center rounded-[1.25rem] bg-primary/10 backdrop-blur-sm"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            className="absolute inset-0 z-10 flex items-center justify-center rounded-[1.25rem] bg-primary/10"
           >
             <div className="text-center">
               <PartyPopper className="h-10 w-10 text-primary mx-auto mb-2" />
@@ -227,7 +227,7 @@ const TodoPage = () => {
   return (
     <div className="space-y-6">
       {/* 1. Header with gradient title */}
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+      <div>
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-[1.5rem] gradient-primary">
@@ -242,10 +242,10 @@ const TodoPage = () => {
             <Plus className="h-5 w-5" /> {t('addTask')}
           </Button>
         </div>
-      </motion.div>
+      </div>
 
       {/* 2. Stats bar */}
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div className="bg-card border border-border rounded-[1.5rem] p-3 text-center">
           <p className="text-2xl font-bold text-primary">{todos.length}</p>
           <p className="text-[11px] text-muted-foreground">{t('totalTasks')}</p>
@@ -262,11 +262,11 @@ const TodoPage = () => {
           <p className="text-2xl font-bold text-destructive">{overdueCount}</p>
           <p className="text-[11px] text-muted-foreground">{t('overdue')}</p>
         </div>
-      </motion.div>
+      </div>
 
       {/* 3. Completion progress */}
       {todos.length > 0 && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.15 }} className="bg-card border border-border rounded-[1.5rem] p-4">
+        <div className="bg-card border border-border rounded-[1.5rem] p-4">
           <div className="flex justify-between items-center text-sm mb-2">
             <span className="text-muted-foreground flex items-center gap-1.5">
               <TrendingUp className="h-4 w-4 text-primary" /> {t('overallProgress')}
@@ -274,11 +274,11 @@ const TodoPage = () => {
             <span className="font-bold text-primary">{completionPercent}%</span>
           </div>
           <Progress value={completionPercent} className="h-2.5" />
-        </motion.div>
+        </div>
       )}
 
       {/* 4. Quick filter pills */}
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="flex gap-2 flex-wrap">
+      <div className="flex gap-2 flex-wrap">
         <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-medium">
           <Target className="h-3 w-3" /> {activeTodos.length} {t('active')}
         </span>
@@ -290,13 +290,13 @@ const TodoPage = () => {
             <AlertTriangle className="h-3 w-3" /> {overdueCount} {t('overdue')}
           </span>
         )}
-      </motion.div>
+      </div>
 
       {/* 5. Tasks list */}
       {isLoading ? (
         <TodoSkeleton />
       ) : activeTodos.length === 0 && completedTodos.length === 0 ? (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-16">
+        <div className="text-center py-16">
           <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/10 mx-auto mb-4">
             <Sparkles className="h-10 w-10 text-primary" />
           </div>
@@ -305,7 +305,7 @@ const TodoPage = () => {
           <Button onClick={() => setShowAdd(true)} className="rounded-full gap-2">
             <Plus className="h-4 w-4" /> {t('createFirstTask')}
           </Button>
-        </motion.div>
+        </div>
       ) : (
         <div className="space-y-3 contain-paint">
           <AnimatePresence>
@@ -335,11 +335,11 @@ const TodoPage = () => {
 
       {/* 7. Motivational footer */}
       {activeTodos.length > 0 && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="text-center py-4">
+        <div className="text-center py-4">
           <p className="text-xs text-muted-foreground italic">
             "The secret of getting ahead is getting started." — Mark Twain
           </p>
-        </motion.div>
+        </div>
       )}
 
       {/* Add Task Dialog */}
