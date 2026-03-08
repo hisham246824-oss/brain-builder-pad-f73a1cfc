@@ -153,11 +153,16 @@ export function useFlashcards() {
     setMcqSelectedIndex(null);
   }, []);
 
-  const startTest = useCallback((count: TestCount, mode: TestMode, format: TestFormat) => {
+  const startTest = useCallback((count: TestCount, mode: TestMode, format: TestFormat, selectedDate?: string) => {
     let filtered: FlashcardWord[];
     const now = new Date();
 
-    if (format === 'focus') {
+    if (format === 'date' && selectedDate) {
+      filtered = allWords.filter(w => {
+        const wordDate = new Date(w.created_at).toISOString().split('T')[0];
+        return wordDate === selectedDate;
+      });
+    } else if (format === 'focus') {
       filtered = allWords.filter(w => w.ease_factor < 2.0 || w.repetitions <= 1);
     } else if (format === 'smart') {
       filtered = [...allWords].sort((a, b) => {
