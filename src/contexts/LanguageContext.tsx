@@ -976,6 +976,9 @@ const translations: Record<Language, Translations> = {
     infoSuggestions: 'प्लेटफॉर्म को बेहतर बनाने के लिए अपने विचार साझा करें। सुविधा अनुरोध भेजें और दूसरों के सुझावों पर वोट करें।',
     infoTodos: 'रंग-कोडित प्राथमिकताओं के साथ कार्य प्रबंधित करें। लाइव काउंटडाउन के साथ समय सीमा निर्धारित करें।',
     infoSupport: 'मदद चाहिए? सहायता टिकट बनाएं, छवियां संलग्न करें और टीम से चैट करें।',
+    leaderboard: 'लीडरबोर्ड',
+    leaderboardDesc: 'समय के अनुसार शीर्ष शिक्षार्थी',
+    noLeaderboardData: 'अभी कोई डेटा नहीं',
   },
   es: {
     home: 'Inicio', studyMaterials: 'Material de estudio', vocabulary: 'Vocabulario',
