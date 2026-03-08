@@ -59,9 +59,19 @@ export function AdminImpersonationProvider({ children }: { children: ReactNode }
       }
 
       // 2. Call edge function — it verifies the OTP server-side and returns session tokens
-      const { data, error } = await supabase.functions.invoke('admin-impersonate', {
+      let { data, error } = await supabase.functions.invoke('admin-impersonate', {
         body: { targetUserId: userId },
       });
+
+      // Retry with refreshed session if auth failed
+      if (error || data?.error?.includes?.('authentication')) {
+        await supabase.auth.refreshSession();
+        const retry = await supabase.functions.invoke('admin-impersonate', {
+          body: { targetUserId: userId },
+        });
+        data = retry.data;
+        error = retry.error;
+      }
 
       if (error || !data?.access_token || !data?.refresh_token) {
         toast.error(data?.error || error?.message || 'Failed to impersonate user');

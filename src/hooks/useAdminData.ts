@@ -108,6 +108,16 @@ export function useAdminData() {
   const [polls, setPolls] = useState<AdminPoll[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const invokeWithRetry = useCallback(async (fnName: string, body?: object) => {
+    const res = await supabase.functions.invoke(fnName, body ? { body } : undefined);
+    if (res.error?.message?.includes('401') || res.error?.message?.includes('Invalid') || (!res.data && res.error)) {
+      // Try refreshing session and retry once
+      await supabase.auth.refreshSession();
+      return supabase.functions.invoke(fnName, body ? { body } : undefined);
+    }
+    return res;
+  }, []);
+
   const fetchUsers = useCallback(async () => {
     if (!isAdmin) return;
     try {
@@ -117,7 +127,7 @@ export function useAdminData() {
         supabase.from('user_settings').select('user_id, display_name, avatar_color, avatar_icon, language'),
         supabase.from('user_blocks').select('*'),
         supabase.from('page_visits').select('user_id, visited_at').order('visited_at', { ascending: false }),
-        supabase.functions.invoke('admin-list-users'),
+        invokeWithRetry('admin-list-users'),
       ]);
 
       const emailMap: Record<string, string> = {};
