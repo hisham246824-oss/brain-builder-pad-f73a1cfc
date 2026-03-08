@@ -73,7 +73,7 @@ export function useVocabulary() {
       return;
     }
 
-    setIsLoading(true);
+    if (!hasLoadedOnce.current) setIsLoading(true);
     const { data, error } = await supabase
       .from('vocabulary')
       .select('*')
