@@ -64,8 +64,9 @@ export default function SettingsPage() {
 
   const SIDEBAR_LABELS: Record<string, string> = {
     home: t('home'), materials: t('studyMaterials'), vocabulary: t('vocabulary'),
-    'table-creator': t('createTable'), pomodoro: t('pomodoroTimer'),
+    pomodoro: t('pomodoroTimer'),
     suggestions: t('suggestions'), messages: t('messages'), todos: t('todoList'),
+    support: t('technicalSupport'),
   };
 
   useEffect(() => {

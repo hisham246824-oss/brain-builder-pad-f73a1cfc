@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
-import { BookOpen, Timer, CheckSquare, ArrowRight, GraduationCap, Sparkles, Table2 } from 'lucide-react';
+import { BookOpen, Timer, CheckSquare, ArrowRight, GraduationCap, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserSettings } from '@/hooks/useUserSettings';
