@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useFlashcards, TestCount, TestMode, TestFormat } from '@/hooks/useFlashcards';
 import { Flashcard } from '@/components/vocabulary/Flashcard';
 import { FlashcardControls } from '@/components/vocabulary/FlashcardControls';
@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/AuthContext';
 import {
   ArrowLeft, Sparkles, CheckCircle2, XCircle, ThumbsUp, AlertTriangle,
-  Shuffle, Target, Brain, Layers, ListChecks, Keyboard, Zap, Trophy, WifiOff,
+  Shuffle, Target, Brain, Layers, ListChecks, Keyboard, Zap, Trophy, WifiOff, CalendarDays,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -15,13 +15,30 @@ import { Progress } from '@/components/ui/progress';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import { cn } from '@/lib/utils';
+import { format } from 'date-fns';
 
-function TestSetup({ totalWords, onStart }: { totalWords: number; onStart: (count: TestCount, mode: TestMode, format: TestFormat) => void }) {
+function TestSetup({ totalWords, allWords, onStart }: { totalWords: number; allWords: any[]; onStart: (count: TestCount, mode: TestMode, format: TestFormat, selectedDate?: string) => void }) {
   const [count, setCount] = useState<TestCount>(10);
   const [mode, setMode] = useState<TestMode>('flashcard');
   const [format, setFormat] = useState<TestFormat>('random');
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const { t } = useLanguage();
   const { isOnline } = useNetworkStatus();
+
+  // Get unique dates when words were added
+  const availableDates = useMemo(() => {
+    const dateMap = new Map<string, number>();
+    allWords.forEach(w => {
+      const date = new Date(w.created_at).toISOString().split('T')[0];
+      dateMap.set(date, (dateMap.get(date) || 0) + 1);
+    });
+    return Array.from(dateMap.entries())
+      .sort((a, b) => b[0].localeCompare(a[0]));
+  }, [allWords]);
+
+  const dateWordCount = selectedDate
+    ? availableDates.find(([d]) => d === selectedDate)?.[1] || 0
+    : 0;
 
   const counts: TestCount[] = [10, 20, 30, 40, 50, 'all'];
 
@@ -35,6 +52,7 @@ function TestSetup({ totalWords, onStart }: { totalWords: number; onStart: (coun
     { value: 'random' as TestFormat, label: t('random'), desc: t('randomDesc'), icon: Shuffle, emoji: '🎲' },
     { value: 'focus' as TestFormat, label: t('focus'), desc: t('focusDesc'), icon: Target, emoji: '🎯' },
     { value: 'smart' as TestFormat, label: t('smartReview'), desc: t('smartDesc'), icon: Brain, emoji: '🧠' },
+    { value: 'date' as TestFormat, label: t('byDate') || 'By Date', desc: t('byDateDesc') || 'Quiz words added on a specific day', icon: CalendarDays, emoji: '📅' },
   ];
 
   return (
@@ -51,29 +69,31 @@ function TestSetup({ totalWords, onStart }: { totalWords: number; onStart: (coun
         </motion.div>
       )}
 
-      {/* Count Selection */}
-      <div>
-        <h3 className="text-base font-semibold text-foreground mb-3">{t('numberOfWords')}</h3>
-        <div className="grid grid-cols-3 gap-2">
-          {counts.map((c, i) => (
-            <motion.button
-              key={String(c)}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: i * 0.03 }}
-              onClick={() => setCount(c)}
-              className={cn(
-                'rounded-2xl py-3.5 text-sm font-semibold border-2 transition-all duration-200',
-                count === c
-                  ? 'border-primary bg-primary text-primary-foreground shadow-md scale-[1.02]'
-                  : 'border-border bg-card text-foreground hover:border-primary/40 hover:bg-accent'
-              )}
-            >
-              {c === 'all' ? `${t('allWords') || 'All'} (${totalWords})` : c}
-            </motion.button>
-          ))}
+      {/* Count Selection — hidden in date mode since count is auto */}
+      {format !== 'date' && (
+        <div>
+          <h3 className="text-base font-semibold text-foreground mb-3">{t('numberOfWords')}</h3>
+          <div className="grid grid-cols-3 gap-2">
+            {counts.map((c, i) => (
+              <motion.button
+                key={String(c)}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: i * 0.03 }}
+                onClick={() => setCount(c)}
+                className={cn(
+                  'rounded-2xl py-3.5 text-sm font-semibold border-2 transition-all duration-200',
+                  count === c
+                    ? 'border-primary bg-primary text-primary-foreground shadow-md scale-[1.02]'
+                    : 'border-border bg-card text-foreground hover:border-primary/40 hover:bg-accent'
+                )}
+              >
+                {c === 'all' ? `${t('allWords') || 'All'} (${totalWords})` : c}
+              </motion.button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Mode Selection */}
       <div>
@@ -111,7 +131,10 @@ function TestSetup({ totalWords, onStart }: { totalWords: number; onStart: (coun
               initial={{ opacity: 0, x: -15 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 + i * 0.06 }}
-              onClick={() => setFormat(f.value)}
+              onClick={() => {
+                setFormat(f.value);
+                if (f.value !== 'date') setSelectedDate(null);
+              }}
               className={cn(
                 'w-full rounded-2xl p-4 flex items-center gap-4 border-2 transition-all duration-200',
                 format === f.value
@@ -134,14 +157,52 @@ function TestSetup({ totalWords, onStart }: { totalWords: number; onStart: (coun
         </div>
       </div>
 
+      {/* Date Picker — shown when 'date' format is selected */}
+      {format === 'date' && (
+        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="overflow-hidden">
+          <h3 className="text-base font-semibold text-foreground mb-3">{t('selectDate') || 'Select a date'}</h3>
+          {availableDates.length === 0 ? (
+            <p className="text-sm text-muted-foreground">{t('noDatesAvailable') || 'No dates available'}</p>
+          ) : (
+            <div className="grid grid-cols-1 gap-1.5 max-h-52 overflow-y-auto rounded-2xl border border-border p-2 bg-card">
+              {availableDates.map(([date, wordCount]) => (
+                <motion.button
+                  key={date}
+                  onClick={() => setSelectedDate(date)}
+                  className={cn(
+                    'flex items-center justify-between rounded-xl px-4 py-3 text-sm font-medium border transition-all',
+                    selectedDate === date
+                      ? 'border-primary bg-primary/10 text-primary'
+                      : 'border-transparent hover:bg-accent text-foreground'
+                  )}
+                >
+                  <span className="flex items-center gap-2">
+                    <CalendarDays className="h-4 w-4" />
+                    {format === 'date' ? (() => {
+                      try { return new Date(date + 'T00:00:00').toLocaleDateString(undefined, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' }); }
+                      catch { return date; }
+                    })() : date}
+                  </span>
+                  <span className="text-xs bg-secondary text-secondary-foreground rounded-full px-2 py-0.5">
+                    {wordCount} {t('words') || 'words'}
+                  </span>
+                </motion.button>
+              ))}
+            </div>
+          )}
+        </motion.div>
+      )}
+
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
         <Button
-          onClick={() => onStart(count, mode, format)}
-          disabled={totalWords === 0}
+          onClick={() => onStart(format === 'date' ? 'all' : count, mode, format, selectedDate || undefined)}
+          disabled={totalWords === 0 || (format === 'date' && !selectedDate)}
           className="w-full rounded-2xl py-6 text-lg font-semibold shadow-md hover:shadow-lg transition-shadow"
         >
           <Zap className="mr-2 h-5 w-5" />
-          {t('startTest')}
+          {format === 'date' && selectedDate
+            ? `${t('startTest')} (${dateWordCount} ${t('words') || 'words'})`
+            : t('startTest')}
         </Button>
       </motion.div>
     </motion.div>
@@ -452,7 +513,7 @@ export default function FlashcardsPage() {
           </motion.div>
         </AnimatePresence>
       ) : (
-        <TestSetup totalWords={allWords.length} onStart={startTest} />
+        <TestSetup totalWords={allWords.length} allWords={allWords} onStart={startTest} />
       )}
     </div>
   );

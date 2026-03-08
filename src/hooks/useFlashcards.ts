@@ -13,10 +13,11 @@ export interface FlashcardWord {
   interval_days: number;
   repetitions: number;
   next_review_at: string;
+  created_at: string;
 }
 
 export type TestMode = 'flashcard' | 'mcq' | 'typing';
-export type TestFormat = 'random' | 'focus' | 'smart';
+export type TestFormat = 'random' | 'focus' | 'smart' | 'date';
 export type TestCount = 10 | 20 | 30 | 40 | 50 | 'all';
 
 export interface TestResult {
@@ -101,6 +102,7 @@ export function useFlashcards() {
       interval_days: card.interval_days || 0,
       repetitions: card.repetitions || 0,
       next_review_at: card.next_review_at || new Date().toISOString(),
+      created_at: card.created_at || new Date().toISOString(),
     }));
 
   const fetchAllWords = useCallback(async () => {
@@ -115,7 +117,7 @@ export function useFlashcards() {
       setIsLoading(true);
       const { data, error } = await supabase
         .from('vocabulary')
-        .select('id, word, meanings, notes, ease_factor, interval_days, repetitions, next_review_at')
+        .select('id, word, meanings, notes, ease_factor, interval_days, repetitions, next_review_at, created_at')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
@@ -152,11 +154,16 @@ export function useFlashcards() {
     setMcqSelectedIndex(null);
   }, []);
 
-  const startTest = useCallback((count: TestCount, mode: TestMode, format: TestFormat) => {
+  const startTest = useCallback((count: TestCount, mode: TestMode, format: TestFormat, selectedDate?: string) => {
     let filtered: FlashcardWord[];
     const now = new Date();
 
-    if (format === 'focus') {
+    if (format === 'date' && selectedDate) {
+      filtered = allWords.filter(w => {
+        const wordDate = new Date(w.created_at).toISOString().split('T')[0];
+        return wordDate === selectedDate;
+      });
+    } else if (format === 'focus') {
       filtered = allWords.filter(w => w.ease_factor < 2.0 || w.repetitions <= 1);
     } else if (format === 'smart') {
       filtered = [...allWords].sort((a, b) => {
