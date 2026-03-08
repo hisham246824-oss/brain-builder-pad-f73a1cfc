@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { useTodos, Todo } from '@/hooks/useTodos';
 import { useAuth } from '@/contexts/AuthContext';
 import { AuthDialog } from '@/components/auth/AuthDialog';
+import { TodoSkeleton } from '@/components/skeletons/TodoSkeleton';
 import confetti from 'canvas-confetti';
 
 const IMPORTANCE_CONFIG = {
