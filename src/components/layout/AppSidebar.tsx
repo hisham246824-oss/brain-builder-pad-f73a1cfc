@@ -51,12 +51,8 @@ export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
   const { t, isRTL } = useLanguage();
   const { hasUnread, unreadCount } = useAdminMessages();
   const { settings } = useUserSettings();
-  const { conversations, currentConversation, setCurrentConversation, deleteConversation, renameConversation } = useAIChat();
   
   const [activeInfo, setActiveInfo] = useState<string | null>(null);
-  const [showConversations, setShowConversations] = useState(false);
-  const [editingConvId, setEditingConvId] = useState<string | null>(null);
-  const [editTitle, setEditTitle] = useState('');
 
   const getSortedNavItems = () => {
     if (!settings?.sidebar_order || settings.sidebar_order.length === 0) return BASE_NAV_ITEMS;
