@@ -173,33 +173,34 @@ function AppRoutes() {
   return (
     <>
       <AdminImpersonationBar />
-      <Routes>
-        <Route path="/auth" element={<AuthPage />} />
-        <Route
-          path="/admin"
-          element={
-            <AdminRoute>
-              <AdminDashboard />
-            </AdminRoute>
-          }
-        />
-        <Route element={<AppLayout />}>
-          <Route path="/" element={<RootRedirect />} />
-          <Route path="/materials" element={<MaterialsPage />} />
-          <Route path="/materials/:id" element={<MaterialDetailPage />} />
-          <Route path="/table-creator" element={<TableCreatorPage />} />
-          <Route path="/pomodoro" element={<PomodoroPage />} />
-          <Route path="/vocabulary" element={<VocabularyPage />} />
-          <Route path="/flashcards" element={<FlashcardsPage />} />
-          
-          <Route path="/messages" element={<MessagesPage />} />
-          <Route path="/settings" element={<SettingsPage />} />
-          <Route path="/suggestions" element={<SuggestionsPage />} />
-          <Route path="/todos" element={<TodoPage />} />
-          <Route path="/support" element={<SupportPage />} />
-        </Route>
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+      <Suspense fallback={<RouteFallback />}>
+        <Routes>
+          <Route path="/auth" element={<AuthPage />} />
+          <Route
+            path="/admin"
+            element={
+              <AdminRoute>
+                <AdminDashboard />
+              </AdminRoute>
+            }
+          />
+          <Route element={<AppLayout />}>
+            <Route path="/" element={<RootRedirect />} />
+            <Route path="/materials" element={<MaterialsPage />} />
+            <Route path="/materials/:id" element={<MaterialDetailPage />} />
+            <Route path="/table-creator" element={<TableCreatorPage />} />
+            <Route path="/pomodoro" element={<PomodoroPage />} />
+            <Route path="/vocabulary" element={<VocabularyPage />} />
+            <Route path="/flashcards" element={<FlashcardsPage />} />
+            <Route path="/messages" element={<MessagesPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/suggestions" element={<SuggestionsPage />} />
+            <Route path="/todos" element={<TodoPage />} />
+            <Route path="/support" element={<SupportPage />} />
+          </Route>
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Suspense>
     </>
   );
 }
