@@ -164,7 +164,7 @@ export default function MessagesPage() {
             <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10">
               <Mail className="h-4 w-4 text-primary" />
             </div>
-            <h2 className="text-lg font-semibold text-foreground">Messages</h2>
+            <h2 className="text-lg font-semibold text-foreground">{t('messagesSection')}</h2>
           </div>
           <AnimatePresence mode="popLayout">
             {messages.map((message, index) => (
