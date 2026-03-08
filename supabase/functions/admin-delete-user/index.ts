@@ -56,6 +56,14 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Prevent deleting other super admins
+    const { data: targetIsSuperAdmin } = await callerClient.rpc("is_super_admin", { _user_id: user_id });
+    if (targetIsSuperAdmin) {
+      return new Response(JSON.stringify({ error: "Cannot delete a super admin account" }), {
+        status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const adminClient = createClient(supabaseUrl, supabaseServiceKey);
 
     const tables = [
