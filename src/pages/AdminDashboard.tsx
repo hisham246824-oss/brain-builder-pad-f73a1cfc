@@ -67,6 +67,7 @@ export default function AdminDashboard() {
           onAccept={acceptSuggestion} onReject={rejectSuggestion}
         />
       )}
+      {activeTab === 'support' && <SupportPanel />}
     </AdminLayout>
   );
 }
