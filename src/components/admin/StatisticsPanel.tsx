@@ -78,7 +78,6 @@ export function StatisticsPanel({ stats, isLoading }: StatisticsPanelProps) {
     );
   }
 
-  const totalContent = (stats?.totalMaterials || 0) + (stats?.totalLessons || 0) + (stats?.totalVocabulary || 0) + (stats?.totalTodos || 0);
   const engagementRate = stats?.totalUsers ? Math.round((stats.activeToday / stats.totalUsers) * 100) : 0;
 
   return (
