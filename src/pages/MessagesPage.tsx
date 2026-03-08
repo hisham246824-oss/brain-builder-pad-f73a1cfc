@@ -5,6 +5,7 @@ import { Mail, Heart, Check, Calendar, BarChart, MessageSquareDashed } from 'luc
 import { Card, CardContent } from '@/components/ui/card';
 import { useAdminMessages } from '@/hooks/useAdminMessages';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -23,6 +24,8 @@ interface UserPoll {
 
 export default function MessagesPage() {
   const { messages, isLoading, toggleLike, markAllAsRead } = useAdminMessages();
+  const { user } = useAuth();
+  const { t } = useLanguage();
   const { user } = useAuth();
   const [polls, setPolls] = useState<UserPoll[]>([]);
   const [pollsLoading, setPollsLoading] = useState(true);
@@ -63,10 +66,10 @@ export default function MessagesPage() {
       } else {
         await supabase.from('poll_votes').insert({ poll_id: pollId, user_id: user.id, option_index: optionIndex });
       }
-      toast.success('Thank you for contributing to the site\'s development! 🎉');
+      toast.success(t('thankYouVote'));
       fetchPolls();
     } catch {
-      toast.error('Failed to vote');
+      toast.error(t('failedToVote'));
     }
   };
 
@@ -93,8 +96,8 @@ export default function MessagesPage() {
           <Mail className="h-7 w-7 text-primary-foreground" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-foreground tracking-tight">Messages & Polls</h1>
-          <p className="text-sm text-muted-foreground">{messages.length} messages • {polls.length} active polls</p>
+          <h1 className="text-2xl font-bold text-foreground tracking-tight">{t('messagesTitle')}</h1>
+          <p className="text-sm text-muted-foreground">{messages.length} {t('messages')} • {polls.length} {t('activePolls')}</p>
         </div>
       </motion.div>
 
@@ -105,7 +108,7 @@ export default function MessagesPage() {
             <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10">
               <BarChart className="h-4 w-4 text-primary" />
             </div>
-            <h2 className="text-lg font-semibold text-foreground">Active Polls</h2>
+            <h2 className="text-lg font-semibold text-foreground">{t('activePolls')}</h2>
           </div>
           {polls.map((poll, index) => (
             <motion.div key={poll.id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 + index * 0.05 }}>
@@ -150,8 +153,8 @@ export default function MessagesPage() {
               <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-[2rem] bg-gradient-to-br from-secondary to-secondary/50">
                 <MessageSquareDashed className="h-12 w-12 text-muted-foreground/40" />
               </div>
-              <p className="mt-6 text-xl font-semibold text-foreground/80">No messages yet</p>
-              <p className="mt-2 text-sm text-muted-foreground max-w-xs mx-auto">Messages and polls from the admin team will appear here</p>
+              <p className="mt-6 text-xl font-semibold text-foreground/80">{t('noMessages')}</p>
+              <p className="mt-2 text-sm text-muted-foreground max-w-xs mx-auto">{t('noMessagesDesc')}</p>
             </CardContent>
           </Card>
         </motion.div>
@@ -161,7 +164,7 @@ export default function MessagesPage() {
             <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10">
               <Mail className="h-4 w-4 text-primary" />
             </div>
-            <h2 className="text-lg font-semibold text-foreground">Messages</h2>
+            <h2 className="text-lg font-semibold text-foreground">{t('messagesSection')}</h2>
           </div>
           <AnimatePresence mode="popLayout">
             {messages.map((message, index) => (
@@ -187,7 +190,7 @@ export default function MessagesPage() {
                   <Card className="flex-1 rounded-[2rem] overflow-hidden border-none shadow-md hover:shadow-xl transition-all duration-300">
                     <div className="h-1 w-full bg-gradient-to-r from-primary via-primary/60 to-transparent" />
                     <CardContent className="p-6">
-                      <h3 className="text-lg font-bold text-foreground tracking-tight">{message.title || 'Admin Message'}</h3>
+                      <h3 className="text-lg font-bold text-foreground tracking-tight">{message.title || t('adminMessage')}</h3>
                       <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
                         <Calendar className="h-3 w-3" />
                         {new Date(message.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
