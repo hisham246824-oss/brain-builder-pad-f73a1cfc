@@ -15,6 +15,7 @@ interface TableCellProps {
   onChange: (value: string) => void;
   isSelected: boolean;
   onSelect: () => void;
+  isHeader?: boolean;
 }
 
 export function TableCell({ value, style, onChange, isSelected, onSelect }: TableCellProps) {
