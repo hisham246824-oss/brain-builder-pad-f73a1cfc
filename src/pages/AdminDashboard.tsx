@@ -22,14 +22,10 @@ export default function AdminDashboard() {
     blockUser, unblockUser,
   } = useAdminData();
 
-  const handleImpersonateUser = useCallback((userId: string) => {
+  const handleImpersonateUser = useCallback(async (userId: string) => {
     const targetUser = users.find(u => u.id === userId);
     if (!targetUser) return;
-    startImpersonation({
-      userId: targetUser.id,
-      displayName: targetUser.display_name,
-      email: targetUser.email,
-    });
+    await startImpersonation(userId, targetUser.display_name, targetUser.email);
     navigate('/');
   }, [users, startImpersonation, navigate]);
 
