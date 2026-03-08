@@ -46,51 +46,29 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { targetUserId } = await req.json();
-    if (!targetUserId) {
-      return new Response(JSON.stringify({ error: "Target user ID required" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    // Use service role to get target user
+    // Use service role to list all users with emails
     const adminClient = createClient(supabaseUrl, supabaseServiceKey);
-
-    const { data: targetUser, error: targetError } = await adminClient.auth.admin.getUserById(targetUserId);
-    if (targetError || !targetUser?.user) {
-      return new Response(JSON.stringify({ error: "User not found" }), {
-        status: 404,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+    
+    const allUsers: { id: string; email: string }[] = [];
+    let page = 1;
+    const perPage = 1000;
+    
+    while (true) {
+      const { data: { users }, error } = await adminClient.auth.admin.listUsers({
+        page,
+        perPage,
       });
+      
+      if (error) throw error;
+      if (!users || users.length === 0) break;
+      
+      allUsers.push(...users.map(u => ({ id: u.id, email: u.email || '' })));
+      
+      if (users.length < perPage) break;
+      page++;
     }
 
-    // Don't allow impersonating super admins
-    const { data: isSuperAdmin } = await adminClient.rpc("is_super_admin", { _user_id: targetUserId });
-    if (isSuperAdmin && caller.id !== targetUserId) {
-      return new Response(JSON.stringify({ error: "Cannot impersonate super admins" }), {
-        status: 403,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    // Generate a magic link for the target user
-    const { data: linkData, error: linkError } = await adminClient.auth.admin.generateLink({
-      type: "magiclink",
-      email: targetUser.user.email!,
-    });
-
-    if (linkError || !linkData) {
-      return new Response(JSON.stringify({ error: "Failed to generate link: " + (linkError?.message || "Unknown error") }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    return new Response(JSON.stringify({
-      email: targetUser.user.email,
-      token_hash: linkData.properties.hashed_token,
-    }), {
+    return new Response(JSON.stringify({ users: allUsers }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
 
