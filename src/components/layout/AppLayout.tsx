@@ -21,6 +21,7 @@ export function AppLayout() {
       <Header onMenuClick={() => setSidebarOpen(true)} />
       <AppSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <main className="flex-1 mx-auto max-w-5xl px-4 py-6 md:px-6 md:py-8 w-full">
+        <div className="bg-card/50 backdrop-blur-sm rounded-[2rem] border border-border/50 shadow-soft p-4 md:p-6 min-h-[calc(100vh-12rem)]">
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={location.pathname}
@@ -33,6 +34,7 @@ export function AppLayout() {
             <Outlet />
           </motion.div>
         </AnimatePresence>
+        </div>
       </main>
       <CopyrightFooter />
     </div>

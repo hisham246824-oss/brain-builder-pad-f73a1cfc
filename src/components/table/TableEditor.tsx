@@ -37,8 +37,9 @@ export function TableEditor() {
       
       await new Promise((resolve) => setTimeout(resolve, 100));
       
+      const isDark = document.documentElement.classList.contains('dark');
       const dataUrl = await toPng(tableRef.current, {
-        backgroundColor: '#ffffff',
+        backgroundColor: isDark ? '#1a1f2e' : '#ffffff',
         pixelRatio: 2,
         style: {
           borderRadius: '16px',
@@ -83,7 +84,7 @@ export function TableEditor() {
       <div className="overflow-x-auto">
         <div
           ref={tableRef}
-          className="inline-block min-w-full bg-card rounded-2xl border border-border overflow-hidden shadow-card"
+          className="inline-block min-w-full bg-card rounded-2xl border border-border overflow-hidden shadow-card dark:bg-card"
         >
           <div
             className="grid"
@@ -105,9 +106,10 @@ export function TableEditor() {
                       ...cellData.style,
                       fontWeight: isHeader && cellData.style.fontWeight === 'normal' ? 'bold' : cellData.style.fontWeight,
                       backgroundColor: isHeader && cellData.style.backgroundColor === '#ffffff' 
-                        ? '#f8f9fa' 
-                        : cellData.style.backgroundColor,
+                        ? undefined 
+                        : cellData.style.backgroundColor === '#ffffff' ? undefined : cellData.style.backgroundColor,
                     }}
+                    isHeader={isHeader}
                     onChange={(value) => updateCellValue(rowIndex, colIndex, value)}
                     isSelected={selectedCell === key}
                     onSelect={() => setSelectedCell(key)}
