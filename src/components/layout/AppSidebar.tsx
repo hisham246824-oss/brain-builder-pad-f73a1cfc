@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookOpen, Home, X, GraduationCap, Timer, BookA, Mail, Settings, Star, Heart, Zap, Crown, Flame, Rocket, Diamond, Info, Lightbulb, ListTodo, Headphones } from 'lucide-react';
+import { BookOpen, Home, X, GraduationCap, Timer, BookA, Mail, Settings, Star, Heart, Zap, Crown, Flame, Rocket, Diamond, Info, Lightbulb, ListTodo } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdminMessages } from '@/hooks/useAdminMessages';
@@ -24,13 +24,12 @@ const BASE_NAV_ITEMS = [
   { id: 'suggestions', to: '/suggestions', icon: Lightbulb },
   { id: 'todos', to: '/todos', icon: ListTodo },
   { id: 'messages', to: '/messages', icon: Mail },
-  { id: 'support', to: '/support', icon: Headphones },
 ];
 
 const LABEL_KEYS: Record<string, string> = {
   home: 'home', materials: 'studyMaterials', vocabulary: 'vocabulary',
   pomodoro: 'pomodoroTimer',
-  suggestions: 'suggestions', todos: 'todoList', messages: 'messages', support: 'technicalSupport',
+  suggestions: 'suggestions', todos: 'todoList', messages: 'messages',
 };
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -69,6 +68,7 @@ export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
   const messagesAtTop = hasUnread;
 
   const handleProfileClick = () => { navigate('/settings'); onClose(); };
+  const handleMessagesClick = () => { navigate('/messages'); onClose(); };
 
   const IconComponent = settings?.avatar_icon ? ICON_MAP[settings.avatar_icon] : null;
   const avatarLetter = settings?.display_name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U';
@@ -147,12 +147,29 @@ export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
                     </div>
                     <span className="text-lg font-semibold text-sidebar-foreground">StudyHub</span>
                   </div>
-                  <button
-                    onClick={onClose}
-                    className="flex h-9 w-9 items-center justify-center rounded-lg text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground"
-                  >
-                    <X className="h-5 w-5" />
-                  </button>
+                  <div className="flex items-center gap-1.5">
+                    {/* Messages button */}
+                    {user && (
+                      <button
+                        onClick={handleMessagesClick}
+                        className="relative flex h-9 w-9 items-center justify-center rounded-lg text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                      >
+                        <Mail className="h-5 w-5" />
+                        {unreadCount > 0 && (
+                          <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground">
+                            {unreadCount}
+                          </span>
+                        )}
+                      </button>
+                    )}
+                    {/* Close button */}
+                    <button
+                      onClick={onClose}
+                      className="flex h-9 w-9 items-center justify-center rounded-lg text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                    >
+                      <X className="h-5 w-5" />
+                    </button>
+                  </div>
                 </div>
 
                 <nav className="flex-1 p-4 overflow-y-auto">
