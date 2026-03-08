@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookOpen, Home, X, GraduationCap, Table2, Timer, BookA, Mail, Settings, Star, Heart, Zap, Crown, Flame, Rocket, Diamond, Info, Lightbulb, ListTodo, Headphones } from 'lucide-react';
+import { BookOpen, Home, X, GraduationCap, Timer, BookA, Mail, Settings, Star, Heart, Zap, Crown, Flame, Rocket, Diamond, Info, Lightbulb, ListTodo, Headphones } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdminMessages } from '@/hooks/useAdminMessages';
@@ -20,7 +20,6 @@ const BASE_NAV_ITEMS = [
   { id: 'home', to: '/', icon: Home },
   { id: 'materials', to: '/materials', icon: BookOpen },
   { id: 'vocabulary', to: '/vocabulary', icon: BookA },
-  { id: 'table-creator', to: '/table-creator', icon: Table2 },
   { id: 'pomodoro', to: '/pomodoro', icon: Timer },
   { id: 'suggestions', to: '/suggestions', icon: Lightbulb },
   { id: 'todos', to: '/todos', icon: ListTodo },
@@ -30,7 +29,7 @@ const BASE_NAV_ITEMS = [
 
 const LABEL_KEYS: Record<string, string> = {
   home: 'home', materials: 'studyMaterials', vocabulary: 'vocabulary',
-  'table-creator': 'createTable', pomodoro: 'pomodoroTimer',
+  pomodoro: 'pomodoroTimer',
   suggestions: 'suggestions', todos: 'todoList', messages: 'messages', support: 'technicalSupport',
 };
 

@@ -11,9 +11,9 @@ export const sidebarInfoMap: Record<string, { title: string; description: string
     title: 'Vocabulary',
     description: 'Build and manage your English-Arabic vocabulary. Add words with meanings and notes, track mastery with spaced repetition, practice with flashcards or multiple-choice quizzes, and focus on difficult words that need extra review.',
   },
-  'table-creator': {
-    title: 'Create Table',
-    description: 'Design and edit custom tables to organize study data, comparisons, and schedules. Export your tables as high-quality images for easy sharing with classmates or embedding in your notes.',
+  support: {
+    title: 'Technical Support',
+    description: 'Get help from our team by creating support tickets. Track your open and resolved issues, and communicate directly with administrators to resolve any problems.',
   },
   pomodoro: {
     title: 'Pomodoro Timer',

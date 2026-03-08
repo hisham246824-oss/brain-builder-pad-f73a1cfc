@@ -1,39 +1,13 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
-import { BookOpen, Timer, CheckSquare, ArrowRight, GraduationCap, Sparkles, Table2 } from 'lucide-react';
+import { BookOpen, Timer, CheckSquare, ArrowRight, GraduationCap, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserSettings } from '@/hooks/useUserSettings';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { HomeSkeleton } from '@/components/skeletons/HomeSkeleton';
 
-function AnimatedHomeBackground() {
-  const orbs = useMemo(() => [
-    { size: 'w-[400px] h-[400px]', position: { left: '-5%', top: '-10%' }, duration: 22, delay: 0 },
-    { size: 'w-[350px] h-[350px]', position: { right: '-8%', top: '20%' }, duration: 18, delay: 2 },
-    { size: 'w-[300px] h-[300px]', position: { left: '30%', bottom: '-5%' }, duration: 25, delay: 4 },
-    { size: 'w-[250px] h-[250px]', position: { right: '20%', bottom: '30%' }, duration: 20, delay: 1 },
-  ], []);
-
-  return (
-    <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-accent/8 to-primary/5 dark:from-primary/15 dark:via-accent/10 dark:to-primary/8" />
-      <motion.div className="absolute inset-0" animate={{ opacity: [0.3, 0.6, 0.3] }} transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-        style={{ background: 'radial-gradient(ellipse at 30% 20%, hsl(var(--primary) / 0.12) 0%, transparent 60%)' }} />
-      <motion.div className="absolute inset-0" animate={{ opacity: [0.2, 0.5, 0.2] }} transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 3 }}
-        style={{ background: 'radial-gradient(ellipse at 70% 80%, hsl(var(--primary) / 0.1) 0%, transparent 50%)' }} />
-      {orbs.map((orb, i) => (
-        <motion.div key={i} className={`absolute ${orb.size} rounded-full blur-3xl`}
-          style={{ ...orb.position, backgroundColor: 'hsl(var(--primary))', opacity: 0.15 }}
-          animate={{ x: [0, 60, -30, 0], y: [0, -50, 30, 0], scale: [1, 1.2, 0.9, 1] }}
-          transition={{ duration: orb.duration, repeat: Infinity, ease: 'easeInOut', delay: orb.delay }} />
-      ))}
-      <div className="absolute inset-0 opacity-[0.02] dark:opacity-[0.04]"
-        style={{ backgroundImage: `radial-gradient(circle, hsl(var(--foreground)) 1px, transparent 1px)`, backgroundSize: '40px 40px' }} />
-    </div>
-  );
-}
 
 function GuestHomePage() {
   const navigate = useNavigate();
@@ -43,7 +17,7 @@ function GuestHomePage() {
     { icon: BookOpen, title: t('organizeMaterials'), description: t('organizeMaterialsDesc'), gradient: 'from-emerald-500/20 to-teal-500/20', iconBg: 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400' },
     { icon: Timer, title: t('pomodoroTimerTitle'), description: t('pomodoroTimerDesc'), gradient: 'from-orange-500/20 to-amber-500/20', iconBg: 'bg-orange-500/15 text-orange-600 dark:text-orange-400' },
     { icon: CheckSquare, title: t('vocabFlashcards'), description: t('vocabFlashcardsDesc'), gradient: 'from-purple-500/20 to-pink-500/20', iconBg: 'bg-purple-500/15 text-purple-600 dark:text-purple-400' },
-    { icon: Table2, title: t('tableCreatorTitle'), description: t('tableCreatorDesc') || 'Create custom tables for organizing study data and comparisons.', gradient: 'from-blue-500/20 to-cyan-500/20', iconBg: 'bg-blue-500/15 text-blue-600 dark:text-blue-400' },
+    
   ];
 
   return (
@@ -118,7 +92,6 @@ function LoggedInHomePage() {
     { text: t('organizeMaterials'), action: t('studyMaterials'), link: "/materials" },
     { text: t('pomodoroTimerTitle'), action: t('pomodoroTimer'), link: "/pomodoro" },
     { text: t('vocabFlashcards'), action: t('vocabulary'), link: "/vocabulary" },
-    { text: t('tableCreatorTitle'), action: t('createTable'), link: "/table-creator" },
   ], [t]);
 
   useEffect(() => {
@@ -158,12 +131,12 @@ function LoggedInHomePage() {
       </motion.div>
 
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }}
-        className="grid gap-4 grid-cols-2 md:grid-cols-4 w-full max-w-3xl mb-12">
+        className="grid gap-4 grid-cols-3 w-full max-w-3xl mb-12">
         {[
           { icon: BookOpen, label: t('studyMaterials'), to: '/materials', color: 'text-emerald-500' },
           { icon: Timer, label: t('pomodoroTimer'), to: '/pomodoro', color: 'text-orange-500' },
           { icon: CheckSquare, label: t('vocabulary'), to: '/vocabulary', color: 'text-purple-500' },
-          { icon: Table2, label: t('createTable'), to: '/table-creator', color: 'text-blue-500' },
+          
         ].map((item, i) => (
           <motion.div key={i} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 + i * 0.08 }}
             whileHover={{ y: -3, transition: { duration: 0.15 } }}>
@@ -210,20 +183,10 @@ const Index = () => {
   const { user, isLoading } = useAuth();
 
   if (isLoading) {
-    return (
-      <div className="relative">
-        <AnimatedHomeBackground />
-        <HomeSkeleton />
-      </div>
-    );
+    return <HomeSkeleton />;
   }
 
-  return (
-    <div className="relative">
-      <AnimatedHomeBackground />
-      {user ? <LoggedInHomePage /> : <GuestHomePage />}
-    </div>
-  );
+  return user ? <LoggedInHomePage /> : <GuestHomePage />;
 };
 
 export default Index;

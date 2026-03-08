@@ -15,7 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Index from "./pages/Index";
 import MaterialsPage from "./pages/MaterialsPage";
 import MaterialDetailPage from "./pages/MaterialDetailPage";
-import TableCreatorPage from "./pages/TableCreatorPage";
+
 import PomodoroPage from "./pages/PomodoroPage";
 import VocabularyPage from "./pages/VocabularyPage";
 import FlashcardsPage from "./pages/FlashcardsPage";
@@ -177,7 +177,7 @@ function AppRoutes() {
           <Route path="/" element={<RootRedirect />} />
           <Route path="/materials" element={<MaterialsPage />} />
           <Route path="/materials/:id" element={<MaterialDetailPage />} />
-          <Route path="/table-creator" element={<TableCreatorPage />} />
+          
           <Route path="/pomodoro" element={<PomodoroPage />} />
           <Route path="/vocabulary" element={<VocabularyPage />} />
           <Route path="/flashcards" element={<FlashcardsPage />} />
