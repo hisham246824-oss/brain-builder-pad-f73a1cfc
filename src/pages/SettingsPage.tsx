@@ -189,8 +189,8 @@ export default function SettingsPage() {
           <div className="space-y-6">
             <div className="flex items-center gap-4">
               <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-                {(settings as any)?.avatar_url ? (
-                  <img src={(settings as any).avatar_url} alt="Avatar" className="h-16 w-16 rounded-full object-cover" />
+                {settings?.avatar_url ? (
+                  <img src={settings.avatar_url} alt="Avatar" className="h-16 w-16 rounded-full object-cover" />
                 ) : (
                   <div className={cn("h-16 w-16 rounded-full flex items-center justify-center text-white text-xl font-bold", getAvatarColorClass(settings?.avatar_color || 'primary'))}>
                     {IconComponent ? <IconComponent className="h-8 w-8" /> : avatarLetter}
