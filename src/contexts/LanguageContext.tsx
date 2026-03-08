@@ -512,6 +512,10 @@ const translations: Record<Language, Translations> = {
     noSuggestions: '提案なし', submitSuggestion: '送信',
     tableCreatorTitle: 'テーブル作成', tableCreatorDesc: '美しいテーブルを作成。',
     study: '学習', shortBreak: '短い休憩', longBreak: '長い休憩',
+    addNewWord: '新しい単語を追加', englishWord: '英語の単語', enterEnglishWord: '英語の単語を入力...',
+    meaningLabel: '意味', enterMeaning: '意味を入力...', notesOptional: 'メモ（任意）',
+    addNotes: '追加メモを入力...', adding: '追加中...', letters: '文字',
+    english: '英語', targetLanguage: '意味',
   },
   hi: {
     home: 'होम', studyMaterials: 'अध्ययन सामग्री', vocabulary: 'शब्दावली',
