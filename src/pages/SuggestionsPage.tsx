@@ -108,11 +108,7 @@ export default function SuggestionsPage() {
 
       {/* Suggestions List */}
       {isLoading ? (
-        <div className="space-y-4">
-          {[...Array(3)].map((_, i) => (
-            <div key={i} className="h-40 animate-pulse rounded-2xl bg-muted" />
-          ))}
-        </div>
+        <SuggestionsSkeleton />
       ) : suggestions.length === 0 ? (
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
