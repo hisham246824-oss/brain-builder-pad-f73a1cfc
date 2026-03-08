@@ -190,7 +190,7 @@ export default function MessagesPage() {
                   <Card className="flex-1 rounded-[2rem] overflow-hidden border-none shadow-md hover:shadow-xl transition-all duration-300">
                     <div className="h-1 w-full bg-gradient-to-r from-primary via-primary/60 to-transparent" />
                     <CardContent className="p-6">
-                      <h3 className="text-lg font-bold text-foreground tracking-tight">{message.title || 'Admin Message'}</h3>
+                      <h3 className="text-lg font-bold text-foreground tracking-tight">{message.title || t('adminMessage')}</h3>
                       <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
                         <Calendar className="h-3 w-3" />
                         {new Date(message.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
