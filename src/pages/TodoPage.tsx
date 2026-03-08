@@ -278,7 +278,7 @@ const TodoPage = () => {
       )}
 
       {/* 4. Quick filter pills */}
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="flex gap-2 flex-wrap">
+      <div className="flex gap-2 flex-wrap">
         <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-medium">
           <Target className="h-3 w-3" /> {activeTodos.length} {t('active')}
         </span>
