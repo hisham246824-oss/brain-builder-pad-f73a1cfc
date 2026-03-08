@@ -227,6 +227,7 @@ const translations: Record<Language, Translations> = {
     tryDifferentSearch: 'جرّب مصطلح بحث مختلف',
     addFirstWord: 'أضف أول كلمة مفردات للبدء',
     showingDifficult: 'عرض الكلمات الصعبة التي تحتاج مراجعة',
+    searchingFor: 'البحث عن', result: 'نتيجة', results: 'نتائج',
     signIn: 'تسجيل الدخول / إنشاء حساب', myProfile: 'ملفي الشخصي',
     signInBtn: 'تسجيل الدخول', createAccountBtn: 'إنشاء حساب',
     welcomeBack: 'مرحباً بعودتك', createYourAccount: 'إنشاء حسابك',
