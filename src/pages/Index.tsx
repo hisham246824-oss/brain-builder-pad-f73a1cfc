@@ -131,7 +131,7 @@ function LoggedInHomePage() {
       </motion.div>
 
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }}
-        className="grid gap-4 grid-cols-2 md:grid-cols-4 w-full max-w-3xl mb-12">
+        className="grid gap-4 grid-cols-3 w-full max-w-3xl mb-12">
         {[
           { icon: BookOpen, label: t('studyMaterials'), to: '/materials', color: 'text-emerald-500' },
           { icon: Timer, label: t('pomodoroTimer'), to: '/pomodoro', color: 'text-orange-500' },
