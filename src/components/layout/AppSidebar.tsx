@@ -1,17 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookOpen, Home, X, GraduationCap, Table2, Timer, BookA, Bot, Mail, Settings, Star, Heart, Zap, Crown, Flame, Rocket, Diamond, Info, ChevronUp, Trash2, MessageSquare, Pencil, Check, Lightbulb, ListTodo, Headphones } from 'lucide-react';
+import { BookOpen, Home, X, GraduationCap, Table2, Timer, BookA, Mail, Settings, Star, Heart, Zap, Crown, Flame, Rocket, Diamond, Info, Lightbulb, ListTodo, Headphones } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdminMessages } from '@/hooks/useAdminMessages';
 import { useUserSettings } from '@/hooks/useUserSettings';
-import { useAIChat } from '@/hooks/useAIChat';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { sidebarInfoMap } from '@/components/sidebar/SidebarInfoTooltips';
 import { SidebarInfoModal } from '@/components/sidebar/SidebarInfoModal';
 import { cn } from '@/lib/utils';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface AppSidebarProps {
   isOpen: boolean;
