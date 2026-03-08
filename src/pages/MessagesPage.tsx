@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { MessagesSkeleton } from '@/components/skeletons/MessagesSkeleton';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Heart, Check, Calendar, BarChart, Sparkles, MessageSquareDashed } from 'lucide-react';
 import { Button } from '@/components/ui/button';
