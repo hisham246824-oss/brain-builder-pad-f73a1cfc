@@ -118,7 +118,18 @@ export default function SettingsPage() {
     toast.success(t('sidebarOrderSaved'));
   };
 
-  const handleLogout = async () => { await signOut(); navigate('/'); };
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      await signOut();
+      navigate('/auth', { replace: true });
+    } catch {
+      toast.error(t('error') || 'Logout failed');
+      setIsLoggingOut(false);
+    }
+  };
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
