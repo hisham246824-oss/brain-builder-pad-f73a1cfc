@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
 import { VocabularyCard } from '@/components/vocabulary/VocabularyCard';
 import { AddWordDialog } from '@/components/vocabulary/AddWordDialog';
+import { BulkImportButton } from '@/components/vocabulary/BulkImportButton';
 import { VocabularySkeleton } from '@/components/skeletons/VocabularySkeleton';
 import { useVocabulary } from '@/hooks/useVocabulary';
 import { useAuth } from '@/contexts/AuthContext';
