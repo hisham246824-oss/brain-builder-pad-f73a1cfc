@@ -19,6 +19,7 @@ interface UserWithProfile {
   blocked_until: string | null;
   block_reason: string | null;
   country: string | null;
+  language: string | null;
 }
 
 interface AdminStats {
@@ -113,7 +114,7 @@ export function useAdminData() {
       const [profilesRes, rolesRes, settingsRes, blocksRes, activityRes, emailsRes] = await Promise.all([
         supabase.from('profiles').select('*').order('created_at', { ascending: false }),
         supabase.from('user_roles').select('*'),
-        supabase.from('user_settings').select('user_id, display_name, avatar_color, avatar_icon'),
+        supabase.from('user_settings').select('user_id, display_name, avatar_color, avatar_icon, language'),
         supabase.from('user_blocks').select('*'),
         supabase.from('page_visits').select('user_id, visited_at').order('visited_at', { ascending: false }),
         supabase.functions.invoke('admin-list-users'),
@@ -151,6 +152,7 @@ export function useAdminData() {
           blocked_until: block?.blocked_until || null,
           block_reason: block?.reason || null,
           country: (profile as any).country || null,
+          language: (userSetting as any)?.language || 'en',
         };
       });
       setUsers(usersWithRoles);

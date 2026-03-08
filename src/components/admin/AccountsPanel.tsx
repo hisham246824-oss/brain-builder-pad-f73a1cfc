@@ -43,7 +43,13 @@ interface User {
   blocked_until: string | null;
   block_reason: string | null;
   country: string | null;
+  language: string | null;
 }
+
+const LANGUAGE_NAMES: Record<string, string> = {
+  en: 'English', ar: 'العربية', fr: 'Français', zh: '中文',
+  ja: '日本語', hi: 'हिन्दी', es: 'Español', pt: 'Português',
+};
 
 interface UserActivity {
   materials_count: number;
@@ -333,6 +339,11 @@ export function AccountsPanel({
                   <p className="flex items-center gap-1 justify-end">
                     <span className="h-3 w-3 rounded-full inline-block" style={{ backgroundColor: getAvatarColor(viewingProfile.avatar_color) }} />
                     Profile: {viewingProfile.avatar_color}
+                  </p>
+                )}
+                {viewingProfile.language && (
+                  <p className="flex items-center gap-1 justify-end">
+                    <Globe className="h-3 w-3" /> {LANGUAGE_NAMES[viewingProfile.language] || viewingProfile.language}
                   </p>
                 )}
               </div>
@@ -680,6 +691,12 @@ export function AccountsPanel({
                         <>
                           <span>•</span>
                           <span className="flex items-center gap-0.5"><MapPin className="h-2.5 w-2.5" />{u.country}</span>
+                        </>
+                      )}
+                      {u.language && (
+                        <>
+                          <span>•</span>
+                          <span className="flex items-center gap-0.5"><Globe className="h-2.5 w-2.5" />{LANGUAGE_NAMES[u.language] || u.language}</span>
                         </>
                       )}
                       {u.avatar_color && u.avatar_color !== 'primary' && (

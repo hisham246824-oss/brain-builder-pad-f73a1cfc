@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
 import { Ban } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useAuth } from '@/contexts/AuthContext';
 
 interface BlockedScreenProps {
   blockedUntil: string;
@@ -9,7 +7,6 @@ interface BlockedScreenProps {
 }
 
 export function BlockedScreen({ blockedUntil, reason }: BlockedScreenProps) {
-  const { signOut } = useAuth();
   const [remaining, setRemaining] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [progress, setProgress] = useState(0);
 
@@ -27,7 +24,6 @@ export function BlockedScreen({ blockedUntil, reason }: BlockedScreenProps) {
         minutes: Math.floor((totalSeconds % 3600) / 60),
         seconds: totalSeconds % 60,
       });
-      // Progress: assume max block is 30 days
       const maxMs = 30 * 24 * 60 * 60 * 1000;
       setProgress(Math.max(0, Math.min(100, ((maxMs - diff) / maxMs) * 100)));
     };
@@ -43,30 +39,16 @@ export function BlockedScreen({ blockedUntil, reason }: BlockedScreenProps) {
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-background">
       <div className="flex flex-col items-center gap-8 p-8 max-w-md text-center">
-        {/* Animated circle timer */}
         <div className="relative">
           <svg width="300" height="300" viewBox="0 0 300 300" className="drop-shadow-2xl">
-            {/* Background circle */}
+            <circle cx="150" cy="150" r={radius} fill="none" stroke="hsl(var(--muted))" strokeWidth="8" />
             <circle
-              cx="150" cy="150" r={radius}
-              fill="none"
-              stroke="hsl(var(--muted))"
-              strokeWidth="8"
-            />
-            {/* Progress circle */}
-            <circle
-              cx="150" cy="150" r={radius}
-              fill="none"
-              stroke="hsl(var(--destructive))"
-              strokeWidth="8"
-              strokeLinecap="round"
-              strokeDasharray={circumference}
-              strokeDashoffset={strokeDashoffset}
-              transform="rotate(-90 150 150)"
-              className="transition-all duration-1000"
+              cx="150" cy="150" r={radius} fill="none"
+              stroke="hsl(var(--destructive))" strokeWidth="8" strokeLinecap="round"
+              strokeDasharray={circumference} strokeDashoffset={strokeDashoffset}
+              transform="rotate(-90 150 150)" className="transition-all duration-1000"
             />
           </svg>
-          {/* Center content */}
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <Ban className="h-10 w-10 text-destructive mb-2" />
             <div className="text-3xl font-bold text-foreground font-mono tracking-wider">
@@ -91,10 +73,6 @@ export function BlockedScreen({ blockedUntil, reason }: BlockedScreenProps) {
             </div>
           )}
         </div>
-
-        <Button variant="outline" onClick={signOut} className="mt-4">
-          Sign Out
-        </Button>
       </div>
     </div>
   );
