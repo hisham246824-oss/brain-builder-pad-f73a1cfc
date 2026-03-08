@@ -102,6 +102,7 @@ export function useFlashcards() {
       interval_days: card.interval_days || 0,
       repetitions: card.repetitions || 0,
       next_review_at: card.next_review_at || new Date().toISOString(),
+      created_at: card.created_at || new Date().toISOString(),
     }));
 
   const fetchAllWords = useCallback(async () => {
