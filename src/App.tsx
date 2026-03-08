@@ -60,9 +60,18 @@ function BlockCheck({ children }: { children: React.ReactNode }) {
       setChecked(true);
     };
     checkBlock();
-    // Re-check every 30 seconds
-    const interval = setInterval(checkBlock, 30000);
-    return () => clearInterval(interval);
+
+    // Realtime: instant block detection
+    const channel = supabase
+      .channel('user-block-check')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'user_blocks', filter: `user_id=eq.${user.id}` },
+        () => { checkBlock(); }
+      )
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
   }, [user]);
 
   if (!checked) {
