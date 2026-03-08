@@ -129,13 +129,6 @@ export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
                     <span className="text-lg font-semibold text-sidebar-foreground">StudyHub</span>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    {/* Info guide button */}
-                    <button
-                      onClick={() => setShowGuide(true)}
-                      className="flex h-9 w-9 items-center justify-center rounded-lg text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground"
-                    >
-                      <Info className="h-5 w-5" />
-                    </button>
                     {/* Messages button */}
                     {user && (
                       <button
