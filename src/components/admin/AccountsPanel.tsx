@@ -694,6 +694,7 @@ export function AccountsPanel({
                       <span className="flex items-center gap-1"><Globe className="h-3 w-3" />{LANGUAGE_NAMES[u.language] || u.language}</span>
                     )}
                     <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
+                  </div>
                 </div>
               </CardContent>
             </Card>
