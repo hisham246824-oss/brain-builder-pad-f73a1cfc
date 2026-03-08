@@ -142,7 +142,7 @@ export default function SettingsPage() {
         .getPublicUrl(filePath);
       
       const avatarUrl = `${publicUrl}?t=${Date.now()}`;
-      await updateSettings({ avatar_url: avatarUrl } as any);
+      await updateSettings({ avatar_url: avatarUrl });
       toast.success(t('profilePictureUpdated') || 'Profile picture updated!');
     } catch (error: any) {
       console.error('Avatar upload error:', error);
