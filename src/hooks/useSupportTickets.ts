@@ -19,6 +19,7 @@ export interface SupportMessage {
   content: string;
   is_admin: boolean;
   created_at: string;
+  attachment_url?: string | null;
 }
 
 export function useSupportTickets() {
@@ -49,7 +50,6 @@ export function useSupportTickets() {
     fetchTickets();
   }, [fetchTickets]);
 
-  // Realtime for tickets
   useEffect(() => {
     if (!user) return;
     const channel = supabase
@@ -116,35 +116,42 @@ export function useSupportChat(ticketId: string | null) {
     fetchMessages();
   }, [fetchMessages]);
 
-  // Realtime for messages
   useEffect(() => {
     if (!ticketId) return;
     const channel = supabase
       .channel(`support-messages-${ticketId}`)
       .on('postgres_changes', {
-        event: 'INSERT',
+        event: '*',
         schema: 'public',
         table: 'support_messages',
         filter: `ticket_id=eq.${ticketId}`,
       }, (payload) => {
-        setMessages(prev => [...prev, payload.new as SupportMessage]);
+        if (payload.eventType === 'INSERT') {
+          setMessages(prev => [...prev, payload.new as SupportMessage]);
+        } else if (payload.eventType === 'UPDATE') {
+          setMessages(prev => prev.map(m => m.id === (payload.new as SupportMessage).id ? payload.new as SupportMessage : m));
+        } else if (payload.eventType === 'DELETE') {
+          setMessages(prev => prev.filter(m => m.id !== (payload.old as any).id));
+        }
       })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [ticketId]);
 
-  const sendMessage = useCallback(async (content: string, isAdmin: boolean = false) => {
-    if (!user || !ticketId || !content.trim()) return;
+  const sendMessage = useCallback(async (content: string, isAdmin: boolean = false, attachmentUrl?: string) => {
+    if (!user || !ticketId || (!content.trim() && !attachmentUrl)) return;
     try {
-      const { error } = await supabase.from('support_messages').insert({
+      const insertData: any = {
         ticket_id: ticketId,
         sender_id: user.id,
-        content: content.trim(),
+        content: content.trim() || '📎 Attachment',
         is_admin: isAdmin,
-      });
+      };
+      if (attachmentUrl) insertData.attachment_url = attachmentUrl;
+
+      const { error } = await supabase.from('support_messages').insert(insertData);
       if (error) throw error;
 
-      // Update ticket timestamp
       await supabase.from('support_tickets').update({ updated_at: new Date().toISOString() }).eq('id', ticketId);
     } catch (err) {
       console.error('Error sending message:', err);
@@ -152,5 +159,35 @@ export function useSupportChat(ticketId: string | null) {
     }
   }, [user, ticketId]);
 
-  return { messages, isLoading, sendMessage, refetch: fetchMessages };
+  const editMessage = useCallback(async (messageId: string, newContent: string) => {
+    if (!newContent.trim()) return;
+    try {
+      const { error } = await supabase
+        .from('support_messages')
+        .update({ content: newContent.trim() })
+        .eq('id', messageId);
+      if (error) throw error;
+      setMessages(prev => prev.map(m => m.id === messageId ? { ...m, content: newContent.trim() } : m));
+    } catch (err) {
+      console.error('Error editing message:', err);
+      toast.error('Failed to edit message');
+    }
+  }, []);
+
+  const deleteMessage = useCallback(async (messageId: string) => {
+    try {
+      const { error } = await supabase
+        .from('support_messages')
+        .delete()
+        .eq('id', messageId);
+      if (error) throw error;
+      setMessages(prev => prev.filter(m => m.id !== messageId));
+      toast.success('Message deleted');
+    } catch (err) {
+      console.error('Error deleting message:', err);
+      toast.error('Failed to delete message');
+    }
+  }, []);
+
+  return { messages, isLoading, sendMessage, editMessage, deleteMessage, refetch: fetchMessages };
 }

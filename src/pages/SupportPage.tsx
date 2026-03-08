@@ -3,7 +3,7 @@ import { SupportSkeleton } from '@/components/skeletons/SupportSkeleton';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Headphones, Plus, Send, ArrowLeft, Clock, CheckCircle2, 
-  MessageCircle, Sparkles, Shield, ChevronRight
+  MessageCircle, Sparkles, Shield, ChevronRight, Pencil, Trash2, X, Check, Image
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,6 +13,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSupportTickets, useSupportChat } from '@/hooks/useSupportTickets';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 export default function SupportPage() {
   const { user } = useAuth();
@@ -54,7 +56,6 @@ export default function SupportPage() {
     );
   }
 
-  // Chat view
   if (selectedTicketId && selectedTicket) {
     return (
       <div className="max-w-3xl mx-auto">
@@ -66,7 +67,6 @@ export default function SupportPage() {
   const openCount = tickets.filter(t => t.status === 'open').length;
   const resolvedCount = tickets.filter(t => t.status === 'resolved').length;
 
-  // Tickets list view
   return (
     <div className="max-w-3xl mx-auto space-y-8">
       {/* Header */}
@@ -247,10 +247,14 @@ export default function SupportPage() {
 
 function SupportChatView({ ticket, onBack }: { ticket: any; onBack: () => void }) {
   const { user } = useAuth();
-  const { messages, isLoading, sendMessage } = useSupportChat(ticket.id);
+  const { messages, isLoading, sendMessage, editMessage, deleteMessage } = useSupportChat(ticket.id);
   const [newMessage, setNewMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editContent, setEditContent] = useState('');
+  const [contextMenuId, setContextMenuId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -265,6 +269,61 @@ function SupportChatView({ ticket, onBack }: { ticket: any; onBack: () => void }
     setNewMessage('');
     await sendMessage(msg, false);
     setIsSending(false);
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Only images are supported');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image must be under 5MB');
+      return;
+    }
+
+    try {
+      const ext = file.name.split('.').pop();
+      const path = `support/${user.id}/${Date.now()}.${ext}`;
+      const { error: uploadError } = await supabase.storage
+        .from('material-files')
+        .upload(path, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage
+        .from('material-files')
+        .getPublicUrl(path);
+
+      await sendMessage('', false, urlData.publicUrl);
+      toast.success('Image sent');
+    } catch (err) {
+      console.error('Upload error:', err);
+      toast.error('Failed to upload image');
+    }
+
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const handleStartEdit = (msg: any) => {
+    setEditingId(msg.id);
+    setEditContent(msg.content);
+    setContextMenuId(null);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingId || !editContent.trim()) return;
+    await editMessage(editingId, editContent);
+    setEditingId(null);
+    setEditContent('');
+  };
+
+  const handleDelete = async (msgId: string) => {
+    setContextMenuId(null);
+    await deleteMessage(msgId);
   };
 
   return (
@@ -290,7 +349,7 @@ function SupportChatView({ ticket, onBack }: { ticket: any; onBack: () => void }
 
       {/* Messages */}
       <Card className="rounded-[2rem] border-none shadow-lg flex-1 overflow-hidden flex flex-col">
-        <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-4">
+        <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-4" onClick={() => setContextMenuId(null)}>
           {isLoading ? (
             <div className="flex justify-center py-12">
               <div className="h-8 w-8 animate-spin rounded-full border-3 border-primary border-t-transparent" />
@@ -306,33 +365,106 @@ function SupportChatView({ ticket, onBack }: { ticket: any; onBack: () => void }
             <AnimatePresence initial={false}>
               {messages.map((msg) => {
                 const isMe = msg.sender_id === user?.id;
+                const isEditing = editingId === msg.id;
                 return (
                   <motion.div
                     key={msg.id}
                     initial={{ opacity: 0, y: 12, scale: 0.94 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     transition={{ type: 'spring', damping: 20, stiffness: 300 }}
-                    className={cn("flex", isMe ? "justify-end" : "justify-start")}
+                    className={cn("flex group relative", isMe ? "justify-end" : "justify-start")}
                   >
                     {!isMe && (
                       <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary/70 mr-2.5 shrink-0 mt-1">
                         <Shield className="h-3.5 w-3.5 text-primary-foreground" />
                       </div>
                     )}
-                    <div className={cn(
-                      "max-w-[75%] px-5 py-3.5",
-                      isMe
-                        ? "bg-gradient-to-br from-primary to-primary/85 text-primary-foreground rounded-[1.5rem] rounded-br-lg shadow-md shadow-primary/15"
-                        : "bg-gradient-to-br from-secondary to-secondary/70 text-foreground rounded-[1.5rem] rounded-bl-lg shadow-sm"
-                    )}>
-                      <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
-                      <div className={cn(
-                        "flex items-center gap-1.5 mt-2 text-[10px]",
-                        isMe ? "text-primary-foreground/50 justify-end" : "text-muted-foreground/70"
-                      )}>
-                        {msg.is_admin && <span className="font-semibold">Admin</span>}
-                        {msg.is_admin && <span>·</span>}
-                        <span>{new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                    <div className="relative max-w-[75%]">
+                      {/* Context menu for own messages */}
+                      {isMe && !isEditing && contextMenuId === msg.id && (
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          className="absolute -top-10 right-0 z-10 flex items-center gap-1 bg-card rounded-2xl shadow-xl border border-border/50 p-1"
+                        >
+                          <button
+                            onClick={() => handleStartEdit(msg)}
+                            className="flex h-8 w-8 items-center justify-center rounded-xl hover:bg-secondary transition-colors"
+                          >
+                            <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(msg.id)}
+                            className="flex h-8 w-8 items-center justify-center rounded-xl hover:bg-destructive/10 transition-colors"
+                          >
+                            <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                          </button>
+                        </motion.div>
+                      )}
+
+                      {/* Bubble */}
+                      <div
+                        onClick={(e) => {
+                          if (isMe && !isEditing) {
+                            e.stopPropagation();
+                            setContextMenuId(contextMenuId === msg.id ? null : msg.id);
+                          }
+                        }}
+                        className={cn(
+                          "px-5 py-3.5 cursor-default",
+                          isMe
+                            ? "bg-gradient-to-br from-primary to-primary/85 text-primary-foreground rounded-[1.75rem] rounded-br-md shadow-md shadow-primary/15"
+                            : "bg-gradient-to-br from-secondary to-secondary/70 text-foreground rounded-[1.75rem] rounded-bl-md shadow-sm",
+                          isMe && !isEditing && "cursor-pointer"
+                        )}
+                      >
+                        {isEditing ? (
+                          <div className="space-y-2">
+                            <Textarea
+                              value={editContent}
+                              onChange={e => setEditContent(e.target.value)}
+                              className="min-h-[40px] resize-none bg-primary-foreground/20 border-primary-foreground/30 text-primary-foreground placeholder:text-primary-foreground/50 rounded-xl text-sm"
+                              rows={2}
+                              autoFocus
+                            />
+                            <div className="flex items-center gap-2 justify-end">
+                              <button
+                                onClick={() => { setEditingId(null); setEditContent(''); }}
+                                className="flex h-7 w-7 items-center justify-center rounded-full bg-primary-foreground/20 hover:bg-primary-foreground/30 transition-colors"
+                              >
+                                <X className="h-3.5 w-3.5 text-primary-foreground" />
+                              </button>
+                              <button
+                                onClick={handleSaveEdit}
+                                className="flex h-7 w-7 items-center justify-center rounded-full bg-primary-foreground/30 hover:bg-primary-foreground/40 transition-colors"
+                              >
+                                <Check className="h-3.5 w-3.5 text-primary-foreground" />
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <>
+                            {/* Attachment image */}
+                            {msg.attachment_url && (
+                              <img
+                                src={msg.attachment_url}
+                                alt="Attachment"
+                                className="max-w-full rounded-xl mb-2 max-h-60 object-cover"
+                              />
+                            )}
+                            {msg.content && msg.content !== '📎 Attachment' && (
+                              <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+                            )}
+                          </>
+                        )}
+                        <div className={cn(
+                          "flex items-center gap-1.5 mt-2 text-[10px]",
+                          isMe ? "text-primary-foreground/50 justify-end" : "text-muted-foreground/70"
+                        )}>
+                          {msg.is_admin && <span className="font-semibold">Admin</span>}
+                          {msg.is_admin && <span>·</span>}
+                          <span>{new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                        </div>
                       </div>
                     </div>
                   </motion.div>
@@ -342,27 +474,51 @@ function SupportChatView({ ticket, onBack }: { ticket: any; onBack: () => void }
           )}
         </div>
 
-        {/* Input area */}
-        <div className="border-t border-border/30 p-5 bg-gradient-to-t from-card to-transparent">
-          <div className="flex gap-3 items-end">
-            <Textarea
+        {/* Redesigned Input Area - rectangular bar with sharp curves */}
+        <div className="border-t border-border/30 p-4 bg-gradient-to-t from-card to-transparent">
+          <div className="flex items-center gap-0 bg-secondary/60 rounded-[1.5rem] border border-border/40 px-1.5 py-1.5">
+            {/* (+) Attachment button on the far left */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleFileUpload}
+            />
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={() => fileInputRef.current?.click()}
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 hover:bg-primary/20 transition-colors shrink-0"
+            >
+              <Plus className="h-5 w-5 text-primary" />
+            </motion.button>
+
+            {/* Text input */}
+            <input
+              type="text"
               placeholder="Type your message..."
               value={newMessage}
               onChange={e => setNewMessage(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
-              className="rounded-[1.25rem] min-h-[48px] max-h-[120px] resize-none flex-1 border-border/50"
-              rows={1}
+              className="flex-1 bg-transparent border-none outline-none px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground"
             />
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.9 }}>
-              <Button
-                onClick={handleSend}
-                disabled={!newMessage.trim() || isSending}
-                size="icon"
-                className="rounded-[1.25rem] h-12 w-12 shrink-0 shadow-md shadow-primary/15"
-              >
-                <Send className="h-4 w-4" />
-              </Button>
-            </motion.div>
+
+            {/* Circular send button on the far right */}
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.85 }}
+              onClick={handleSend}
+              disabled={!newMessage.trim() || isSending}
+              className={cn(
+                "flex h-10 w-10 items-center justify-center rounded-full shrink-0 transition-all duration-200",
+                newMessage.trim()
+                  ? "bg-primary text-primary-foreground shadow-md shadow-primary/25"
+                  : "bg-muted text-muted-foreground"
+              )}
+            >
+              <Send className="h-4 w-4" />
+            </motion.button>
           </div>
         </div>
       </Card>
