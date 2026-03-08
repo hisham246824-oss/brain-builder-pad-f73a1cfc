@@ -1282,6 +1282,9 @@ const translations: Record<Language, Translations> = {
     infoSuggestions: 'Compartilhe suas ideias para melhorar a plataforma. Envie solicitações e vote nas sugestões.',
     infoTodos: 'Gerencie tarefas com prioridades coloridas. Defina prazos com contagem regressiva ao vivo.',
     infoSupport: 'Precisa de ajuda? Crie tickets de suporte, anexe imagens e converse com a equipe.',
+    leaderboard: 'Classificação',
+    leaderboardDesc: 'Melhores por tempo dedicado',
+    noLeaderboardData: 'Sem dados ainda',
   },
 };
 
