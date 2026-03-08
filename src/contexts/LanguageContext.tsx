@@ -584,6 +584,7 @@ const translations: Record<Language, Translations> = {
     random: '随机', focus: '重点', smartReview: '智能复习',
     randomDesc: '随机选择', focusDesc: '仅困难单词',
     smartDesc: '需要复习的单词', startTest: '开始测试',
+    byDate: '按日期', byDateDesc: '测试特定日期添加的单词', selectDate: '选择日期', noDatesAvailable: '没有可用日期',
     whatDoesWordMean: '这个词是什么意思？', needsMorePractice: '需要更多练习',
     back: '返回',
     yourUltimate: '您的终极', studyCompanion: '学习伙伴',
