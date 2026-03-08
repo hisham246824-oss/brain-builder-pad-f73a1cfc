@@ -174,34 +174,46 @@ export function useAdminData() {
   }, [isAdmin]);
 
   const fetchUserActivity = useCallback(async (userId: string): Promise<UserActivity> => {
-    const [materials, lessons, vocabulary, suggestionsRes, todos, visits] = await Promise.all([
+    const [materials, lessons, vocabulary, suggestionsRes, visits, settingsRes, profileRes] = await Promise.all([
       supabase.from('study_materials').select('*', { count: 'exact', head: true }).eq('user_id', userId),
       supabase.from('lessons').select('*', { count: 'exact', head: true }).eq('user_id', userId),
       supabase.from('vocabulary').select('*', { count: 'exact', head: true }).eq('user_id', userId),
       supabase.from('suggestions').select('*', { count: 'exact', head: true }).eq('user_id', userId),
-      supabase.from('todos').select('*', { count: 'exact', head: true }).eq('user_id', userId),
       supabase.from('page_visits').select('page_path, duration_seconds, visited_at').eq('user_id', userId).order('visited_at', { ascending: false }),
+      supabase.from('user_settings').select('language').eq('user_id', userId).maybeSingle(),
+      supabase.from('profiles').select('country').eq('user_id', userId).maybeSingle(),
     ]);
 
     const pageStats: Record<string, number> = {};
+    const hourStats: Record<number, number> = {};
     let totalDuration = 0;
     visits.data?.forEach(v => {
       pageStats[v.page_path] = (pageStats[v.page_path] || 0) + 1;
       totalDuration += v.duration_seconds || 0;
+      if (v.visited_at) {
+        const hour = new Date(v.visited_at).getHours();
+        hourStats[hour] = (hourStats[hour] || 0) + 1;
+      }
     });
 
     const mostVisited = Object.entries(pageStats).sort((a, b) => b[1] - a[1])[0];
+    const peakHours = Object.entries(hourStats)
+      .map(([hour, count]) => ({ hour: Number(hour), visits: count }))
+      .sort((a, b) => b.visits - a.visits)
+      .slice(0, 5);
 
     return {
       materials_count: materials.count || 0,
       lessons_count: lessons.count || 0,
       vocabulary_count: vocabulary.count || 0,
       suggestions_count: suggestionsRes.count || 0,
-      todos_count: todos.count || 0,
       total_visits: visits.data?.length || 0,
       total_duration: totalDuration,
       last_active: visits.data?.[0]?.visited_at || null,
       most_visited_page: mostVisited?.[0] || null,
+      peak_hours: peakHours,
+      country: profileRes.data?.country || null,
+      language: settingsRes.data?.language || null,
     };
   }, []);
 
