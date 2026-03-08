@@ -42,6 +42,7 @@ const queryClient = new QueryClient({
 
 function BlockCheck({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
+  const { isAdmin } = useUserRole();
   const [blockInfo, setBlockInfo] = useState<{ blocked_until: string; reason: string | null } | null>(null);
   const [checked, setChecked] = useState(false);
 
@@ -83,7 +84,14 @@ function BlockCheck({ children }: { children: React.ReactNode }) {
   }
 
   if (blockInfo) {
-    return <BlockedScreen blockedUntil={blockInfo.blocked_until} reason={blockInfo.reason} />;
+    return (
+      <BlockedScreen
+        blockedUntil={blockInfo.blocked_until}
+        reason={blockInfo.reason}
+        isAdmin={isAdmin}
+        onReturnToAdmin={() => window.location.href = '/admin'}
+      />
+    );
   }
 
   return <>{children}</>;
