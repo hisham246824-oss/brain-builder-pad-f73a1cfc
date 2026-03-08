@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   BarChart3, Users, Lightbulb, Menu, X, Shield, LogOut,
-  MessageSquare, BarChart, RefreshCw, Home
+  MessageSquare, BarChart, RefreshCw, Home, Headphones
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
