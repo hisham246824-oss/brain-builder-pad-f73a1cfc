@@ -17,7 +17,7 @@ export interface FlashcardWord {
 }
 
 export type TestMode = 'flashcard' | 'mcq' | 'typing';
-export type TestFormat = 'random' | 'focus' | 'smart';
+export type TestFormat = 'random' | 'focus' | 'smart' | 'date';
 export type TestCount = 10 | 20 | 30 | 40 | 50 | 'all';
 
 export interface TestResult {
