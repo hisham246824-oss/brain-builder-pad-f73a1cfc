@@ -141,7 +141,7 @@ function LoggedInHomePage() {
           <motion.div key={i} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} 
             transition={{ delay: 0.7 + i * 0.06, type: 'spring', stiffness: 400, damping: 28, mass: 0.8 }}
             whileHover={{ y: -3, scale: 1.015, transition: { duration: 0.166 } }}>
-            <Link to={item.to} className="flex flex-col items-center gap-3 p-5 rounded-2xl bg-card border border-border/50 shadow-card hover:shadow-[0_8px_30px_hsl(var(--primary)/0.15)] transition-all duration-300">
+            <Link to={item.to} className="flex flex-col items-center gap-3 p-5 rounded-2xl bg-card border border-border/50 shadow-card hover:shadow-[0_8px_30px_hsl(var(--primary)/0.15)] transition-shadow duration-200 composite-layer">
               <item.icon className={`h-7 w-7 ${item.color}`} />
               <span className="text-sm font-medium text-foreground">{item.label}</span>
             </Link>
