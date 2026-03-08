@@ -216,7 +216,6 @@ export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
           </>
         )}
       </AnimatePresence>
-      <SidebarInfoModal isOpen={showGuide} onClose={() => setShowGuide(false)} />
     </>
   );
 }

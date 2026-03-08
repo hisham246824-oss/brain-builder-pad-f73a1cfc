@@ -177,7 +177,7 @@ function AppRoutes() {
           <Route path="/" element={<RootRedirect />} />
           <Route path="/materials" element={<MaterialsPage />} />
           <Route path="/materials/:id" element={<MaterialDetailPage />} />
-          
+          <Route path="/table-creator" element={<TableCreatorPage />} />
           <Route path="/pomodoro" element={<PomodoroPage />} />
           <Route path="/vocabulary" element={<VocabularyPage />} />
           <Route path="/flashcards" element={<FlashcardsPage />} />
