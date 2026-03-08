@@ -605,6 +605,10 @@ const translations: Record<Language, Translations> = {
     noSuggestions: 'कोई सुझाव नहीं', submitSuggestion: 'भेजें',
     tableCreatorTitle: 'तालिका बनाएं', tableCreatorDesc: 'सुंदर तालिकाएं बनाएं।',
     study: 'अध्ययन', shortBreak: 'छोटा ब्रेक', longBreak: 'लंबा ब्रेक',
+    addNewWord: 'नया शब्द जोड़ें', englishWord: 'अंग्रेजी शब्द', enterEnglishWord: 'अंग्रेजी शब्द दर्ज करें...',
+    meaningLabel: 'अर्थ', enterMeaning: 'अर्थ दर्ज करें...', notesOptional: 'नोट्स (वैकल्पिक)',
+    addNotes: 'अतिरिक्त नोट्स जोड़ें...', adding: 'जोड़ रहा...', letters: 'अक्षर',
+    english: 'अंग्रेजी', targetLanguage: 'अर्थ',
   },
   es: {
     home: 'Inicio', studyMaterials: 'Material de estudio', vocabulary: 'Vocabulario',
