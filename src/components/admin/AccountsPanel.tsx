@@ -168,8 +168,10 @@ export function AccountsPanel({
   
   // Block
   const [blockTarget, setBlockTarget] = useState<User | null>(null);
+  const [showInlineBlock, setShowInlineBlock] = useState(false);
   const [blockHours, setBlockHours] = useState('24');
   const [blockReason, setBlockReason] = useState('');
+  const blockFormRef = useRef<HTMLDivElement>(null);
   
   // Private Messages
   const [pmTarget, setPmTarget] = useState<User | null>(null);
