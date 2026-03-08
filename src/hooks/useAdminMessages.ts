@@ -61,7 +61,9 @@ export function useAdminMessages() {
       });
 
       setMessages(messagesWithStatus);
-      setUnreadCount(messagesWithStatus.filter(m => !m.isRead).length);
+      const count = messagesWithStatus.filter(m => !m.isRead).length;
+      setUnreadCount(count);
+      try { localStorage.setItem('studyhub-unread-count', String(count)); } catch {}
     } catch (err) {
       console.error('Error fetching messages:', err);
     } finally {
