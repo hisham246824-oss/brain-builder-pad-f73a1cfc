@@ -202,9 +202,13 @@ export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
                       onClick={handleProfileClick}
                       className="w-full flex items-center gap-3 rounded-xl px-3 py-3 text-sidebar-foreground/80 transition-all hover:bg-sidebar-accent hover:text-sidebar-foreground"
                     >
-                      <div className={cn("flex h-10 w-10 items-center justify-center rounded-full text-white text-sm font-medium shrink-0", avatarColorClass)}>
-                        {IconComponent ? <IconComponent className="h-5 w-5" /> : avatarLetter}
-                      </div>
+                      {settings?.avatar_url ? (
+                        <img src={settings.avatar_url} alt="Avatar" className="h-10 w-10 rounded-full object-cover shrink-0" />
+                      ) : (
+                        <div className={cn("flex h-10 w-10 items-center justify-center rounded-full text-white text-sm font-medium shrink-0", avatarColorClass)}>
+                          {IconComponent ? <IconComponent className="h-5 w-5" /> : avatarLetter}
+                        </div>
+                      )}
                       <div className="flex-1 text-left min-w-0">
                         <p className="font-medium truncate text-sidebar-foreground">{settings?.display_name || t('myProfile')}</p>
                         <p className="text-xs text-sidebar-foreground/60 truncate">{user.email}</p>

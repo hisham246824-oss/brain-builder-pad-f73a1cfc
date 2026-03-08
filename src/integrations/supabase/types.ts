@@ -690,6 +690,7 @@ export type Database = {
           ai_custom_prompt: string | null
           avatar_color: string | null
           avatar_icon: string | null
+          avatar_url: string | null
           created_at: string
           display_name: string | null
           id: string
@@ -703,6 +704,7 @@ export type Database = {
           ai_custom_prompt?: string | null
           avatar_color?: string | null
           avatar_icon?: string | null
+          avatar_url?: string | null
           created_at?: string
           display_name?: string | null
           id?: string
@@ -716,6 +718,7 @@ export type Database = {
           ai_custom_prompt?: string | null
           avatar_color?: string | null
           avatar_icon?: string | null
+          avatar_url?: string | null
           created_at?: string
           display_name?: string | null
           id?: string

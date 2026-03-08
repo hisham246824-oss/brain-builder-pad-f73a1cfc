@@ -8,6 +8,7 @@ export interface UserSettings {
   display_name: string | null;
   avatar_color: string;
   avatar_icon: string | null;
+  avatar_url: string | null;
   ai_custom_prompt: string | null;
   sidebar_order: string[];
   theme: string;
@@ -20,8 +21,9 @@ const DEFAULT_SETTINGS: Omit<UserSettings, 'id' | 'user_id'> = {
   display_name: null,
   avatar_color: 'primary',
   avatar_icon: null,
+  avatar_url: null,
   ai_custom_prompt: null,
-  sidebar_order: ['home', 'materials', 'vocabulary', 'pomodoro', 'suggestions', 'todos', 'messages'],
+  sidebar_order: ['home', 'materials', 'vocabulary', 'pomodoro', 'suggestions', 'todos'],
   theme: 'light',
   language: 'en',
 };

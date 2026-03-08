@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { 
   User, Palette, Moon, Sun, GripVertical, Check, 
   Star, Heart, Zap, Crown, Flame, Rocket, Diamond,
-  Lock, Eye, EyeOff, ArrowLeft, LogOut, Globe, Copy, Hash, Headphones, ChevronRight
+  Lock, Eye, EyeOff, ArrowLeft, LogOut, Globe, Copy, Hash, Headphones, ChevronRight, Camera
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -55,18 +55,20 @@ export default function SettingsPage() {
   const [showPasswords, setShowPasswords] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [sidebarOrder, setSidebarOrder] = useState<string[]>([]);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
 
-  const VALID_SIDEBAR_IDS = ['home', 'materials', 'vocabulary', 'table-creator', 'pomodoro', 'suggestions', 'messages', 'todos'];
+  const VALID_SIDEBAR_IDS = ['home', 'materials', 'pomodoro', 'suggestions', 'todos', 'vocabulary'];
 
   const SIDEBAR_LABELS: Record<string, string> = {
     home: t('home'), materials: t('studyMaterials'), vocabulary: t('vocabulary'),
-    'table-creator': t('createTable'), pomodoro: t('pomodoroTimer'),
-    suggestions: t('suggestions'), messages: t('messages'), todos: t('todoList'),
+    pomodoro: t('pomodoroTimer'),
+    suggestions: t('suggestions'), todos: t('todoList'),
   };
 
   useEffect(() => {
@@ -118,6 +120,39 @@ export default function SettingsPage() {
 
   const handleLogout = async () => { await signOut(); navigate('/'); };
 
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    if (!file.type.startsWith('image/')) { toast.error('Please select an image file'); return; }
+    if (file.size > 5 * 1024 * 1024) { toast.error('Image must be less than 5MB'); return; }
+    
+    setIsUploadingAvatar(true);
+    try {
+      const ext = file.name.split('.').pop();
+      const filePath = `${user.id}/avatar.${ext}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file, { upsert: true });
+      
+      if (uploadError) throw uploadError;
+      
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+      
+      const avatarUrl = `${publicUrl}?t=${Date.now()}`;
+      await updateSettings({ avatar_url: avatarUrl });
+      toast.success(t('profilePictureUpdated') || 'Profile picture updated!');
+    } catch (error: any) {
+      console.error('Avatar upload error:', error);
+      toast.error('Failed to upload profile picture');
+    } finally {
+      setIsUploadingAvatar(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -153,8 +188,22 @@ export default function SettingsPage() {
           </div>
           <div className="space-y-6">
             <div className="flex items-center gap-4">
-              <div className={cn("h-16 w-16 rounded-full flex items-center justify-center text-white text-xl font-bold", getAvatarColorClass(settings?.avatar_color || 'primary'))}>
-                {IconComponent ? <IconComponent className="h-8 w-8" /> : avatarLetter}
+              <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+                {settings?.avatar_url ? (
+                  <img src={settings.avatar_url} alt="Avatar" className="h-16 w-16 rounded-full object-cover" />
+                ) : (
+                  <div className={cn("h-16 w-16 rounded-full flex items-center justify-center text-white text-xl font-bold", getAvatarColorClass(settings?.avatar_color || 'primary'))}>
+                    {IconComponent ? <IconComponent className="h-8 w-8" /> : avatarLetter}
+                  </div>
+                )}
+                <div className="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  {isUploadingAvatar ? (
+                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  ) : (
+                    <Camera className="h-5 w-5 text-white" />
+                  )}
+                </div>
+                <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
               </div>
               <div>
                 <p className="font-medium">{settings?.display_name || user?.email}</p>
