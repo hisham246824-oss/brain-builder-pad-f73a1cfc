@@ -670,6 +670,9 @@ const translations: Record<Language, Translations> = {
     infoSuggestions: '分享您的想法以改进平台。提交功能请求，为他人的建议投票。',
     infoTodos: '使用彩色优先级管理任务。设置带实时倒计时的截止日期。',
     infoSupport: '需要帮助？创建支持工单，附加图片，与团队聊天。',
+    leaderboard: '排行榜',
+    leaderboardDesc: '按学习时间排名',
+    noLeaderboardData: '暂无数据',
   },
   ja: {
     home: 'ホーム', studyMaterials: '学習資料', vocabulary: '語彙',
