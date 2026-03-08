@@ -195,6 +195,9 @@ const translations: Record<Language, Translations> = {
     infoSuggestions: 'Share your ideas to improve the platform. Submit feature requests, vote on others\' suggestions, and help shape the experience.',
     infoTodos: 'Manage tasks with color-coded priorities (Urgent, Medium, Low). Set deadlines with live countdowns, track progress, and celebrate achievements.',
     infoSupport: 'Need help? Create support tickets, attach images, chat with the team, and track your issue until it\'s resolved.',
+    leaderboard: 'Leaderboard',
+    leaderboardDesc: 'Top performers by time spent',
+    noLeaderboardData: 'No data yet',
   },
   ar: {
     home: 'الرئيسية', studyMaterials: 'المواد الدراسية', vocabulary: 'المفردات',
