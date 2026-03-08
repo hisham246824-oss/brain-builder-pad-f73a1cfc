@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Upload, Loader2 } from 'lucide-react';
+import { Upload, Loader2, Languages } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -316,7 +316,9 @@ interface BulkImportButtonProps {
 
 export function BulkImportButton({ onComplete, existingWords }: BulkImportButtonProps) {
   const [isImporting, setIsImporting] = useState(false);
+  const [isTranslating, setIsTranslating] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [translateProgress, setTranslateProgress] = useState('');
   const { user } = useAuth();
   const { t } = useLanguage();
 
@@ -368,24 +370,93 @@ export function BulkImportButton({ onComplete, existingWords }: BulkImportButton
     }
   };
 
+  const handleTranslate = async () => {
+    if (!user || isTranslating) return;
+    setIsTranslating(true);
+    setTranslateProgress('Starting...');
+
+    try {
+      let totalTranslated = 0;
+      let remaining = 1; // start loop
+
+      while (remaining > 0) {
+        const { data, error } = await supabase.functions.invoke('translate-vocabulary', {});
+        
+        if (error) throw error;
+        
+        const result = data as { translated: number; remaining: number; error?: string };
+        if (result.error) throw new Error(result.error);
+
+        totalTranslated += result.translated;
+        remaining = result.remaining;
+        setTranslateProgress(`${totalTranslated} translated, ${remaining} remaining...`);
+
+        if (result.translated === 0 && remaining > 0) {
+          // Some words couldn't be translated, avoid infinite loop
+          break;
+        }
+      }
+
+      toast({
+        title: `✅ ${totalTranslated} words translated to Arabic!`,
+      });
+      onComplete();
+    } catch (error: any) {
+      toast({
+        title: 'Translation error',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } finally {
+      setIsTranslating(false);
+      setTranslateProgress('');
+    }
+  };
+
+  // Check if there are words needing translation
+  const hasIncompleteWords = existingWords.length > 0;
+
   return (
-    <Button
-      onClick={handleImport}
-      disabled={isImporting}
-      variant="outline"
-      className="w-full rounded-2xl py-6 text-sm font-medium mb-3"
-    >
-      {isImporting ? (
-        <>
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          {progress}%
-        </>
-      ) : (
-        <>
-          <Upload className="mr-2 h-4 w-4" />
-          {t('bulkImport') || 'Import 1000 English Words'}
-        </>
+    <div className="space-y-2 mb-3">
+      <Button
+        onClick={handleImport}
+        disabled={isImporting || isTranslating}
+        variant="outline"
+        className="w-full rounded-2xl py-6 text-sm font-medium"
+      >
+        {isImporting ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            {progress}%
+          </>
+        ) : (
+          <>
+            <Upload className="mr-2 h-4 w-4" />
+            {t('bulkImport') || 'Import 1000 English Words'}
+          </>
+        )}
+      </Button>
+
+      {hasIncompleteWords && (
+        <Button
+          onClick={handleTranslate}
+          disabled={isImporting || isTranslating}
+          variant="outline"
+          className="w-full rounded-2xl py-6 text-sm font-medium text-primary border-primary/30 hover:bg-primary/5"
+        >
+          {isTranslating ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              {translateProgress}
+            </>
+          ) : (
+            <>
+              <Languages className="mr-2 h-4 w-4" />
+              {t('autoTranslate') || 'Auto-Translate Meanings (AI)'}
+            </>
+          )}
+        </Button>
       )}
-    </Button>
+    </div>
   );
 }
