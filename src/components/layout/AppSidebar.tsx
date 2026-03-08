@@ -185,6 +185,19 @@ export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
                     {otherNavItems.map(item => renderNavItem(item))}
 
                     {user && !messagesAtTop && messagesItem && renderNavItem(messagesItem)}
+
+                    {/* Leaderboard as a nav item */}
+                    <li>
+                      <button
+                        onClick={() => { setLeaderboardOpen(true); onClose(); }}
+                        className={cn(
+                          "flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sidebar-foreground/80 transition-all hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                        )}
+                      >
+                        <Trophy className="h-5 w-5" />
+                        <span className="flex-1 text-left">{t('leaderboard')}</span>
+                      </button>
+                    </li>
                   </ul>
                 </nav>
 
