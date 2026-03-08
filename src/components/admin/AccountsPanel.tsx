@@ -303,7 +303,7 @@ export function AccountsPanel({
 
   // Full profile view
   if (viewingProfile) {
-    const totalContent = userActivity ? userActivity.materials_count + userActivity.vocabulary_count + userActivity.lessons_count + userActivity.todos_count : 0;
+    const totalContent = userActivity ? userActivity.materials_count + userActivity.vocabulary_count + userActivity.lessons_count : 0;
 
     return (
       <div className="space-y-6">
