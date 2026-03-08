@@ -145,25 +145,27 @@ export function MessagesPanel({ messages, isLoading, onSendBroadcast, onUpdateMe
       </div>
 
       {/* Search & Sort Bar */}
-      <div className="flex">
-        <div className="relative flex-1">
-          <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input 
-            placeholder="Search messages..." 
-            value={searchQuery} 
-            onChange={e => setSearchQuery(e.target.value)} 
-            className="pl-10 rounded-l-2xl rounded-r-none border-r-0" 
-          />
-        </div>
-        <Button 
-          variant="outline" 
-          onClick={() => setSortOrder(s => s === 'newest' ? 'oldest' : 'newest')}
-          className="rounded-l-none rounded-r-2xl border-l-0 gap-2"
-        >
-          <ArrowUpDown className="h-4 w-4" />
-          {sortOrder === 'newest' ? 'Newest' : 'Oldest'}
-        </Button>
-      </div>
+      <Card className="rounded-3xl overflow-hidden border-none shadow-sm">
+        <CardContent className="p-3 flex gap-3">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input 
+              placeholder="Search messages..." 
+              value={searchQuery} 
+              onChange={e => setSearchQuery(e.target.value)} 
+              className="pl-9 rounded-2xl border-none bg-secondary/50" 
+            />
+          </div>
+          <Button 
+            variant="ghost" 
+            onClick={() => setSortOrder(s => s === 'newest' ? 'oldest' : 'newest')}
+            className="rounded-2xl gap-2 bg-secondary/50 hover:bg-secondary"
+          >
+            <ArrowUpDown className="h-4 w-4" />
+            {sortOrder === 'newest' ? 'Newest' : 'Oldest'}
+          </Button>
+        </CardContent>
+      </Card>
 
       {/* Compose Card */}
       <AnimatePresence>

@@ -668,39 +668,41 @@ export function AccountsPanel({
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input placeholder="Search by name, email, or code..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-9 rounded-none rounded-tl-2xl rounded-tr-2xl sm:rounded-tr-none sm:rounded-bl-2xl border-r-0 sm:border-r-0 focus-visible:z-10" />
-        </div>
-        <Select value={filterRole} onValueChange={setFilterRole}>
-          <SelectTrigger className="w-full sm:w-[130px] rounded-none border-t-0 sm:border-t sm:border-l-0 focus:z-10"><SelectValue placeholder="Role" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Roles</SelectItem>
-            <SelectItem value="super_admin">Super Admin</SelectItem>
-            <SelectItem value="admin">Admin</SelectItem>
-            <SelectItem value="user">User</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select value={filterStatus} onValueChange={setFilterStatus}>
-          <SelectTrigger className="w-full sm:w-[130px] rounded-none border-t-0 sm:border-t sm:border-l-0 focus:z-10"><SelectValue placeholder="Status" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="online">Online</SelectItem>
-            <SelectItem value="offline">Offline</SelectItem>
-            <SelectItem value="blocked">Blocked</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select value={sortBy} onValueChange={setSortBy}>
-          <SelectTrigger className="w-full sm:w-[130px] rounded-none rounded-b-2xl sm:rounded-b-none sm:rounded-r-2xl border-t-0 sm:border-t sm:border-l-0 focus:z-10"><SelectValue placeholder="Sort" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="newest">Newest</SelectItem>
-            <SelectItem value="oldest">Oldest</SelectItem>
-            <SelectItem value="name">Name</SelectItem>
-            <SelectItem value="active">Last Active</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+      <Card className="rounded-3xl overflow-hidden border-none shadow-sm">
+        <CardContent className="p-3 flex flex-col sm:flex-row gap-3">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input placeholder="Search by name, email, or code..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-9 rounded-2xl border-none bg-secondary/50" />
+          </div>
+          <Select value={filterRole} onValueChange={setFilterRole}>
+            <SelectTrigger className="w-full sm:w-[130px] rounded-2xl border-none bg-secondary/50"><SelectValue placeholder="Role" /></SelectTrigger>
+            <SelectContent className="rounded-2xl">
+              <SelectItem value="all">All Roles</SelectItem>
+              <SelectItem value="super_admin">Super Admin</SelectItem>
+              <SelectItem value="admin">Admin</SelectItem>
+              <SelectItem value="user">User</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={filterStatus} onValueChange={setFilterStatus}>
+            <SelectTrigger className="w-full sm:w-[130px] rounded-2xl border-none bg-secondary/50"><SelectValue placeholder="Status" /></SelectTrigger>
+            <SelectContent className="rounded-2xl">
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="online">Online</SelectItem>
+              <SelectItem value="offline">Offline</SelectItem>
+              <SelectItem value="blocked">Blocked</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={sortBy} onValueChange={setSortBy}>
+            <SelectTrigger className="w-full sm:w-[130px] rounded-2xl border-none bg-secondary/50"><SelectValue placeholder="Sort" /></SelectTrigger>
+            <SelectContent className="rounded-2xl">
+              <SelectItem value="newest">Newest</SelectItem>
+              <SelectItem value="oldest">Oldest</SelectItem>
+              <SelectItem value="name">Name</SelectItem>
+              <SelectItem value="active">Last Active</SelectItem>
+            </SelectContent>
+          </Select>
+        </CardContent>
+      </Card>
 
       {/* Users Grid */}
       <div className="space-y-3">
