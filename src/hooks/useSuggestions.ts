@@ -71,10 +71,12 @@ export function useSuggestions() {
       // Sort by votes (most voted first)
       enriched.sort((a, b) => b.votes_count - a.votes_count);
       setSuggestions(enriched);
+      hasLoadedOnce.current = true;
     } catch (err) {
       console.error('Error fetching suggestions:', err);
     } finally {
-      setIsLoading(false);
+      if (!hasLoadedOnce.current) setIsLoading(false);
+      else setIsLoading(false);
     }
   }, [user]);
 
