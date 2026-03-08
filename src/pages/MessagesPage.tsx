@@ -212,49 +212,38 @@ export default function MessagesPage() {
           <AnimatePresence mode="popLayout">
             {messages.map((message, index) => (
               <motion.div key={message.id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 + index * 0.04 }} layout>
-                <Card className="rounded-[2rem] overflow-hidden border-none shadow-md hover:shadow-xl transition-all duration-300 group">
-                  <div className="h-1 w-full bg-gradient-to-r from-primary via-primary/60 to-transparent" />
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex items-center gap-3.5">
-                        <div className="flex h-11 w-11 items-center justify-center rounded-[1.25rem] bg-gradient-to-br from-primary to-primary/70 shadow-md shadow-primary/15">
-                          <Mail className="h-5 w-5 text-primary-foreground" />
-                        </div>
-                        <div>
-                          <h3 className="font-semibold text-foreground">{message.title || 'Admin Message'}</h3>
-                          <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-0.5">
-                            <Calendar className="h-3 w-3" />
-                            {new Date(message.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                          </div>
-                        </div>
-                      </div>
-                      {message.isRead && (
-                        <span className="flex items-center gap-1 rounded-full bg-green-500/10 px-3 py-1 text-xs font-medium text-green-600">
-                          <Check className="h-3 w-3" /> Read
-                        </span>
+                <div className="flex items-stretch gap-3">
+                  {/* Like button on the left */}
+                  <div className="flex items-center">
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={() => toggleLike(message.id)}
+                      className={cn(
+                        "flex h-12 w-12 items-center justify-center rounded-2xl border-2 transition-all duration-300",
+                        message.isLiked
+                          ? "border-primary bg-primary/10 shadow-md shadow-primary/15"
+                          : "border-border/50 bg-card hover:border-primary/30"
                       )}
-                    </div>
-                    <div className="mt-4 rounded-[1.5rem] bg-gradient-to-br from-secondary/70 to-secondary/30 p-5">
-                      <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">{message.content}</p>
-                    </div>
-                    <div className="mt-4 flex items-center justify-between">
-                      <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.96 }}>
-                        <Button
-                          variant={message.isLiked ? 'default' : 'outline'}
-                          size="sm"
-                          onClick={() => toggleLike(message.id)}
-                          className={cn(
-                            "gap-2 rounded-[1.25rem] px-5 transition-all",
-                            message.isLiked && "shadow-md shadow-primary/20"
-                          )}
-                        >
-                          <Heart className={cn('h-4 w-4 transition-all', message.isLiked && 'fill-current scale-110')} />
-                          {message.isLiked ? 'Liked' : 'Like'}
-                        </Button>
-                      </motion.div>
-                    </div>
-                  </CardContent>
-                </Card>
+                    >
+                      <Heart className={cn('h-5 w-5 transition-all', message.isLiked ? 'fill-primary text-primary scale-110' : 'text-muted-foreground')} />
+                    </motion.button>
+                  </div>
+                  {/* Message card */}
+                  <Card className="flex-1 rounded-[2rem] overflow-hidden border-none shadow-md hover:shadow-xl transition-all duration-300">
+                    <div className="h-1 w-full bg-gradient-to-r from-primary via-primary/60 to-transparent" />
+                    <CardContent className="p-6">
+                      <h3 className="text-lg font-bold text-foreground tracking-tight">{message.title || 'Admin Message'}</h3>
+                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
+                        <Calendar className="h-3 w-3" />
+                        {new Date(message.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                      </div>
+                      <div className="mt-4 rounded-[1.5rem] bg-gradient-to-br from-secondary/50 to-secondary/20 p-5 border border-border/30">
+                        <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">{message.content}</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
               </motion.div>
             ))}
           </AnimatePresence>
