@@ -155,6 +155,17 @@ export function useStudyDataSupabase() {
     fetchMaterials();
   }, [fetchMaterials]);
 
+  // Background refetch on tab focus (stale-while-revalidate)
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible' && isOnline && user) {
+        fetchMaterials(false);
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, [fetchMaterials, isOnline, user]);
+
   // Subscribe to realtime changes for cross-device sync
   useEffect(() => {
     if (!user) return;

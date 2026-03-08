@@ -80,6 +80,31 @@ export function useSuggestions() {
     fetchSuggestions();
   }, [fetchSuggestions]);
 
+  // Realtime subscription for cross-device sync
+  useEffect(() => {
+    const channel = supabase
+      .channel('suggestions-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'suggestions' }, () => {
+        fetchSuggestions();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'suggestion_votes' }, () => {
+        fetchSuggestions();
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [fetchSuggestions]);
+
+  // Background refetch on tab focus
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        fetchSuggestions();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, [fetchSuggestions]);
+
   const addSuggestion = useCallback(async (title: string, description: string) => {
     if (!user) return false;
 

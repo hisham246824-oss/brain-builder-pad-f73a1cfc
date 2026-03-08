@@ -161,20 +161,23 @@ export function useAdminMessages() {
       .channel('admin_messages_changes')
       .on(
         'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'admin_messages',
-        },
-        () => {
-          fetchMessages();
-        }
+        { event: '*', schema: 'public', table: 'admin_messages' },
+        () => { fetchMessages(); }
       )
       .subscribe();
 
-    return () => {
-      supabase.removeChannel(channel);
+    return () => { supabase.removeChannel(channel); };
+  }, [user]);
+
+  // Background refetch on tab focus
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible' && user) {
+        fetchMessages();
+      }
     };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
   }, [user]);
 
   return {
