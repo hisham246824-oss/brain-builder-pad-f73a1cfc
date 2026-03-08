@@ -46,9 +46,15 @@ interface User {
   language: string | null;
 }
 
-const LANGUAGE_NAMES: Record<string, string> = {
-  en: 'English', ar: 'العربية', fr: 'Français', zh: '中文',
-  ja: '日本語', hi: 'हिन्दी', es: 'Español', pt: 'Português',
+const LANGUAGE_INFO: Record<string, { name: string; native: string; flag: string }> = {
+  en: { name: 'English', native: 'English', flag: '🇬🇧' },
+  ar: { name: 'Arabic', native: 'العربية', flag: '🇸🇦' },
+  fr: { name: 'French', native: 'Français', flag: '🇫🇷' },
+  zh: { name: 'Chinese', native: '中文', flag: '🇨🇳' },
+  ja: { name: 'Japanese', native: '日本語', flag: '🇯🇵' },
+  hi: { name: 'Hindi', native: 'हिन्दी', flag: '🇮🇳' },
+  es: { name: 'Spanish', native: 'Español', flag: '🇪🇸' },
+  pt: { name: 'Portuguese', native: 'Português', flag: '🇧🇷' },
 };
 
 interface UserActivity {
@@ -347,9 +353,10 @@ export function AccountsPanel({
                     Profile: {viewingProfile.avatar_color}
                   </p>
                 )}
-                {viewingProfile.language && (
+                {viewingProfile.language && LANGUAGE_INFO[viewingProfile.language] && (
                   <p className="flex items-center gap-1 justify-end">
-                    <Globe className="h-3 w-3" /> {LANGUAGE_NAMES[viewingProfile.language] || viewingProfile.language}
+                    <span className="text-base">{LANGUAGE_INFO[viewingProfile.language].flag}</span>
+                    {LANGUAGE_INFO[viewingProfile.language].name}
                   </p>
                 )}
               </div>
@@ -740,8 +747,11 @@ export function AccountsPanel({
                     {u.country && (
                       <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{u.country}</span>
                     )}
-                    {u.language && (
-                      <span className="flex items-center gap-1"><Globe className="h-3 w-3" />{LANGUAGE_NAMES[u.language] || u.language}</span>
+                    {u.language && LANGUAGE_INFO[u.language] && (
+                      <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-secondary/80 text-xs">
+                        <span>{LANGUAGE_INFO[u.language].flag}</span>
+                        <span className="font-medium">{LANGUAGE_INFO[u.language].name}</span>
+                      </span>
                     )}
                     <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
                   </div>
