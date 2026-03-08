@@ -80,6 +80,7 @@ function UserRoute({ children }: { children: React.ReactNode }) {
 function RootRedirect() {
   const { isAdmin, isLoading } = useUserRole();
   const { isLoading: authLoading } = useAuth();
+  const { isImpersonating } = useAdminImpersonation();
 
   if (authLoading || isLoading) {
     return (
@@ -89,7 +90,7 @@ function RootRedirect() {
     );
   }
 
-  if (isAdmin) {
+  if (isAdmin && !isImpersonating) {
     return <Navigate to="/admin" replace />;
   }
 
