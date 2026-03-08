@@ -80,14 +80,8 @@ export default function PomodoroPage() {
           </div>
 
           {/* Settings Toggle */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowSettings(!showSettings)}
-            className="mb-4"
-          >
-            <Settings className="w-4 h-4 mr-2" />
-            Settings
+          <Button variant="ghost" size="sm" onClick={() => setShowSettings(!showSettings)} className="mb-4">
+            <Settings className="w-4 h-4 mr-2" />{t('settings')}
           </Button>
 
           {/* Settings Panel */}
