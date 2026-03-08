@@ -165,8 +165,10 @@ export function AccountsPanel({
   
   // Delete
   const [deleteTarget, setDeleteTarget] = useState<User | null>(null);
+  const [showInlineDelete, setShowInlineDelete] = useState(false);
   const [deletePassword, setDeletePassword] = useState('');
-  const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const deleteFormRef = useRef<HTMLDivElement>(null);
   
   // Promote
   const [promoteTarget, setPromoteTarget] = useState<User | null>(null);
