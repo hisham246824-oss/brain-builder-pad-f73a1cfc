@@ -149,81 +149,29 @@ export function StatisticsPanel({ stats, isLoading }: StatisticsPanelProps) {
         </motion.div>
       )}
 
-      {/* Charts */}
-      <div className="grid gap-4 lg:grid-cols-2">
-        <motion.div initial={{ opacity: 0, x: -15 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }}>
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-base"><TrendingUp className="h-5 w-5 text-primary" />Most Visited Pages</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {stats?.mostVisitedPages && stats.mostVisitedPages.length > 0 ? (
-                <div className="space-y-3">
-                  {stats.mostVisitedPages.map((page, index) => (
-                    <div key={page.page} className="flex items-center gap-3">
-                      <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-xs font-bold text-primary">{index + 1}</div>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-foreground">{pageNameMap[page.page] || page.page}</p>
-                        <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-secondary">
-                          <motion.div initial={{ width: 0 }} animate={{ width: `${(page.visits / (stats.mostVisitedPages[0]?.visits || 1)) * 100}%` }} transition={{ duration: 0.5, delay: index * 0.1 }} className="h-full rounded-full bg-primary" />
-                        </div>
-                      </div>
-                      <span className="text-xs font-semibold text-foreground">{page.visits.toLocaleString()}</span>
-                    </div>
-                  ))}
-                </div>
-              ) : <p className="text-center text-sm text-muted-foreground">No data yet</p>}
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        <motion.div initial={{ opacity: 0, x: 15 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.45 }}>
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-base"><Clock className="h-5 w-5 text-primary" />Time Spent by Page</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {stats?.longestDurationPages && stats.longestDurationPages.length > 0 ? (
-                <div className="space-y-3">
-                  {stats.longestDurationPages.map((page, index) => (
-                    <div key={page.page} className="flex items-center gap-3">
-                      <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-xs font-bold text-primary">{index + 1}</div>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-foreground">{pageNameMap[page.page] || page.page}</p>
-                        <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-secondary">
-                          <motion.div initial={{ width: 0 }} animate={{ width: `${(page.duration / (stats.longestDurationPages[0]?.duration || 1)) * 100}%` }} transition={{ duration: 0.5, delay: index * 0.1 }} className="h-full rounded-full bg-accent-foreground/30" />
-                        </div>
-                      </div>
-                      <span className="text-xs font-semibold text-foreground">{formatDuration(page.duration)}</span>
-                    </div>
-                  ))}
-                </div>
-              ) : <p className="text-center text-sm text-muted-foreground">No data yet</p>}
-            </CardContent>
-          </Card>
-        </motion.div>
-      </div>
-
-      {/* Platform Health */}
-      <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
+      {/* Most Visited Pages */}
+      <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base"><Activity className="h-5 w-5 text-primary" />Platform Health</CardTitle>
+            <CardTitle className="flex items-center gap-2 text-base"><TrendingUp className="h-5 w-5 text-primary" />Most Visited Pages</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
-              {[
-                { label: 'User Retention', value: stats?.totalUsers ? Math.min(Math.round((stats.activeToday / stats.totalUsers) * 100), 100) : 0, suffix: '%' },
-                { label: 'Content per User', value: stats?.totalUsers ? (totalContent / stats.totalUsers).toFixed(1) : '0', suffix: '' },
-                { label: 'Avg Vocabulary', value: stats?.totalUsers ? Math.round((stats?.totalVocabulary || 0) / stats.totalUsers) : 0, suffix: ' words' },
-                { label: 'Suggestions Rate', value: stats?.totalUsers ? ((stats?.totalSuggestions || 0) / stats.totalUsers).toFixed(1) : '0', suffix: '/user' },
-              ].map((item, i) => (
-                <div key={item.label} className="text-center">
-                  <p className="text-2xl font-bold text-foreground">{item.value}{item.suffix}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{item.label}</p>
-                </div>
-              ))}
-            </div>
+            {stats?.mostVisitedPages && stats.mostVisitedPages.length > 0 ? (
+              <div className="space-y-3">
+                {stats.mostVisitedPages.map((page, index) => (
+                  <div key={page.page} className="flex items-center gap-3">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-xs font-bold text-primary">{index + 1}</div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-foreground">{pageNameMap[page.page] || page.page}</p>
+                      <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-secondary">
+                        <motion.div initial={{ width: 0 }} animate={{ width: `${(page.visits / (stats.mostVisitedPages[0]?.visits || 1)) * 100}%` }} transition={{ duration: 0.5, delay: index * 0.1 }} className="h-full rounded-full bg-primary" />
+                      </div>
+                    </div>
+                    <span className="text-xs font-semibold text-foreground">{page.visits.toLocaleString()}</span>
+                  </div>
+                ))}
+              </div>
+            ) : <p className="text-center text-sm text-muted-foreground">No data yet</p>}
           </CardContent>
         </Card>
       </motion.div>
