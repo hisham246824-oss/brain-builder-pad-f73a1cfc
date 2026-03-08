@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mail, Heart, Check, Calendar, BarChart } from 'lucide-react';
+import { Mail, Heart, Check, Calendar, BarChart, Sparkles, MessageSquareDashed } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useAdminMessages } from '@/hooks/useAdminMessages';
@@ -19,6 +19,15 @@ interface UserPoll {
   vote_counts: Record<number, number>;
   total_votes: number;
 }
+
+const POLL_COLORS = [
+  'from-primary to-primary/80',
+  'from-blue-500 to-cyan-500',
+  'from-purple-500 to-pink-500',
+  'from-amber-500 to-orange-500',
+  'from-green-500 to-teal-500',
+  'from-rose-500 to-red-500',
+];
 
 export default function MessagesPage() {
   const { messages, isLoading, toggleLike, markAllAsRead } = useAdminMessages();
@@ -58,7 +67,6 @@ export default function MessagesPage() {
 
     try {
       if (poll.user_vote !== null) {
-        // Update existing vote
         await supabase.from('poll_votes').update({ option_index: optionIndex }).eq('poll_id', pollId).eq('user_id', user.id);
       } else {
         await supabase.from('poll_votes').insert({ poll_id: pollId, user_id: user.id, option_index: optionIndex });
@@ -83,77 +91,103 @@ export default function MessagesPage() {
 
   if (isLoading && pollsLoading) {
     return (
-      <div className="space-y-6">
+      <div className="max-w-3xl mx-auto space-y-6">
         <div className="flex items-center gap-3">
-          <Mail className="h-8 w-8 text-primary" />
-          <h1 className="text-2xl font-bold text-foreground">Messages</h1>
+          <div className="h-14 w-14 animate-pulse rounded-[2rem] bg-secondary" />
+          <div className="space-y-2">
+            <div className="h-6 w-40 animate-pulse rounded-full bg-secondary" />
+            <div className="h-4 w-28 animate-pulse rounded-full bg-secondary" />
+          </div>
         </div>
-        <div className="space-y-4">{[...Array(3)].map((_, i) => <div key={i} className="h-32 animate-pulse rounded-2xl bg-secondary" />)}</div>
+        <div className="space-y-4">{[...Array(3)].map((_, i) => <div key={i} className="h-36 animate-pulse rounded-[2rem] bg-secondary" />)}</div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-3">
-        <div className="flex h-12 w-12 items-center justify-center rounded-xl gradient-primary shadow-glow">
-          <Mail className="h-6 w-6 text-primary-foreground" />
+    <div className="max-w-3xl mx-auto space-y-8">
+      {/* Header */}
+      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-4">
+        <div className="flex h-14 w-14 items-center justify-center rounded-[1.75rem] bg-gradient-to-br from-primary via-primary/90 to-primary/60 shadow-lg shadow-primary/20">
+          <Mail className="h-7 w-7 text-primary-foreground" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Messages & Polls</h1>
+          <h1 className="text-2xl font-bold text-foreground tracking-tight">Messages & Polls</h1>
           <p className="text-sm text-muted-foreground">{messages.length} messages • {polls.length} active polls</p>
         </div>
       </motion.div>
 
       {/* Active Polls */}
       {polls.length > 0 && (
-        <div className="space-y-3">
-          <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
-            <BarChart className="h-5 w-5 text-primary" /> Active Polls
-          </h2>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="space-y-4">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10">
+              <BarChart className="h-4 w-4 text-primary" />
+            </div>
+            <h2 className="text-lg font-semibold text-foreground">Active Polls</h2>
+          </div>
           {polls.map((poll, index) => (
-            <motion.div key={poll.id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }}>
-              <Card className="overflow-hidden border-primary/20">
-                <CardContent className="p-5">
-                  <h3 className="font-semibold text-foreground">{poll.question}</h3>
-                  <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1.5">
+            <motion.div key={poll.id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 + index * 0.05 }}>
+              <Card className="rounded-[2rem] overflow-hidden border-none shadow-md hover:shadow-xl transition-shadow duration-300">
+                <div className="h-1.5 w-full bg-gradient-to-r from-primary via-primary/80 to-accent" />
+                <CardContent className="p-6">
+                  <div className="flex items-start justify-between gap-3">
+                    <h3 className="font-semibold text-foreground text-lg leading-snug">{poll.question}</h3>
+                    <span className="shrink-0 inline-flex items-center gap-1 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+                      <Sparkles className="h-3 w-3" />
+                      {poll.total_votes} votes
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1.5 flex items-center gap-1.5">
                     <Calendar className="h-3 w-3" />
-                    {new Date(poll.created_at).toLocaleDateString()} • {poll.total_votes} votes
+                    {new Date(poll.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                   </p>
-                  <div className="mt-4 space-y-2">
+                  <div className="mt-5 space-y-2.5">
                     {poll.options.map((opt, idx) => {
                       const isSelected = poll.user_vote === idx;
                       const hasVoted = poll.user_vote !== null;
                       const count = poll.vote_counts[idx] || 0;
                       const pct = poll.total_votes > 0 ? (count / poll.total_votes) * 100 : 0;
+                      const colorGrad = POLL_COLORS[idx % POLL_COLORS.length];
 
                       return (
-                        <button
+                        <motion.button
                           key={idx}
+                          whileHover={{ scale: 1.01 }}
+                          whileTap={{ scale: 0.98 }}
                           onClick={() => handleVote(poll.id, idx)}
                           className={cn(
-                            'w-full relative rounded-xl border p-3 text-left transition-all text-sm',
+                            'w-full relative rounded-[1.25rem] border-2 p-4 text-left transition-all text-sm overflow-hidden',
                             isSelected
-                              ? 'border-primary bg-primary/5 text-foreground'
-                              : 'border-border hover:border-primary/40 text-foreground'
+                              ? 'border-primary bg-primary/5 shadow-sm'
+                              : 'border-border/50 hover:border-primary/30 hover:bg-secondary/30'
                           )}
                         >
                           {hasVoted && (
                             <motion.div
                               initial={{ width: 0 }}
                               animate={{ width: `${pct}%` }}
-                              transition={{ duration: 0.5 }}
-                              className="absolute left-0 top-0 h-full rounded-xl bg-primary/10"
+                              transition={{ duration: 0.7, ease: 'easeOut' }}
+                              className={cn("absolute left-0 top-0 h-full rounded-[1.25rem] bg-gradient-to-r opacity-15", colorGrad)}
                             />
                           )}
                           <div className="relative flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              {isSelected && <Check className="h-4 w-4 text-primary" />}
-                              <span>{opt}</span>
+                            <div className="flex items-center gap-2.5">
+                              <div className={cn(
+                                "flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold transition-all",
+                                isSelected ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground"
+                              )}>
+                                {isSelected ? <Check className="h-3.5 w-3.5" /> : String.fromCharCode(65 + idx)}
+                              </div>
+                              <span className="font-medium">{opt}</span>
                             </div>
-                            {hasVoted && <span className="text-xs text-muted-foreground">{Math.round(pct)}%</span>}
+                            {hasVoted && (
+                              <span className={cn("text-xs font-semibold", isSelected ? "text-primary" : "text-muted-foreground")}>
+                                {Math.round(pct)}%
+                              </span>
+                            )}
                           </div>
-                        </button>
+                        </motion.button>
                       );
                     })}
                   </div>
@@ -161,63 +195,80 @@ export default function MessagesPage() {
               </Card>
             </motion.div>
           ))}
-        </div>
+        </motion.div>
       )}
 
       {/* Messages */}
       {messages.length === 0 && polls.length === 0 ? (
-        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="rounded-2xl bg-secondary/50 p-12 text-center">
-          <Mail className="mx-auto h-16 w-16 text-muted-foreground" />
-          <p className="mt-4 text-lg font-medium text-foreground">No messages</p>
-          <p className="mt-1 text-muted-foreground">Messages and polls from admin will appear here</p>
+        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
+          <Card className="rounded-[2rem] border-none shadow-sm">
+            <CardContent className="p-16 text-center">
+              <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-[2rem] bg-gradient-to-br from-secondary to-secondary/50">
+                <MessageSquareDashed className="h-12 w-12 text-muted-foreground/40" />
+              </div>
+              <p className="mt-6 text-xl font-semibold text-foreground/80">No messages yet</p>
+              <p className="mt-2 text-sm text-muted-foreground max-w-xs mx-auto">Messages and polls from the admin team will appear here</p>
+            </CardContent>
+          </Card>
         </motion.div>
       ) : messages.length > 0 && (
-        <div className="space-y-3">
-          <h2 className="text-lg font-semibold text-foreground">Messages</h2>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="space-y-4">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10">
+              <Mail className="h-4 w-4 text-primary" />
+            </div>
+            <h2 className="text-lg font-semibold text-foreground">Messages</h2>
+          </div>
           <AnimatePresence mode="popLayout">
             {messages.map((message, index) => (
-              <motion.div key={message.id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.03 }} layout>
-                <Card className="overflow-hidden transition-all hover:shadow-md">
-                  <CardContent className="p-0">
-                    <div className="relative">
-                      <div className="absolute left-0 top-0 h-full w-1 gradient-primary" />
-                      <div className="p-4 pl-5">
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="flex items-center gap-3">
-                            <div className="flex h-9 w-9 items-center justify-center rounded-full gradient-primary">
-                              <Mail className="h-4 w-4 text-primary-foreground" />
-                            </div>
-                            <div>
-                              <h3 className="font-semibold text-sm text-foreground">{message.title || 'Admin Message'}</h3>
-                              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                                <Calendar className="h-3 w-3" />
-                                {new Date(message.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                              </div>
-                            </div>
+              <motion.div key={message.id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 + index * 0.04 }} layout>
+                <Card className="rounded-[2rem] overflow-hidden border-none shadow-md hover:shadow-xl transition-all duration-300 group">
+                  <div className="h-1 w-full bg-gradient-to-r from-primary via-primary/60 to-transparent" />
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex items-center gap-3.5">
+                        <div className="flex h-11 w-11 items-center justify-center rounded-[1.25rem] bg-gradient-to-br from-primary to-primary/70 shadow-md shadow-primary/15">
+                          <Mail className="h-5 w-5 text-primary-foreground" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-foreground">{message.title || 'Admin Message'}</h3>
+                          <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-0.5">
+                            <Calendar className="h-3 w-3" />
+                            {new Date(message.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                           </div>
-                          {message.isRead && (
-                            <span className="flex items-center gap-1 rounded-full bg-green-500/10 px-2 py-0.5 text-xs text-green-600">
-                              <Check className="h-3 w-3" /> Read
-                            </span>
-                          )}
-                        </div>
-                        <div className="mt-3 rounded-xl bg-secondary/50 p-3">
-                          <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">{message.content}</p>
-                        </div>
-                        <div className="mt-3">
-                          <Button variant={message.isLiked ? 'default' : 'outline'} size="sm" onClick={() => toggleLike(message.id)} className="gap-2">
-                            <Heart className={cn('h-4 w-4', message.isLiked && 'fill-current')} />
-                            {message.isLiked ? 'Liked' : 'Like'}
-                          </Button>
                         </div>
                       </div>
+                      {message.isRead && (
+                        <span className="flex items-center gap-1 rounded-full bg-green-500/10 px-3 py-1 text-xs font-medium text-green-600">
+                          <Check className="h-3 w-3" /> Read
+                        </span>
+                      )}
+                    </div>
+                    <div className="mt-4 rounded-[1.5rem] bg-gradient-to-br from-secondary/70 to-secondary/30 p-5">
+                      <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">{message.content}</p>
+                    </div>
+                    <div className="mt-4 flex items-center justify-between">
+                      <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.96 }}>
+                        <Button
+                          variant={message.isLiked ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => toggleLike(message.id)}
+                          className={cn(
+                            "gap-2 rounded-[1.25rem] px-5 transition-all",
+                            message.isLiked && "shadow-md shadow-primary/20"
+                          )}
+                        >
+                          <Heart className={cn('h-4 w-4 transition-all', message.isLiked && 'fill-current scale-110')} />
+                          {message.isLiked ? 'Liked' : 'Like'}
+                        </Button>
+                      </motion.div>
                     </div>
                   </CardContent>
                 </Card>
               </motion.div>
             ))}
           </AnimatePresence>
-        </div>
+        </motion.div>
       )}
     </div>
   );
