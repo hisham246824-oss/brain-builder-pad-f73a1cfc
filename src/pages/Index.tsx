@@ -115,7 +115,6 @@ function LoggedInHomePage() {
   const [phraseIndex, setPhraseIndex] = useState(0);
 
   const motivationalPhrases = useMemo(() => [
-    { text: t('askAnything'), action: t('aiStudyChat'), link: "/ai-chat" },
     { text: t('organizeMaterials'), action: t('studyMaterials'), link: "/materials" },
     { text: t('pomodoroTimerTitle'), action: t('pomodoroTimer'), link: "/pomodoro" },
     { text: t('vocabFlashcards'), action: t('vocabulary'), link: "/vocabulary" },
