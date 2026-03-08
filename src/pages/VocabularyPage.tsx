@@ -61,7 +61,7 @@ export default function VocabularyPage() {
   const displayWords = showDifficult ? difficultWords : words;
 
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="pb-20">
+    <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.166, ease: [0.22, 1, 0.36, 1] }} className="pb-20">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-primary">{t('vocabulary')}</h1>
         <p className="mt-1 text-muted-foreground">
