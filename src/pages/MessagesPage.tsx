@@ -96,8 +96,8 @@ export default function MessagesPage() {
           <Mail className="h-7 w-7 text-primary-foreground" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-foreground tracking-tight">Messages & Polls</h1>
-          <p className="text-sm text-muted-foreground">{messages.length} messages • {polls.length} active polls</p>
+          <h1 className="text-2xl font-bold text-foreground tracking-tight">{t('messagesTitle')}</h1>
+          <p className="text-sm text-muted-foreground">{messages.length} {t('messages')} • {polls.length} {t('activePolls')}</p>
         </div>
       </motion.div>
 
