@@ -54,7 +54,6 @@ export default function SettingsPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPasswords, setShowPasswords] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
-  const [aiPrompt, setAiPrompt] = useState('');
   const [sidebarOrder, setSidebarOrder] = useState<string[]>([]);
 
   const sensors = useSensors(
