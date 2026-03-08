@@ -433,7 +433,10 @@ export function AccountsPanel({
                         <Unlock className="h-4 w-4" /> Unblock User
                       </Button>
                     ) : (
-                      <Button variant="outline" className="w-full justify-start gap-2 text-amber-600" onClick={() => setBlockTarget(viewingProfile)}>
+                      <Button variant="outline" className="w-full justify-start gap-2 text-amber-600" onClick={() => {
+                        setShowInlineBlock(true);
+                        setTimeout(() => blockFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+                      }}>
                         <Ban className="h-4 w-4" /> Block User
                       </Button>
                     )
