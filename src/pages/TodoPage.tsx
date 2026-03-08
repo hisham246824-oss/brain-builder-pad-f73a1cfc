@@ -335,11 +335,11 @@ const TodoPage = () => {
 
       {/* 7. Motivational footer */}
       {activeTodos.length > 0 && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="text-center py-4">
+        <div className="text-center py-4">
           <p className="text-xs text-muted-foreground italic">
             "The secret of getting ahead is getting started." — Mark Twain
           </p>
-        </motion.div>
+        </div>
       )}
 
       {/* Add Task Dialog */}
