@@ -226,6 +226,7 @@ export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
           </>
         )}
       </AnimatePresence>
+      <LeaderboardModal isOpen={leaderboardOpen} onClose={() => setLeaderboardOpen(false)} />
     </>
   );
 }
