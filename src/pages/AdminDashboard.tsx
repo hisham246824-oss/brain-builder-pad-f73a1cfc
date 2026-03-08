@@ -47,6 +47,7 @@ export default function AdminDashboard() {
           onGetPrivateMessages={getPrivateMessages}
           onUpdatePrivateMessage={updatePrivateMessage}
           onDeletePrivateMessage={deletePrivateMessage}
+          onImpersonateUser={handleImpersonateUser}
         />
       )}
       {activeTab === 'messages' && (
