@@ -64,7 +64,7 @@ export default function SettingsPage() {
 
   const SIDEBAR_LABELS: Record<string, string> = {
     home: t('home'), materials: t('studyMaterials'), vocabulary: t('vocabulary'),
-    'ai-chat': t('aiStudyChat'), 'table-creator': t('createTable'), pomodoro: t('pomodoroTimer'),
+    'table-creator': t('createTable'), pomodoro: t('pomodoroTimer'),
     suggestions: t('suggestions'), messages: t('messages'), todos: t('todoList'),
   };
 
