@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react';
-import { Ban } from 'lucide-react';
+import { Ban, ShieldCheck } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface BlockedScreenProps {
   blockedUntil: string;
   reason: string | null;
+  isAdmin?: boolean;
+  onReturnToAdmin?: () => void;
 }
 
-export function BlockedScreen({ blockedUntil, reason }: BlockedScreenProps) {
+export function BlockedScreen({ blockedUntil, reason, isAdmin, onReturnToAdmin }: BlockedScreenProps) {
   const [remaining, setRemaining] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [progress, setProgress] = useState(0);
 
@@ -71,6 +74,11 @@ export function BlockedScreen({ blockedUntil, reason }: BlockedScreenProps) {
               <p className="text-sm font-medium text-destructive mb-1">Reason</p>
               <p className="text-sm text-foreground">{reason}</p>
             </div>
+          )}
+          {isAdmin && onReturnToAdmin && (
+            <Button onClick={onReturnToAdmin} className="mt-4 gap-2" variant="outline">
+              <ShieldCheck className="h-4 w-4" /> Return to Admin
+            </Button>
           )}
         </div>
       </div>
