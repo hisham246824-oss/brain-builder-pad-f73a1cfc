@@ -5,7 +5,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import { AdminImpersonationProvider, useAdminImpersonation } from "@/contexts/AdminImpersonationContext";
 import { useUserRole } from "@/hooks/useUserRole";
+import { AdminImpersonationBar } from "@/components/admin/AdminImpersonationBar";
 import { AppLayout } from "./components/layout/AppLayout";
 import Index from "./pages/Index";
 import MaterialsPage from "./pages/MaterialsPage";
@@ -57,6 +59,7 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
 function UserRoute({ children }: { children: React.ReactNode }) {
   const { isAdmin, isLoading } = useUserRole();
   const { isLoading: authLoading } = useAuth();
+  const { isImpersonating } = useAdminImpersonation();
 
   if (authLoading || isLoading) {
     return (
@@ -66,7 +69,8 @@ function UserRoute({ children }: { children: React.ReactNode }) {
     );
   }
 
-  if (isAdmin) {
+  // Allow admin through if impersonating
+  if (isAdmin && !isImpersonating) {
     return <Navigate to="/admin" replace />;
   }
 
@@ -76,6 +80,7 @@ function UserRoute({ children }: { children: React.ReactNode }) {
 function RootRedirect() {
   const { isAdmin, isLoading } = useUserRole();
   const { isLoading: authLoading } = useAuth();
+  const { isImpersonating } = useAdminImpersonation();
 
   if (authLoading || isLoading) {
     return (
@@ -85,7 +90,7 @@ function RootRedirect() {
     );
   }
 
-  if (isAdmin) {
+  if (isAdmin && !isImpersonating) {
     return <Navigate to="/admin" replace />;
   }
 
@@ -94,38 +99,41 @@ function RootRedirect() {
 
 function AppRoutes() {
   return (
-    <Routes>
-      {/* Auth pages - full screen, no layout */}
-      <Route path="/auth" element={<AuthPage />} />
+    <>
+      <AdminImpersonationBar />
+      <Routes>
+        {/* Auth pages - full screen, no layout */}
+        <Route path="/auth" element={<AuthPage />} />
 
-      {/* Admin routes */}
-      <Route
-        path="/admin"
-        element={
-          <AdminRoute>
-            <AdminDashboard />
-          </AdminRoute>
-        }
-      />
+        {/* Admin routes */}
+        <Route
+          path="/admin"
+          element={
+            <AdminRoute>
+              <AdminDashboard />
+            </AdminRoute>
+          }
+        />
 
-      {/* User routes */}
-      <Route element={<AppLayout />}>
-        <Route path="/" element={<RootRedirect />} />
-        <Route path="/materials" element={<MaterialsPage />} />
-        <Route path="/materials/:id" element={<MaterialDetailPage />} />
-        <Route path="/table-creator" element={<TableCreatorPage />} />
-        <Route path="/pomodoro" element={<PomodoroPage />} />
-        <Route path="/vocabulary" element={<VocabularyPage />} />
-        <Route path="/flashcards" element={<FlashcardsPage />} />
-        <Route path="/ai-chat" element={<AIChatPage />} />
-        <Route path="/messages" element={<MessagesPage />} />
-        <Route path="/settings" element={<SettingsPage />} />
-        <Route path="/suggestions" element={<SuggestionsPage />} />
-        <Route path="/todos" element={<TodoPage />} />
-      </Route>
-      
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+        {/* User routes */}
+        <Route element={<AppLayout />}>
+          <Route path="/" element={<RootRedirect />} />
+          <Route path="/materials" element={<MaterialsPage />} />
+          <Route path="/materials/:id" element={<MaterialDetailPage />} />
+          <Route path="/table-creator" element={<TableCreatorPage />} />
+          <Route path="/pomodoro" element={<PomodoroPage />} />
+          <Route path="/vocabulary" element={<VocabularyPage />} />
+          <Route path="/flashcards" element={<FlashcardsPage />} />
+          <Route path="/ai-chat" element={<AIChatPage />} />
+          <Route path="/messages" element={<MessagesPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/suggestions" element={<SuggestionsPage />} />
+          <Route path="/todos" element={<TodoPage />} />
+        </Route>
+        
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </>
   );
 }
 
@@ -133,13 +141,15 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
       <LanguageProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <AppRoutes />
-          </BrowserRouter>
-        </TooltipProvider>
+        <AdminImpersonationProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <AppRoutes />
+            </BrowserRouter>
+          </TooltipProvider>
+        </AdminImpersonationProvider>
       </LanguageProvider>
     </AuthProvider>
   </QueryClientProvider>
