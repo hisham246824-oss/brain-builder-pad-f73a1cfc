@@ -157,6 +157,7 @@
     transform: translateZ(0);
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
+    -webkit-transform: translateZ(0);
   }
 
   /* Optimized will-change for animated elements */
@@ -177,14 +178,35 @@
     contain: layout;
   }
 
+  .contain-strict {
+    contain: layout style paint;
+  }
+
   /* Smooth transitions with hardware acceleration */
   .transition-gpu {
     transition-property: transform, opacity;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    transition-duration: 200ms;
+    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    transition-duration: 166ms;
     transform: translateZ(0);
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
+  }
+
+  /* 120Hz-optimized scroll container */
+  .scroll-optimized {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    scroll-behavior: smooth;
+    contain: paint layout;
+  }
+
+  /* Composite-only animations (transform + opacity only) */
+  .composite-layer {
+    transform: translateZ(0);
+    will-change: transform, opacity;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    -webkit-transform: translateZ(0);
   }
 }
 
