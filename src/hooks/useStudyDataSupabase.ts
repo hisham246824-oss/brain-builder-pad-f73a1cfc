@@ -33,6 +33,7 @@ export function useStudyDataSupabase() {
   const [isLoading, setIsLoading] = useState(true);
   const isLocalChange = useRef(false);
   const hasSyncedPending = useRef(false);
+  const hasLoadedOnce = useRef(false);
 
   // Sync pending actions when coming back online
   const syncPendingActions = useCallback(async () => {
