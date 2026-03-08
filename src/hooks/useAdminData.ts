@@ -80,11 +80,13 @@ interface UserActivity {
   lessons_count: number;
   vocabulary_count: number;
   suggestions_count: number;
-  todos_count: number;
   total_visits: number;
   total_duration: number;
   last_active: string | null;
   most_visited_page: string | null;
+  peak_hours: { hour: number; visits: number }[];
+  country: string | null;
+  language: string | null;
 }
 
 interface AdminPoll {
