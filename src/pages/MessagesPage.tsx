@@ -66,7 +66,7 @@ export default function MessagesPage() {
       } else {
         await supabase.from('poll_votes').insert({ poll_id: pollId, user_id: user.id, option_index: optionIndex });
       }
-      toast.success('Thank you for contributing to the site\'s development! 🎉');
+      toast.success(t('thankYouVote'));
       fetchPolls();
     } catch {
       toast.error('Failed to vote');
