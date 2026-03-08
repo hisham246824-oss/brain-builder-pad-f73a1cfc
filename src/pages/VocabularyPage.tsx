@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
 import { VocabularyCard } from '@/components/vocabulary/VocabularyCard';
 import { AddWordDialog } from '@/components/vocabulary/AddWordDialog';
+import { BulkImportButton } from '@/components/vocabulary/BulkImportButton';
 import { VocabularySkeleton } from '@/components/skeletons/VocabularySkeleton';
 import { useVocabulary } from '@/hooks/useVocabulary';
 import { useAuth } from '@/contexts/AuthContext';
@@ -104,6 +105,8 @@ export default function VocabularyPage() {
         <Plus className="mr-2 h-5 w-5" />
         {t('addWord')}
       </Button>
+
+      <BulkImportButton onComplete={refetch} existingWords={allWords.map(w => w.word)} />
 
       {/* Difficult + Practice - equal width row */}
       <div className="grid grid-cols-2 gap-3 mb-6">
