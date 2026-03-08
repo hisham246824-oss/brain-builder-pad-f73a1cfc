@@ -165,7 +165,7 @@ export function useAdminMessages() {
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'admin_messages' },
-        () => { fetchMessages(); }
+        () => { fetchMessages(true); }
       )
       .subscribe();
 
