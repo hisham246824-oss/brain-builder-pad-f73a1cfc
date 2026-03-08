@@ -694,16 +694,6 @@ export function AccountsPanel({
                       <span className="flex items-center gap-1"><Globe className="h-3 w-3" />{LANGUAGE_NAMES[u.language] || u.language}</span>
                     )}
                     <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
-                  </div>
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex items-center gap-1">
-                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={e => { e.stopPropagation(); setPmTarget(u); handleViewActivity(u); }}>
-                      <Mail className="h-4 w-4 text-muted-foreground" />
-                    </Button>
-                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                  </div>
                 </div>
               </CardContent>
             </Card>
