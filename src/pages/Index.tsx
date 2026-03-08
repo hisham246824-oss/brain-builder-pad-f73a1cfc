@@ -17,7 +17,7 @@ function GuestHomePage() {
     { icon: BookOpen, title: t('organizeMaterials'), description: t('organizeMaterialsDesc'), gradient: 'from-emerald-500/20 to-teal-500/20', iconBg: 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400' },
     { icon: Timer, title: t('pomodoroTimerTitle'), description: t('pomodoroTimerDesc'), gradient: 'from-orange-500/20 to-amber-500/20', iconBg: 'bg-orange-500/15 text-orange-600 dark:text-orange-400' },
     { icon: CheckSquare, title: t('vocabFlashcards'), description: t('vocabFlashcardsDesc'), gradient: 'from-purple-500/20 to-pink-500/20', iconBg: 'bg-purple-500/15 text-purple-600 dark:text-purple-400' },
-    { icon: Table2, title: t('tableCreatorTitle'), description: t('tableCreatorDesc') || 'Create custom tables for organizing study data and comparisons.', gradient: 'from-blue-500/20 to-cyan-500/20', iconBg: 'bg-blue-500/15 text-blue-600 dark:text-blue-400' },
+    
   ];
 
   return (
