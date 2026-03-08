@@ -16,12 +16,14 @@ export interface VocabularyWord {
 export function useVocabulary() {
   const { user } = useAuth();
   const { isOnline } = useNetworkStatus();
-  const [words, setWords] = useState<VocabularyWord[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  // Pre-populate from cache instantly when offline — no loading spinner
+  const cachedInit = !navigator.onLine ? getCachedVocabulary() : null;
+  const [words, setWords] = useState<VocabularyWord[]>(cachedInit || []);
+  const [isLoading, setIsLoading] = useState(cachedInit ? false : true);
   const [searchQuery, setSearchQuery] = useState('');
   const isLocalChange = useRef(false);
   const hasSyncedPending = useRef(false);
-  const hasLoadedOnce = useRef(false);
+  const hasLoadedOnce = useRef(cachedInit ? true : false);
 
   // Sync pending vocabulary actions when coming back online
   const syncPendingActions = useCallback(async () => {

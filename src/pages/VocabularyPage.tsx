@@ -24,6 +24,12 @@ export default function VocabularyPage() {
 
   useEffect(() => {
     if (!user) return;
+    // Skip network call when offline — use allWords from cache
+    if (!navigator.onLine) {
+      setMasteredCount(0);
+      setDifficultWords([]);
+      return;
+    }
     const fetchStats = async () => {
       const { data } = await supabase
         .from('vocabulary')

@@ -29,11 +29,12 @@ export interface MaterialWithRelations {
 export function useStudyDataSupabase() {
   const { user } = useAuth();
   const { isOnline } = useNetworkStatus();
-  const [materials, setMaterials] = useState<MaterialWithRelations[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const cachedInit = !navigator.onLine ? getCachedMaterials() : null;
+  const [materials, setMaterials] = useState<MaterialWithRelations[]>(cachedInit || []);
+  const [isLoading, setIsLoading] = useState(cachedInit ? false : true);
   const isLocalChange = useRef(false);
   const hasSyncedPending = useRef(false);
-  const hasLoadedOnce = useRef(false);
+  const hasLoadedOnce = useRef(cachedInit ? true : false);
 
   // Sync pending actions when coming back online
   const syncPendingActions = useCallback(async () => {
