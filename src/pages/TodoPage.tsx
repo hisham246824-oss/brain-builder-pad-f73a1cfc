@@ -305,7 +305,7 @@ const TodoPage = () => {
           <Button onClick={() => setShowAdd(true)} className="rounded-full gap-2">
             <Plus className="h-4 w-4" /> {t('createFirstTask')}
           </Button>
-        </motion.div>
+        </div>
       ) : (
         <div className="space-y-3 contain-paint">
           <AnimatePresence>
