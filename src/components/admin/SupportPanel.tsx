@@ -281,7 +281,17 @@ function AdminChatView({ ticket, onBack, onStatusChange }: { ticket: Ticket; onB
         event: 'INSERT', schema: 'public', table: 'support_messages',
         filter: `ticket_id=eq.${ticket.id}`,
       }, (payload) => {
-        setMessages(prev => [...prev, payload.new as Message]);
+        const newMsg = payload.new as Message;
+        // Replace optimistic message or add if from other user
+        setMessages(prev => {
+          const hasTemp = prev.some(m => m.id.startsWith('temp-') && m.content === newMsg.content);
+          if (hasTemp) {
+            return prev.map(m => m.id.startsWith('temp-') && m.content === newMsg.content ? newMsg : m);
+          }
+          // Avoid duplicates
+          if (prev.some(m => m.id === newMsg.id)) return prev;
+          return [...prev, newMsg];
+        });
       })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
