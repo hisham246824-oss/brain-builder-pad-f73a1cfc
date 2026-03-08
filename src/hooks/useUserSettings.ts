@@ -67,8 +67,9 @@ function setCachedSettings(settings: UserSettings) {
 
 export function useUserSettings() {
   const { user } = useAuth();
-  const [settings, setSettings] = useState<UserSettings | null>(() => getCachedSettings());
-  const [isLoading, setIsLoading] = useState(!getCachedSettings());
+  const cachedRef = useRef(getCachedSettings());
+  const [settings, setSettings] = useState<UserSettings | null>(cachedRef.current);
+  const [isLoading, setIsLoading] = useState(!cachedRef.current);
   const hasFetched = useRef(false);
 
   const fetchSettings = useCallback(async () => {

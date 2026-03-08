@@ -1,12 +1,21 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback, useRef, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { clearOfflineCache } from '@/lib/offlineCache';
+
+const AUTH_CACHE_KEY = 'studyhub-auth-cache';
+
+interface CachedAuth {
+  user: User;
+  expiresAt: number; // timestamp
+}
 
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   isLoading: boolean;
+  isOfflineMode: boolean;
+  isReadOnlyMode: boolean;
   signUp: (email: string, password: string) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
@@ -14,73 +23,164 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// 30 days in ms
+const SESSION_DURATION_MS = 30 * 24 * 60 * 60 * 1000;
+
+function getCachedAuth(): CachedAuth | null {
+  try {
+    const raw = localStorage.getItem(AUTH_CACHE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch { return null; }
+}
+
+function setCachedAuth(user: User) {
+  try {
+    const cached: CachedAuth = {
+      user,
+      expiresAt: Date.now() + SESSION_DURATION_MS,
+    };
+    localStorage.setItem(AUTH_CACHE_KEY, JSON.stringify(cached));
+  } catch { /* ignore */ }
+}
+
+function clearCachedAuth() {
+  localStorage.removeItem(AUTH_CACHE_KEY);
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isOfflineMode, setIsOfflineMode] = useState(false);
+  const [isReadOnlyMode, setIsReadOnlyMode] = useState(false);
+  const hasRevalidated = useRef(false);
 
+  // Try to restore from Supabase, fallback to local cache if offline
   useEffect(() => {
-    // Get initial session - this will restore from localStorage even offline
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setIsLoading(false);
-    }).catch(() => {
-      // If we're offline and can't get session, check localStorage directly
-      // The session is persisted by Supabase, so user stays logged in
-      setIsLoading(false);
-    });
-
-    // Listen for auth changes
+    // Set up auth listener FIRST (as per Supabase best practices)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
-        
+        setIsOfflineMode(false);
+        setIsReadOnlyMode(false);
+
+        if (session?.user) {
+          setCachedAuth(session.user);
+        }
+
         if (event === 'SIGNED_IN' && session?.user) {
-          // Transfer local data to the database when user signs in
           await transferLocalDataToDatabase(session.user.id);
         }
-        
+
         if (event === 'SIGNED_OUT') {
-          // Clear local storage on logout
           localStorage.removeItem('study-data');
           localStorage.removeItem('table-data');
           clearOfflineCache();
+          clearCachedAuth();
         }
-        
+
         setIsLoading(false);
       }
     );
 
-    return () => subscription.unsubscribe();
+    // THEN get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        setCachedAuth(session.user);
+      }
+      setIsLoading(false);
+    }).catch(() => {
+      // Offline — try cached auth
+      restoreFromCache();
+    });
+
+    // Listen for online/offline to handle revalidation
+    const handleOnline = () => {
+      if (!hasRevalidated.current) {
+        revalidateSession();
+      }
+    };
+
+    window.addEventListener('online', handleOnline);
+
+    return () => {
+      subscription.unsubscribe();
+      window.removeEventListener('online', handleOnline);
+    };
+  }, []);
+
+  const restoreFromCache = useCallback(() => {
+    const cached = getCachedAuth();
+    if (!cached) {
+      setIsLoading(false);
+      return;
+    }
+
+    const isExpired = Date.now() > cached.expiresAt;
+
+    // Even if expired, restore user for read-only offline access
+    setUser(cached.user);
+    setIsOfflineMode(true);
+    setIsReadOnlyMode(isExpired);
+    setIsLoading(false);
+  }, []);
+
+  const revalidateSession = useCallback(async () => {
+    hasRevalidated.current = true;
+    try {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error || !session) {
+        // Try to refresh
+        const { data: refreshData } = await supabase.auth.refreshSession();
+        if (refreshData.session) {
+          setSession(refreshData.session);
+          setUser(refreshData.session.user);
+          setCachedAuth(refreshData.session.user);
+          setIsOfflineMode(false);
+          setIsReadOnlyMode(false);
+        } else {
+          // Token truly expired — keep read-only if we have cached user
+          const cached = getCachedAuth();
+          if (cached) {
+            setIsReadOnlyMode(true);
+          }
+        }
+      } else {
+        setSession(session);
+        setUser(session.user);
+        setCachedAuth(session.user);
+        setIsOfflineMode(false);
+        setIsReadOnlyMode(false);
+      }
+    } catch {
+      // Still offline, keep current state
+    }
+    hasRevalidated.current = false;
   }, []);
 
   const transferLocalDataToDatabase = async (userId: string) => {
     try {
-      // Get local study materials data
       const localData = localStorage.getItem('study-data');
       if (!localData) return;
 
       const parsed = JSON.parse(localData);
       const materials = parsed.materials || [];
-
       if (materials.length === 0) return;
 
-      // Check if user already has materials in the database
       const { data: existingMaterials } = await supabase
         .from('study_materials')
         .select('id')
         .eq('user_id', userId);
 
-      // If user already has data, don't transfer (prevents duplicates)
       if (existingMaterials && existingMaterials.length > 0) {
-        // Clear local data after confirming server has data
         localStorage.removeItem('study-data');
         return;
       }
 
-      // Transfer each material to the database
       for (const material of materials) {
         const { data: newMaterial, error: materialError } = await supabase
           .from('study_materials')
@@ -95,7 +195,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         if (materialError || !newMaterial) continue;
 
-        // Transfer lessons
         if (material.lessons && material.lessons.length > 0) {
           const lessonsToInsert = material.lessons.map((lesson: any, index: number) => ({
             material_id: newMaterial.id,
@@ -104,11 +203,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             completed: lesson.completed || false,
             position: index,
           }));
-
           await supabase.from('lessons').insert(lessonsToInsert);
         }
 
-        // Transfer files
         if (material.files && material.files.length > 0) {
           const filesToInsert = material.files.map((file: any) => ({
             material_id: newMaterial.id,
@@ -118,12 +215,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             file_type: file.type,
             file_size: file.size,
           }));
-
           await supabase.from('material_files').insert(filesToInsert);
         }
       }
 
-      // Clear local data after successful transfer
       localStorage.removeItem('study-data');
     } catch (error) {
       console.error('Error transferring local data:', error);
@@ -131,18 +226,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signUp = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
+    const { error } = await supabase.auth.signUp({ email, password });
     return { error: error as Error | null };
   };
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
     return { error: error as Error | null };
   };
 
@@ -151,10 +240,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem('study-data');
     localStorage.removeItem('table-data');
     clearOfflineCache();
+    clearCachedAuth();
+    setIsOfflineMode(false);
+    setIsReadOnlyMode(false);
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, isLoading, signUp, signIn, signOut }}>
+    <AuthContext.Provider value={{ user, session, isLoading, isOfflineMode, isReadOnlyMode, signUp, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   );
