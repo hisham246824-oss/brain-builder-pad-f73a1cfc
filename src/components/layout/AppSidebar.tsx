@@ -48,6 +48,7 @@ export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
   const { t, isRTL } = useLanguage();
   const { hasUnread, unreadCount } = useAdminMessages();
   const { settings } = useUserSettings();
+  const [leaderboardOpen, setLeaderboardOpen] = useState(false);
 
   const getSortedNavItems = () => {
     if (!settings?.sidebar_order || settings.sidebar_order.length === 0) return BASE_NAV_ITEMS;
