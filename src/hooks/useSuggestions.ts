@@ -89,10 +89,10 @@ export function useSuggestions() {
     const channel = supabase
       .channel('suggestions-realtime')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'suggestions' }, () => {
-        fetchSuggestions();
+        fetchSuggestions(true);
       })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'suggestion_votes' }, () => {
-        fetchSuggestions();
+        fetchSuggestions(true);
       })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
