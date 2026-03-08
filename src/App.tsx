@@ -25,6 +25,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import SettingsPage from "./pages/SettingsPage";
 import SuggestionsPage from "./pages/SuggestionsPage";
 import TodoPage from "./pages/TodoPage";
+import SupportPage from "./pages/SupportPage";
 import AuthPage from "./pages/AuthPage";
 import NotFound from "./pages/NotFound";
 
