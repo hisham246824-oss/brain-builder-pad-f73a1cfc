@@ -75,6 +75,11 @@ export function BlockedScreen({ blockedUntil, reason, isAdmin, onReturnToAdmin }
               <p className="text-sm text-foreground">{reason}</p>
             </div>
           )}
+          {isAdmin && onReturnToAdmin && (
+            <Button onClick={onReturnToAdmin} className="mt-4 gap-2" variant="outline">
+              <ShieldCheck className="h-4 w-4" /> Return to Admin
+            </Button>
+          )}
         </div>
       </div>
     </div>
