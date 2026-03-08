@@ -106,7 +106,7 @@ export function AdminLayout({ children, activeTab, onTabChange, onRefresh }: Adm
               <p className="text-xs text-muted-foreground">Logged in as</p>
               <p className="truncate text-sm font-medium text-foreground">{user?.email}</p>
             </div>
-            <button onClick={() => signOut()} className="flex w-full items-center justify-center gap-2 rounded-xl bg-destructive/10 px-4 py-2.5 text-destructive transition-all hover:bg-destructive hover:text-destructive-foreground">
+            <button onClick={async () => { await signOut(); navigate('/auth', { replace: true }); }} className="flex w-full items-center justify-center gap-2 rounded-xl bg-destructive/10 px-4 py-2.5 text-destructive transition-all hover:bg-destructive hover:text-destructive-foreground">
               <LogOut className="h-4 w-4" />
               <span>Sign Out</span>
             </button>
