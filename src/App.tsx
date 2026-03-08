@@ -8,7 +8,10 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AdminImpersonationProvider, useAdminImpersonation } from "@/contexts/AdminImpersonationContext";
 import { useUserRole } from "@/hooks/useUserRole";
 import { AdminImpersonationBar } from "@/components/admin/AdminImpersonationBar";
+import { BlockedScreen } from "@/components/BlockedScreen";
 import { AppLayout } from "./components/layout/AppLayout";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import Index from "./pages/Index";
 import MaterialsPage from "./pages/MaterialsPage";
 import MaterialDetailPage from "./pages/MaterialDetailPage";
@@ -36,6 +39,46 @@ const queryClient = new QueryClient({
     },
   },
 });
+
+function BlockCheck({ children }: { children: React.ReactNode }) {
+  const { user } = useAuth();
+  const [blockInfo, setBlockInfo] = useState<{ blocked_until: string; reason: string | null } | null>(null);
+  const [checked, setChecked] = useState(false);
+
+  useEffect(() => {
+    if (!user) { setChecked(true); setBlockInfo(null); return; }
+    const checkBlock = async () => {
+      const { data } = await supabase
+        .from('user_blocks')
+        .select('blocked_until, reason')
+        .eq('user_id', user.id)
+        .gt('blocked_until', new Date().toISOString())
+        .order('blocked_until', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      setBlockInfo(data || null);
+      setChecked(true);
+    };
+    checkBlock();
+    // Re-check every 30 seconds
+    const interval = setInterval(checkBlock, 30000);
+    return () => clearInterval(interval);
+  }, [user]);
+
+  if (!checked) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
+  }
+
+  if (blockInfo) {
+    return <BlockedScreen blockedUntil={blockInfo.blocked_until} reason={blockInfo.reason} />;
+  }
+
+  return <>{children}</>;
+}
 
 function AdminRoute({ children }: { children: React.ReactNode }) {
   const { isAdmin, isLoading } = useUserRole();
@@ -69,7 +112,6 @@ function UserRoute({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // Allow admin through if impersonating
   if (isAdmin && !isImpersonating) {
     return <Navigate to="/admin" replace />;
   }
@@ -102,10 +144,7 @@ function AppRoutes() {
     <>
       <AdminImpersonationBar />
       <Routes>
-        {/* Auth pages - full screen, no layout */}
         <Route path="/auth" element={<AuthPage />} />
-
-        {/* Admin routes */}
         <Route
           path="/admin"
           element={
@@ -114,8 +153,6 @@ function AppRoutes() {
             </AdminRoute>
           }
         />
-
-        {/* User routes */}
         <Route element={<AppLayout />}>
           <Route path="/" element={<RootRedirect />} />
           <Route path="/materials" element={<MaterialsPage />} />
@@ -130,7 +167,6 @@ function AppRoutes() {
           <Route path="/suggestions" element={<SuggestionsPage />} />
           <Route path="/todos" element={<TodoPage />} />
         </Route>
-        
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>
@@ -146,7 +182,9 @@ const App = () => (
             <Toaster />
             <Sonner />
             <BrowserRouter>
-              <AppRoutes />
+              <BlockCheck>
+                <AppRoutes />
+              </BlockCheck>
             </BrowserRouter>
           </TooltipProvider>
         </AdminImpersonationProvider>
