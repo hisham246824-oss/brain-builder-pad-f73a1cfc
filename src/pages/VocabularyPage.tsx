@@ -106,6 +106,8 @@ export default function VocabularyPage() {
         {t('addWord')}
       </Button>
 
+      <BulkImportButton onComplete={refetch} existingWords={allWords.map(w => w.word)} />
+
       {/* Difficult + Practice - equal width row */}
       <div className="grid grid-cols-2 gap-3 mb-6">
         <Button
