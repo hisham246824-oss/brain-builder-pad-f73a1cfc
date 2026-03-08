@@ -137,7 +137,7 @@ export function AdminLayout({ children, activeTab, onTabChange, onRefresh }: Adm
                   <button onClick={() => { navigate('/'); setSidebarOpen(false); }} className="flex w-full items-center justify-center gap-2 rounded-xl bg-secondary/50 px-4 py-2.5 text-sm text-muted-foreground">
                     <Home className="h-4 w-4" /> Back to Site
                   </button>
-                  <button onClick={() => signOut()} className="flex w-full items-center justify-center gap-2 rounded-xl bg-destructive/10 px-4 py-2.5 text-destructive">
+                  <button onClick={async () => { await signOut(); navigate('/auth', { replace: true }); }} className="flex w-full items-center justify-center gap-2 rounded-xl bg-destructive/10 px-4 py-2.5 text-destructive">
                     <LogOut className="h-4 w-4" /> Sign Out
                   </button>
                 </div>
