@@ -547,27 +547,14 @@ export function useAdminData() {
       const { error: signInError } = await supabase.auth.signInWithPassword({ email: user?.email || '', password: adminPassword });
       if (signInError) { toast.error('Incorrect admin password'); return false; }
 
-      // Delete all user data
-      await Promise.all([
-        supabase.from('study_materials').delete().eq('user_id', userId),
-        supabase.from('vocabulary').delete().eq('user_id', userId),
-        supabase.from('user_settings').delete().eq('user_id', userId),
-        supabase.from('suggestions').delete().eq('user_id', userId),
-        supabase.from('todos').delete().eq('user_id', userId),
-        supabase.from('page_visits').delete().eq('user_id', userId),
-        supabase.from('user_activity').delete().eq('user_id', userId),
-        supabase.from('private_messages').delete().eq('recipient_id', userId),
-        supabase.from('user_blocks').delete().eq('user_id', userId),
-        supabase.from('ai_chat_messages').delete().eq('user_id', userId),
-        supabase.from('ai_chat_conversations').delete().eq('user_id', userId),
-        supabase.from('poll_votes').delete().eq('user_id', userId),
-        supabase.from('message_reads').delete().eq('user_id', userId),
-        supabase.from('suggestion_votes').delete().eq('user_id', userId),
-        supabase.from('global_chat_messages').delete().eq('user_id', userId),
-        supabase.from('pomodoro_settings').delete().eq('user_id', userId),
-      ]);
-      await supabase.from('profiles').delete().eq('user_id', userId);
-      await supabase.from('user_roles').delete().eq('user_id', userId);
+      // Call edge function to fully delete user (data + auth account)
+      const { data, error } = await supabase.functions.invoke('admin-delete-user', {
+        body: { user_id: userId },
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
       toast.success('Account and all data permanently deleted');
       fetchUsers();
       fetchStats();
