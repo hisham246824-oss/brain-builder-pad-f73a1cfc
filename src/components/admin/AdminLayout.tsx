@@ -9,7 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useNavigate } from 'react-router-dom';
 
-export type AdminTab = 'statistics' | 'accounts' | 'suggestions' | 'messages' | 'polls';
+export type AdminTab = 'statistics' | 'accounts' | 'suggestions' | 'messages' | 'polls' | 'support';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
