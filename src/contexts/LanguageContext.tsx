@@ -184,6 +184,17 @@ const translations: Record<Language, Translations> = {
     wellDone: "Well done! One step closer! 🎯",
     amazing: "Amazing! You're crushing it! ⭐",
     incredibleProgress: "Incredible progress! 🚀",
+    // Site guide
+    siteGuideTitle: 'Site Guide',
+    siteGuideSubtitle: 'Discover all features',
+    infoHome: 'Your personal dashboard showing study statistics, recent activity, and quick access to all features. Track your daily progress and stay motivated.',
+    infoMaterials: 'Organize your courses into structured modules. Add lessons with rich text, write detailed notes, upload files, and export as PDFs.',
+    infoVocabulary: 'Build and manage your vocabulary. Add words with meanings and notes, practice with flashcards or quizzes, and track mastery with spaced repetition.',
+    infoPomodoro: 'Stay focused using the Pomodoro technique. Customize study and break durations, choose color themes, and set alarm sounds.',
+    infoMessages: 'Read announcements and updates from the admin. Like messages, participate in polls, and stay informed about new features.',
+    infoSuggestions: 'Share your ideas to improve the platform. Submit feature requests, vote on others\' suggestions, and help shape the experience.',
+    infoTodos: 'Manage tasks with color-coded priorities (Urgent, Medium, Low). Set deadlines with live countdowns, track progress, and celebrate achievements.',
+    infoSupport: 'Need help? Create support tickets, attach images, chat with the team, and track your issue until it\'s resolved.',
   },
   ar: {
     home: 'الرئيسية', studyMaterials: 'المواد الدراسية', vocabulary: 'المفردات',
