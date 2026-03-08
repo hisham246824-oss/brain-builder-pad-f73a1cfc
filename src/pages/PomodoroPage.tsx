@@ -138,7 +138,7 @@ export default function PomodoroPage() {
                 
                 {/* Settings */}
                 <div>
-                  <h3 className="text-lg font-semibold text-foreground mb-4">Settings</h3>
+                  <h3 className="text-lg font-semibold text-foreground mb-4">{t('settings')}</h3>
                   <PomodoroSettings
                     settings={settings}
                     onUpdateSettings={updateSettings}
