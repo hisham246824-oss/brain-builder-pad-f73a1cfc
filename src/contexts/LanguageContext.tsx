@@ -823,6 +823,9 @@ const translations: Record<Language, Translations> = {
     infoSuggestions: 'プラットフォーム改善のアイデアを共有。機能リクエストを送信し、他の提案に投票。',
     infoTodos: '色分け優先度でタスクを管理。リアルタイムカウントダウン付きの期限を設定。',
     infoSupport: 'お困りですか？サポートチケットを作成し、画像を添付してチームとチャット。',
+    leaderboard: 'ランキング',
+    leaderboardDesc: '学習時間によるトップ',
+    noLeaderboardData: 'データなし',
   },
   hi: {
     home: 'होम', studyMaterials: 'अध्ययन सामग्री', vocabulary: 'शब्दावली',
