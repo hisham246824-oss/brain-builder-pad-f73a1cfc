@@ -317,7 +317,7 @@ const TodoPage = () => {
             <div className="pt-4">
               <div className="flex items-center gap-2 mb-3">
                 <CheckCircle2 className="h-4 w-4 text-primary" />
-                <h3 className="text-sm font-semibold text-primary uppercase tracking-wider">Completed ({completedTodos.length})</h3>
+                <h3 className="text-sm font-semibold text-primary uppercase tracking-wider">{t('completed')} ({completedTodos.length})</h3>
               </div>
               <div className="space-y-2">
                 <AnimatePresence>
