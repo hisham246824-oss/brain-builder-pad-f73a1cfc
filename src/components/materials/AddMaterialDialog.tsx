@@ -34,7 +34,7 @@ export function AddMaterialDialog({ isOpen, onClose, onAdd }: AddMaterialDialogP
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="absolute inset-0 bg-background/60 backdrop-blur-md"
+            className="absolute inset-0 bg-background/80 backdrop-blur-sm"
             onClick={onClose}
           />
           <motion.div
