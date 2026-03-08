@@ -153,8 +153,8 @@ export default function MessagesPage() {
               <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-[2rem] bg-gradient-to-br from-secondary to-secondary/50">
                 <MessageSquareDashed className="h-12 w-12 text-muted-foreground/40" />
               </div>
-              <p className="mt-6 text-xl font-semibold text-foreground/80">No messages yet</p>
-              <p className="mt-2 text-sm text-muted-foreground max-w-xs mx-auto">Messages and polls from the admin team will appear here</p>
+              <p className="mt-6 text-xl font-semibold text-foreground/80">{t('noMessages')}</p>
+              <p className="mt-2 text-sm text-muted-foreground max-w-xs mx-auto">{t('noMessagesDesc')}</p>
             </CardContent>
           </Card>
         </motion.div>
