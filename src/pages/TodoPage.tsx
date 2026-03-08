@@ -42,6 +42,7 @@ function getTimeRemaining(deadline: string) {
 }
 
 function TodoCard({ todo, onToggle, onDelete, index }: { todo: Todo; onToggle: (id: string, completed: boolean) => void; onDelete: (id: string) => void; index: number }) {
+  const { t } = useLanguage();
   const config = IMPORTANCE_CONFIG[todo.importance];
   const [timeLeft, setTimeLeft] = useState(todo.deadline ? getTimeRemaining(todo.deadline) : null);
   const [showCelebration, setShowCelebration] = useState(false);
