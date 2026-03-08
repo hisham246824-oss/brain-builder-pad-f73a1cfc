@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Palette, Bell } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useLanguage } from '@/contexts/LanguageContext';
 import type { PomodoroSettings as Settings } from '@/hooks/usePomodoroSettings';
 
 interface PomodoroSettingsProps {
@@ -35,6 +36,8 @@ export function getColorValue(colorId: string): string {
 }
 
 export function PomodoroSettings({ settings, onUpdateSettings, currentMode }: PomodoroSettingsProps) {
+  const { t } = useLanguage();
+
   const modeToSettingKey: Record<string, keyof Settings> = {
     study: 'studyColor',
     shortBreak: 'shortBreakColor',
@@ -44,15 +47,14 @@ export function PomodoroSettings({ settings, onUpdateSettings, currentMode }: Po
   const currentColorKey = modeToSettingKey[currentMode];
   const currentColorId = settings[currentColorKey];
 
+  const modeLabel = currentMode === 'study' ? t('study') : currentMode === 'shortBreak' ? t('shortBreak') : t('longBreak');
+
   return (
     <div className="space-y-6">
-      {/* Color Settings */}
       <div>
         <div className="flex items-center gap-2 mb-3">
           <Palette className="w-4 h-4 text-muted-foreground" />
-          <span className="text-sm font-medium text-foreground">
-            {currentMode === 'study' ? 'Focus' : currentMode === 'shortBreak' ? 'Short Break' : 'Long Break'} Color
-          </span>
+          <span className="text-sm font-medium text-foreground">{modeLabel}</span>
         </div>
         <div className="flex flex-wrap gap-2">
           {COLOR_OPTIONS.map((colorOption) => (
@@ -64,9 +66,7 @@ export function PomodoroSettings({ settings, onUpdateSettings, currentMode }: Po
               className={cn(
                 "w-8 h-8 rounded-full transition-all duration-200",
                 "ring-2 ring-offset-2 ring-offset-background",
-                currentColorId === colorOption.id
-                  ? "ring-foreground"
-                  : "ring-transparent hover:ring-muted-foreground/50"
+                currentColorId === colorOption.id ? "ring-foreground" : "ring-transparent hover:ring-muted-foreground/50"
               )}
               style={{ backgroundColor: colorOption.color }}
               title={colorOption.name}
@@ -75,11 +75,10 @@ export function PomodoroSettings({ settings, onUpdateSettings, currentMode }: Po
         </div>
       </div>
 
-      {/* Alarm Sound Settings */}
       <div>
         <div className="flex items-center gap-2 mb-3">
           <Bell className="w-4 h-4 text-muted-foreground" />
-          <span className="text-sm font-medium text-foreground">Alarm Sound</span>
+          <span className="text-sm font-medium text-foreground">🔔</span>
         </div>
         <div className="flex flex-wrap gap-2">
           {ALARM_OPTIONS.map((alarm) => (
@@ -89,8 +88,7 @@ export function PomodoroSettings({ settings, onUpdateSettings, currentMode }: Po
               whileTap={{ scale: 0.95 }}
               onClick={() => onUpdateSettings({ alarmSound: alarm.id })}
               className={cn(
-                "flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200",
-                "border",
+                "flex items-center gap-2 px-3 py-2 rounded-full transition-all duration-200 border",
                 settings.alarmSound === alarm.id
                   ? "bg-primary/20 border-primary/30 text-foreground"
                   : "bg-secondary/50 border-transparent text-muted-foreground hover:text-foreground hover:bg-secondary"

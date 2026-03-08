@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Clock, CheckCircle2, Trash2, AlertTriangle, AlertCircle, Leaf, Calendar, PartyPopper, X, ListTodo, Target, TrendingUp, Sparkles, Timer, FileText, Flag, BarChart3 } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -41,6 +42,7 @@ function getTimeRemaining(deadline: string) {
 }
 
 function TodoCard({ todo, onToggle, onDelete, index }: { todo: Todo; onToggle: (id: string, completed: boolean) => void; onDelete: (id: string) => void; index: number }) {
+  const { t } = useLanguage();
   const config = IMPORTANCE_CONFIG[todo.importance];
   const [timeLeft, setTimeLeft] = useState(todo.deadline ? getTimeRemaining(todo.deadline) : null);
   const [showCelebration, setShowCelebration] = useState(false);
@@ -161,7 +163,7 @@ function TodoCard({ todo, onToggle, onDelete, index }: { todo: Todo; onToggle: (
             {timeLeft?.overdue && !todo.completed && (
               <div className="flex items-center gap-1.5 text-xs text-destructive font-medium">
                 <AlertTriangle className="h-3 w-3" />
-                This task is past its deadline!
+                {t('overdueWarning')}
               </div>
             )}
           </div>
@@ -186,6 +188,7 @@ function TodoCard({ todo, onToggle, onDelete, index }: { todo: Todo; onToggle: (
 
 const TodoPage = () => {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const { todos, isLoading, addTodo, toggleComplete, deleteTodo } = useTodos();
   const [showAdd, setShowAdd] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
@@ -211,9 +214,9 @@ const TodoPage = () => {
       <>
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <CheckCircle2 className="h-16 w-16 text-primary/30 mb-4" />
-          <h2 className="text-2xl font-bold text-foreground mb-2">To-Do List</h2>
-          <p className="text-muted-foreground mb-6">Sign in to manage your tasks</p>
-          <Button onClick={() => setShowAuth(true)} className="rounded-full px-8">Sign In</Button>
+          <h2 className="text-2xl font-bold text-foreground mb-2">{t('toDoList')}</h2>
+          <p className="text-muted-foreground mb-6">{t('signInToManageTasks')}</p>
+          <Button onClick={() => setShowAuth(true)} className="rounded-full px-8">{t('signInBtn')}</Button>
         </div>
         <AuthDialog isOpen={showAuth} onClose={() => setShowAuth(false)} />
       </>
@@ -226,46 +229,46 @@ const TodoPage = () => {
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl gradient-primary">
+            <div className="flex h-12 w-12 items-center justify-center rounded-[1.5rem] gradient-primary">
               <ListTodo className="h-6 w-6 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-primary">To-Do List</h1>
-              <p className="text-sm text-muted-foreground">Stay organized and track your progress</p>
+              <h1 className="text-3xl font-bold text-primary">{t('toDoList')}</h1>
+              <p className="text-sm text-muted-foreground">{t('stayOrganized')}</p>
             </div>
           </div>
-          <Button onClick={() => setShowAdd(true)} className="rounded-2xl gap-2 shadow-glow px-5 py-5">
-            <Plus className="h-5 w-5" /> Add Task
+          <Button onClick={() => setShowAdd(true)} className="rounded-full gap-2 shadow-glow px-5 py-5">
+            <Plus className="h-5 w-5" /> {t('addTask')}
           </Button>
         </div>
       </motion.div>
 
       {/* 2. Stats bar */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="bg-card border border-border rounded-2xl p-3 text-center">
+        <div className="bg-card border border-border rounded-[1.5rem] p-3 text-center">
           <p className="text-2xl font-bold text-primary">{todos.length}</p>
-          <p className="text-[11px] text-muted-foreground">Total Tasks</p>
+          <p className="text-[11px] text-muted-foreground">{t('totalTasks')}</p>
         </div>
-        <div className="bg-card border border-border rounded-2xl p-3 text-center">
+        <div className="bg-card border border-border rounded-[1.5rem] p-3 text-center">
           <p className="text-2xl font-bold text-green-500">{completedTodos.length}</p>
-          <p className="text-[11px] text-muted-foreground">Completed</p>
+          <p className="text-[11px] text-muted-foreground">{t('completed')}</p>
         </div>
-        <div className="bg-card border border-border rounded-2xl p-3 text-center">
+        <div className="bg-card border border-border rounded-[1.5rem] p-3 text-center">
           <p className="text-2xl font-bold text-red-500">{urgentCount}</p>
-          <p className="text-[11px] text-muted-foreground">Urgent</p>
+          <p className="text-[11px] text-muted-foreground">{t('urgent')}</p>
         </div>
-        <div className="bg-card border border-border rounded-2xl p-3 text-center">
+        <div className="bg-card border border-border rounded-[1.5rem] p-3 text-center">
           <p className="text-2xl font-bold text-destructive">{overdueCount}</p>
-          <p className="text-[11px] text-muted-foreground">Overdue</p>
+          <p className="text-[11px] text-muted-foreground">{t('overdue')}</p>
         </div>
       </motion.div>
 
       {/* 3. Completion progress */}
       {todos.length > 0 && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.15 }} className="bg-card border border-border rounded-2xl p-4">
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.15 }} className="bg-card border border-border rounded-[1.5rem] p-4">
           <div className="flex justify-between items-center text-sm mb-2">
             <span className="text-muted-foreground flex items-center gap-1.5">
-              <TrendingUp className="h-4 w-4 text-primary" /> Overall Progress
+              <TrendingUp className="h-4 w-4 text-primary" /> {t('overallProgress')}
             </span>
             <span className="font-bold text-primary">{completionPercent}%</span>
           </div>
@@ -276,14 +279,14 @@ const TodoPage = () => {
       {/* 4. Quick filter pills */}
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="flex gap-2 flex-wrap">
         <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-medium">
-          <Target className="h-3 w-3" /> {activeTodos.length} Active
+          <Target className="h-3 w-3" /> {activeTodos.length} {t('active')}
         </span>
         <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-green-500/10 text-green-600 text-xs font-medium">
-          <CheckCircle2 className="h-3 w-3" /> {completedTodos.length} Done
+          <CheckCircle2 className="h-3 w-3" /> {completedTodos.length} {t('done')}
         </span>
         {overdueCount > 0 && (
           <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-destructive/10 text-destructive text-xs font-medium animate-pulse">
-            <AlertTriangle className="h-3 w-3" /> {overdueCount} Overdue
+            <AlertTriangle className="h-3 w-3" /> {overdueCount} {t('overdue')}
           </span>
         )}
       </motion.div>
@@ -296,10 +299,10 @@ const TodoPage = () => {
           <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/10 mx-auto mb-4">
             <Sparkles className="h-10 w-10 text-primary" />
           </div>
-          <h3 className="text-xl font-semibold text-foreground mb-2">All clear!</h3>
-          <p className="text-muted-foreground mb-4">Add your first task to start tracking your progress</p>
-          <Button onClick={() => setShowAdd(true)} className="rounded-2xl gap-2">
-            <Plus className="h-4 w-4" /> Create First Task
+          <h3 className="text-xl font-semibold text-foreground mb-2">{t('allClear')}</h3>
+          <p className="text-muted-foreground mb-4">{t('addFirstTaskDesc')}</p>
+          <Button onClick={() => setShowAdd(true)} className="rounded-full gap-2">
+            <Plus className="h-4 w-4" /> {t('createFirstTask')}
           </Button>
         </motion.div>
       ) : (
@@ -315,7 +318,7 @@ const TodoPage = () => {
             <div className="pt-4">
               <div className="flex items-center gap-2 mb-3">
                 <CheckCircle2 className="h-4 w-4 text-primary" />
-                <h3 className="text-sm font-semibold text-primary uppercase tracking-wider">Completed ({completedTodos.length})</h3>
+                <h3 className="text-sm font-semibold text-primary uppercase tracking-wider">{t('completed')} ({completedTodos.length})</h3>
               </div>
               <div className="space-y-2">
                 <AnimatePresence>
@@ -340,29 +343,29 @@ const TodoPage = () => {
 
       {/* Add Task Dialog */}
       <Dialog open={showAdd} onOpenChange={setShowAdd}>
-        <DialogContent className="sm:max-w-md rounded-3xl">
+        <DialogContent className="sm:max-w-md rounded-[2rem]">
           <DialogHeader>
             <DialogTitle className="text-xl text-primary flex items-center gap-2">
-              <Plus className="h-5 w-5" /> Add New Task
+              <Plus className="h-5 w-5" /> {t('addNewTask')}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 pt-2">
             <div>
-              <label className="text-sm font-medium text-foreground mb-1.5 block">Title</label>
-              <Input value={title} onChange={e => setTitle(e.target.value)} placeholder="What needs to be done?" className="rounded-xl text-lg font-semibold" />
+              <label className="text-sm font-medium text-foreground mb-1.5 block">{t('title')}</label>
+              <Input value={title} onChange={e => setTitle(e.target.value)} placeholder={t('whatNeedsToBeDone')} className="rounded-[1.25rem] text-lg font-semibold" />
             </div>
             <div>
-              <label className="text-sm font-medium text-foreground mb-1.5 block">Details</label>
-              <Textarea value={description} onChange={e => setDescription(e.target.value)} placeholder="Add more context..." className="rounded-xl min-h-[80px]" />
+              <label className="text-sm font-medium text-foreground mb-1.5 block">{t('details')}</label>
+              <Textarea value={description} onChange={e => setDescription(e.target.value)} placeholder={t('addMoreContext')} className="rounded-[1.25rem] min-h-[80px]" />
             </div>
             <div>
-              <label className="text-sm font-medium text-foreground mb-2 block">Priority</label>
+              <label className="text-sm font-medium text-foreground mb-2 block">{t('priority')}</label>
               <div className="flex gap-2">
                 {(Object.entries(IMPORTANCE_CONFIG) as [string, typeof IMPORTANCE_CONFIG.red][]).map(([key, cfg]) => (
                   <button
                     key={key}
                     onClick={() => setImportance(key as 'red' | 'yellow' | 'green')}
-                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 text-sm font-medium transition-all ${
+                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-[1.25rem] border-2 text-sm font-medium transition-all ${
                       importance === key
                         ? `bg-gradient-to-br ${cfg.gradient} ${cfg.border} ${cfg.badge}`
                         : 'border-border bg-card text-muted-foreground hover:border-border/80'
@@ -375,14 +378,14 @@ const TodoPage = () => {
               </div>
             </div>
             <div>
-              <label className="text-sm font-medium text-foreground mb-1.5 block">Deadline</label>
+              <label className="text-sm font-medium text-foreground mb-1.5 block">{t('dueDate')}</label>
               <div className="relative">
                 <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input type="datetime-local" value={deadline} onChange={e => setDeadline(e.target.value)} className="rounded-xl pl-10" />
+                <Input type="datetime-local" value={deadline} onChange={e => setDeadline(e.target.value)} className="rounded-[1.25rem] pl-10" />
               </div>
             </div>
-            <Button onClick={handleAdd} disabled={!title.trim()} className="w-full rounded-xl py-6 text-base font-semibold">
-              Create Task
+            <Button onClick={handleAdd} disabled={!title.trim()} className="w-full rounded-full py-6 text-base font-semibold">
+              {t('createFirstTask')}
             </Button>
           </div>
         </DialogContent>

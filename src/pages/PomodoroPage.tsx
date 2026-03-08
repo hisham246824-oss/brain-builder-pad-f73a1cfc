@@ -10,11 +10,13 @@ import { AnimatedBackground } from '@/components/pomodoro/AnimatedBackground';
 import { usePomodoro } from '@/hooks/usePomodoro';
 import { usePomodoroSettings } from '@/hooks/usePomodoroSettings';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
 
 export default function PomodoroPage() {
   const { settings, updateSettings } = usePomodoroSettings();
   const isMobile = useIsMobile();
+  const { t } = useLanguage();
   const [isPanelVisible, setIsPanelVisible] = useState(true);
   const [showSettings, setShowSettings] = useState(false);
 
@@ -78,14 +80,8 @@ export default function PomodoroPage() {
           </div>
 
           {/* Settings Toggle */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowSettings(!showSettings)}
-            className="mb-4"
-          >
-            <Settings className="w-4 h-4 mr-2" />
-            Settings
+          <Button variant="ghost" size="sm" onClick={() => setShowSettings(!showSettings)} className="mb-4">
+            <Settings className="w-4 h-4 mr-2" />{t('settings')}
           </Button>
 
           {/* Settings Panel */}
@@ -138,11 +134,11 @@ export default function PomodoroPage() {
                 transition={{ duration: 0.3, delay: 0.1 }}
                 className="h-full flex flex-col p-6 overflow-hidden"
               >
-                <h2 className="text-2xl font-bold text-foreground mb-6">Focus Zone</h2>
+                <h2 className="text-2xl font-bold text-foreground mb-6">{t('focusZone')}</h2>
                 
                 {/* Settings */}
                 <div>
-                  <h3 className="text-lg font-semibold text-foreground mb-4">Settings</h3>
+                  <h3 className="text-lg font-semibold text-foreground mb-4">{t('settings')}</h3>
                   <PomodoroSettings
                     settings={settings}
                     onUpdateSettings={updateSettings}

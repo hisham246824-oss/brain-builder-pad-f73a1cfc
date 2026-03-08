@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ModeSelectorProps {
   currentMode: 'study' | 'shortBreak' | 'longBreak';
@@ -6,13 +7,15 @@ interface ModeSelectorProps {
   isRunning: boolean;
 }
 
-const modes = [
-  { key: 'study' as const, label: '25', subLabel: 'Study', color: 'bg-primary' },
-  { key: 'shortBreak' as const, label: '5', subLabel: 'Short Break', color: 'bg-sky-400' },
-  { key: 'longBreak' as const, label: '15', subLabel: 'Long Break', color: 'bg-green-500' },
-];
-
 export function ModeSelector({ currentMode, onModeChange, isRunning }: ModeSelectorProps) {
+  const { t } = useLanguage();
+
+  const modes = [
+    { key: 'study' as const, label: '25', subLabel: t('study'), color: 'bg-primary' },
+    { key: 'shortBreak' as const, label: '5', subLabel: t('shortBreak'), color: 'bg-sky-400' },
+    { key: 'longBreak' as const, label: '15', subLabel: t('longBreak'), color: 'bg-green-500' },
+  ];
+
   return (
     <div className="flex items-center justify-center gap-6">
       {modes.map((mode) => (
