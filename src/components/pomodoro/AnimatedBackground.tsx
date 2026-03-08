@@ -55,7 +55,7 @@ export function AnimatedBackground({ color }: AnimatedBackgroundProps) {
   ], []);
 
   return (
-    <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+    <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none contain-paint">
       {/* Base gradient that follows the color */}
       <motion.div
         className="absolute inset-0"
@@ -69,7 +69,7 @@ export function AnimatedBackground({ color }: AnimatedBackgroundProps) {
       {orbs.map((orb, index) => (
         <motion.div
           key={index}
-          className={`absolute ${orb.size} rounded-full blur-3xl`}
+          className={`absolute ${orb.size} rounded-full blur-2xl gpu-accelerated will-change-transform`}
           style={{ 
             ...orb.position,
             opacity: orb.opacity,

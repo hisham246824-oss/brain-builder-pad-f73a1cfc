@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -13,6 +13,8 @@ export interface UserSettings {
   theme: string;
   language: string;
 }
+
+const CACHE_KEY = 'studyhub-user-settings';
 
 const DEFAULT_SETTINGS: Omit<UserSettings, 'id' | 'user_id'> = {
   display_name: null,
@@ -48,10 +50,26 @@ const AVATAR_ICONS = [
   { name: 'Diamond', value: 'diamond' },
 ];
 
+function getCachedSettings(): UserSettings | null {
+  try {
+    const cached = localStorage.getItem(CACHE_KEY);
+    return cached ? JSON.parse(cached) : null;
+  } catch {
+    return null;
+  }
+}
+
+function setCachedSettings(settings: UserSettings) {
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify(settings));
+  } catch { /* ignore quota errors */ }
+}
+
 export function useUserSettings() {
   const { user } = useAuth();
-  const [settings, setSettings] = useState<UserSettings | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [settings, setSettings] = useState<UserSettings | null>(() => getCachedSettings());
+  const [isLoading, setIsLoading] = useState(!getCachedSettings());
+  const hasFetched = useRef(false);
 
   const fetchSettings = useCallback(async () => {
     if (!user) {
@@ -71,22 +89,22 @@ export function useUserSettings() {
     }
 
     if (data) {
-      setSettings(data as UserSettings);
+      const s = data as UserSettings;
+      setSettings(s);
+      setCachedSettings(s);
     } else {
-      // Create default settings
       const { data: newSettings, error: insertError } = await supabase
         .from('user_settings')
-        .insert({
-          user_id: user.id,
-          ...DEFAULT_SETTINGS,
-        })
+        .insert({ user_id: user.id, ...DEFAULT_SETTINGS })
         .select()
         .single();
 
       if (insertError) {
         console.error('Error creating settings:', insertError);
       } else {
-        setSettings(newSettings as UserSettings);
+        const s = newSettings as UserSettings;
+        setSettings(s);
+        setCachedSettings(s);
       }
     }
 
@@ -94,14 +112,36 @@ export function useUserSettings() {
   }, [user]);
 
   useEffect(() => {
-    fetchSettings();
-  }, [fetchSettings]);
+    // If we have cached settings for the current user, show them instantly
+    const cached = getCachedSettings();
+    if (cached && user && cached.user_id === user.id) {
+      setSettings(cached);
+      setIsLoading(false);
+    } else if (!user) {
+      setSettings(null);
+      setIsLoading(false);
+      return;
+    }
+
+    // Background refresh from server (stale-while-revalidate)
+    if (!hasFetched.current) {
+      hasFetched.current = true;
+      fetchSettings();
+    }
+  }, [user, fetchSettings]);
+
+  // Reset fetch flag when user changes
+  useEffect(() => {
+    hasFetched.current = false;
+  }, [user?.id]);
 
   const updateSettings = useCallback(async (updates: Partial<UserSettings>) => {
     if (!user || !settings) return;
 
-    // Optimistic update
-    setSettings(prev => prev ? { ...prev, ...updates } : null);
+    // Optimistic update + cache
+    const updated = { ...settings, ...updates };
+    setSettings(updated);
+    setCachedSettings(updated);
 
     const { error } = await supabase
       .from('user_settings')

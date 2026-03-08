@@ -24,14 +24,14 @@ export function AppLayout() {
       <Header onMenuClick={() => setSidebarOpen(true)} />
       <AppSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <main className={isAiChat ? "flex-1 px-0 py-0" : "flex-1 mx-auto max-w-5xl px-4 py-6 md:px-6 md:py-8 w-full"}>
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={location.pathname}
-            initial={{ opacity: 0, y: 8 }}
+            initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.2, ease: 'easeOut' }}
-            className="h-full"
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.15, ease: 'easeOut' }}
+            className="h-full gpu-accelerated will-change-transform"
           >
             <Outlet />
           </motion.div>
