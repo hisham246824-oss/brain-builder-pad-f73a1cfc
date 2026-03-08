@@ -32,10 +32,10 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 5,
+      staleTime: 1000 * 60 * 2, // 2 min stale time
       gcTime: 1000 * 60 * 10,
-      refetchOnWindowFocus: false,
-      refetchOnReconnect: false,
+      refetchOnWindowFocus: true, // Stale-while-revalidate on tab focus
+      refetchOnReconnect: true,
       retry: 1,
     },
   },
