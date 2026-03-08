@@ -61,6 +61,8 @@ export default function SettingsPage() {
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
 
+  const VALID_SIDEBAR_IDS = ['home', 'materials', 'vocabulary', 'pomodoro', 'suggestions', 'messages', 'todos'];
+
   const SIDEBAR_LABELS: Record<string, string> = {
     home: t('home'), materials: t('studyMaterials'), vocabulary: t('vocabulary'),
     pomodoro: t('pomodoroTimer'),
