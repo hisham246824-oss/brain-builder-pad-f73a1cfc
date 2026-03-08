@@ -15,15 +15,12 @@ export function AppLayout() {
   usePageVisitTracking();
   useTheme();
 
-  // AI chat page uses full height, no max-width constraint
-  const isAiChat = location.pathname === '/ai-chat';
-
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <OfflineIndicator />
       <Header onMenuClick={() => setSidebarOpen(true)} />
       <AppSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      <main className={isAiChat ? "flex-1 px-0 py-0" : "flex-1 mx-auto max-w-5xl px-4 py-6 md:px-6 md:py-8 w-full"}>
+      <main className="flex-1 mx-auto max-w-5xl px-4 py-6 md:px-6 md:py-8 w-full">
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={location.pathname}
