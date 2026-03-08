@@ -123,6 +123,11 @@ const translations: Record<Language, Translations> = {
     tableCreatorDesc: 'Design beautiful tables with custom formatting and download as images.',
     // Pomodoro
     study: 'Study', shortBreak: 'Short Break', longBreak: 'Long Break',
+    // Vocabulary dialog & card
+    addNewWord: 'Add New Word', englishWord: 'English Word', enterEnglishWord: 'Enter the English word...',
+    meaningLabel: 'Meaning', enterMeaning: 'Enter the meaning...', notesOptional: 'Notes (Optional)',
+    addNotes: 'Add any additional notes...', adding: 'Adding...', letters: 'letters',
+    english: 'ENGLISH', targetLanguage: 'MEANING',
   },
   ar: {
     home: 'الرئيسية', studyMaterials: 'المواد الدراسية', vocabulary: 'المفردات',
