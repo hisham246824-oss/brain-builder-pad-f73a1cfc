@@ -738,6 +738,7 @@ const translations: Record<Language, Translations> = {
     random: 'ランダム', focus: '集中', smartReview: 'スマート復習',
     randomDesc: 'ランダム選択', focusDesc: '難しい単語のみ',
     smartDesc: '復習が必要な単語', startTest: 'テスト開始',
+    byDate: '日付別', byDateDesc: '特定の日に追加された単語をテスト', selectDate: '日付を選択', noDatesAvailable: '利用可能な日付がありません',
     whatDoesWordMean: 'この単語の意味は？', needsMorePractice: 'もっと練習が必要',
     back: '戻る',
     yourUltimate: '究極の', studyCompanion: '学習パートナー',
