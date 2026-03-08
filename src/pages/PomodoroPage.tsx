@@ -10,6 +10,7 @@ import { AnimatedBackground } from '@/components/pomodoro/AnimatedBackground';
 import { usePomodoro } from '@/hooks/usePomodoro';
 import { usePomodoroSettings } from '@/hooks/usePomodoroSettings';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
 
 export default function PomodoroPage() {
