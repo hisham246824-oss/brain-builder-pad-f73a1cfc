@@ -53,7 +53,8 @@ export default function PomodoroPage() {
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
-                className="w-full bg-card/80 backdrop-blur-sm rounded-[1.5rem] p-4 shadow-lg mb-4 overflow-hidden"
+                transition={{ duration: 0.15 }}
+                className="w-full bg-card/80 rounded-[1.5rem] p-4 shadow-lg mb-4 overflow-hidden"
               >
                 <PomodoroSettings settings={settings} onUpdateSettings={updateSettings} currentMode={mode} />
               </motion.div>
@@ -74,39 +75,29 @@ export default function PomodoroPage() {
               initial={{ width: 0, opacity: 0 }}
               animate={{ width: '40%', opacity: 1 }}
               exit={{ width: 0, opacity: 0 }}
-              transition={{ duration: 0.333, ease: [0.22, 1, 0.36, 1] }}
-              className="h-full bg-card/60 backdrop-blur-md border-r border-border/50 overflow-hidden relative composite-layer"
+              transition={{ duration: 0.2, ease: 'easeOut' }}
+              className="h-full bg-card/60 border-r border-border/50 overflow-hidden relative gpu"
             >
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3, delay: 0.1 }}
-                className="h-full flex flex-col p-6 overflow-hidden"
-              >
+              <div className="h-full flex flex-col p-6 overflow-hidden">
                 <h2 className="text-2xl font-bold text-foreground mb-6">{t('focusZone')}</h2>
                 <div>
                   <h3 className="text-lg font-semibold text-foreground mb-4">{t('settings')}</h3>
                   <PomodoroSettings settings={settings} onUpdateSettings={updateSettings} currentMode={mode} />
                 </div>
-              </motion.div>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
         <div className="relative z-20">
           <div className="absolute top-1/2 -translate-y-1/2 left-0">
             <Button variant="secondary" size="icon" onClick={() => setIsPanelVisible(!isPanelVisible)} className="h-12 w-8 rounded-l-none rounded-r-lg shadow-lg border-l-0">
-              <motion.div animate={{ rotate: isPanelVisible ? 0 : 180 }} transition={{ duration: 0.3 }}>
-                <ChevronLeft className="h-4 w-4" />
-              </motion.div>
+              <ChevronLeft className={`h-4 w-4 transition-transform duration-150 ${!isPanelVisible ? 'rotate-180' : ''}`} />
             </Button>
           </div>
         </div>
-        <motion.div
-          layout
-          animate={{ width: isPanelVisible ? '60%' : '100%' }}
-          transition={{ duration: 0.333, ease: [0.22, 1, 0.36, 1] }}
-          className="flex flex-col items-center justify-center p-8 composite-layer"
+        <div
+          className="flex flex-col items-center justify-center p-8 gpu"
+          style={{ width: isPanelVisible ? '60%' : '100%', transition: 'width 0.2s ease-out' }}
         >
           <div className="flex flex-col items-center gap-8">
             <TimerCircle minutes={minutes} seconds={seconds} totalSeconds={totalSeconds} remainingSeconds={remainingSeconds} color={currentColor} isRunning={isRunning} />
@@ -114,7 +105,7 @@ export default function PomodoroPage() {
             <TimerControls isRunning={isRunning} onStart={start} onPause={pause} onReset={reset} />
             <div className="mt-8 max-w-md"><MotivationalPhrases /></div>
           </div>
-        </motion.div>
+        </div>
       </div>
     </div>
   );
