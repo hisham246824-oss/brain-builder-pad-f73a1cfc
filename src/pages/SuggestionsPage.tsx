@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { SuggestionsSkeleton } from '@/components/skeletons/SuggestionsSkeleton';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Lightbulb, Plus, ThumbsUp, Send, X, Sparkles, Star, Heart, Zap, Crown, Flame, Rocket, Diamond } from 'lucide-react';
 import { Button } from '@/components/ui/button';
