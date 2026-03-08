@@ -37,6 +37,7 @@ export function useSupportTickets() {
         .order('updated_at', { ascending: false });
       if (error) throw error;
       setTickets(data || []);
+      hasLoadedOnce.current = true;
     } catch (err) {
       console.error('Error fetching tickets:', err);
     } finally {
