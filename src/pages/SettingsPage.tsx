@@ -188,8 +188,22 @@ export default function SettingsPage() {
           </div>
           <div className="space-y-6">
             <div className="flex items-center gap-4">
-              <div className={cn("h-16 w-16 rounded-full flex items-center justify-center text-white text-xl font-bold", getAvatarColorClass(settings?.avatar_color || 'primary'))}>
-                {IconComponent ? <IconComponent className="h-8 w-8" /> : avatarLetter}
+              <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+                {(settings as any)?.avatar_url ? (
+                  <img src={(settings as any).avatar_url} alt="Avatar" className="h-16 w-16 rounded-full object-cover" />
+                ) : (
+                  <div className={cn("h-16 w-16 rounded-full flex items-center justify-center text-white text-xl font-bold", getAvatarColorClass(settings?.avatar_color || 'primary'))}>
+                    {IconComponent ? <IconComponent className="h-8 w-8" /> : avatarLetter}
+                  </div>
+                )}
+                <div className="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  {isUploadingAvatar ? (
+                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  ) : (
+                    <Camera className="h-5 w-5 text-white" />
+                  )}
+                </div>
+                <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
               </div>
               <div>
                 <p className="font-medium">{settings?.display_name || user?.email}</p>
