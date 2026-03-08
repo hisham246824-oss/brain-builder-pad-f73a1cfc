@@ -115,42 +115,42 @@ export function LeaderboardModal({ isOpen, onClose }: LeaderboardModalProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] bg-foreground/20 backdrop-blur-sm"
+            className="fixed inset-0 z-[60]"
             onClick={onClose}
           />
           <motion.div
-            initial={{ opacity: 0, scale: 0.92, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.92, y: 20 }}
+            initial={{ opacity: 0, y: 40, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 40, scale: 0.95 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed inset-4 sm:inset-auto sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 z-[61] w-auto sm:w-[420px] max-h-[85vh] bg-background border border-border rounded-[2rem] shadow-2xl flex flex-col overflow-hidden"
+            className={cn(
+              "fixed bottom-20 z-[61] w-[340px] sm:w-[380px] max-h-[70vh] bg-background border border-border rounded-[2rem] shadow-2xl flex flex-col overflow-hidden",
+              isRTL ? "left-4" : "right-4"
+            )}
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-5 pb-3 border-b border-border/50">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-yellow-500 to-amber-600 shadow-md">
-                  <Trophy className="h-5 w-5 text-white" />
-                </div>
+            <div className="flex items-center justify-between p-4 pb-2 border-b border-border/50">
+              <div className={cn("flex items-center gap-2", isRTL && "flex-row-reverse")}>
                 <div>
-                  <h2 className="font-bold text-lg">{t('leaderboard')}</h2>
-                  <p className="text-xs text-muted-foreground">{t('leaderboardDesc')}</p>
+                  <h2 className="font-bold text-base">{t('leaderboard')}</h2>
+                  <p className="text-[11px] text-muted-foreground">{t('leaderboardDesc')}</p>
                 </div>
               </div>
-              <button onClick={onClose} className="flex h-9 w-9 items-center justify-center rounded-xl text-muted-foreground hover:bg-muted transition-colors">
-                <X className="h-5 w-5" />
+              <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-xl text-muted-foreground hover:bg-muted transition-colors">
+                <X className="h-4 w-4" />
               </button>
             </div>
 
             {/* Content */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-2">
+            <div className="flex-1 overflow-y-auto p-3 space-y-2">
               {isLoading ? (
-                <div className="flex items-center justify-center py-12">
-                  <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+                <div className="flex items-center justify-center py-8">
+                  <div className="h-7 w-7 animate-spin rounded-full border-3 border-primary border-t-transparent" />
                 </div>
               ) : entries.length === 0 ? (
-                <div className="text-center py-12 text-muted-foreground">
-                  <Trophy className="h-12 w-12 mx-auto mb-3 opacity-30" />
-                  <p>{t('noLeaderboardData')}</p>
+                <div className="text-center py-8 text-muted-foreground">
+                  <Trophy className="h-10 w-10 mx-auto mb-2 opacity-30" />
+                  <p className="text-sm">{t('noLeaderboardData')}</p>
                 </div>
               ) : (
                 entries.map((entry, i) => (
