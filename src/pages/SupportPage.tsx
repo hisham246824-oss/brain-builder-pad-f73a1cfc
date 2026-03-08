@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { SupportSkeleton } from '@/components/skeletons/SupportSkeleton';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Headphones, Plus, Send, ArrowLeft, Clock, CheckCircle2, 
