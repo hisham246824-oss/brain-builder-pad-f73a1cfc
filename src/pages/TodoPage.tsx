@@ -187,6 +187,7 @@ function TodoCard({ todo, onToggle, onDelete, index }: { todo: Todo; onToggle: (
 
 const TodoPage = () => {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const { todos, isLoading, addTodo, toggleComplete, deleteTodo } = useTodos();
   const [showAdd, setShowAdd] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
@@ -212,9 +213,9 @@ const TodoPage = () => {
       <>
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <CheckCircle2 className="h-16 w-16 text-primary/30 mb-4" />
-          <h2 className="text-2xl font-bold text-foreground mb-2">To-Do List</h2>
-          <p className="text-muted-foreground mb-6">Sign in to manage your tasks</p>
-          <Button onClick={() => setShowAuth(true)} className="rounded-full px-8">Sign In</Button>
+          <h2 className="text-2xl font-bold text-foreground mb-2">{t('toDoList')}</h2>
+          <p className="text-muted-foreground mb-6">{t('signInToManageTasks')}</p>
+          <Button onClick={() => setShowAuth(true)} className="rounded-full px-8">{t('signInBtn')}</Button>
         </div>
         <AuthDialog isOpen={showAuth} onClose={() => setShowAuth(false)} />
       </>
