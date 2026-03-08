@@ -16,7 +16,7 @@ export interface StudyFile {
   createdAt: number;
 }
 
-export type MaterialIcon = 'book' | 'calculator' | 'flask' | 'globe' | 'music' | 'code' | 'palette';
+export type MaterialIcon = 'book' | 'calculator' | 'flask' | 'globe' | 'music' | 'code' | 'palette' | 'atom' | 'languages' | 'heart-pulse' | 'scale' | 'landmark' | 'microscope' | 'pen-tool' | 'cpu' | 'dumbbell' | 'telescope';
 
 export interface Material {
   id: string;
