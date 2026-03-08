@@ -470,7 +470,10 @@ export function AccountsPanel({
                           <Shield className="h-4 w-4" /> Promote to Full Admin
                         </Button>
                       )}
-                      <Button variant="destructive" className="w-full justify-start gap-2" onClick={() => setDeleteTarget(viewingProfile)}>
+                      <Button variant="destructive" className="w-full justify-start gap-2" onClick={() => {
+                        setShowInlineDelete(true);
+                        setTimeout(() => deleteFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+                      }}>
                         <Trash2 className="h-4 w-4" /> Delete Account Permanently
                       </Button>
                     </>
