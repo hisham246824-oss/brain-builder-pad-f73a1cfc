@@ -228,6 +228,10 @@ const translations: Record<Language, Translations> = {
     tableCreatorTitle: 'إنشاء جدول',
     tableCreatorDesc: 'صمم جداول جميلة بتنسيق مخصص وحمّلها كصور.',
     study: 'دراسة', shortBreak: 'استراحة قصيرة', longBreak: 'استراحة طويلة',
+    addNewWord: 'إضافة كلمة جديدة', englishWord: 'الكلمة بالإنجليزية', enterEnglishWord: 'أدخل الكلمة بالإنجليزية...',
+    meaningLabel: 'المعنى', enterMeaning: 'أدخل المعنى...', notesOptional: 'ملاحظات (اختياري)',
+    addNotes: 'أضف ملاحظات إضافية...', adding: 'جارٍ الإضافة...', letters: 'حروف',
+    english: 'الإنجليزية', targetLanguage: 'المعنى',
   },
   fr: {
     home: 'Accueil', studyMaterials: 'Matériel d\'étude', vocabulary: 'Vocabulaire',
