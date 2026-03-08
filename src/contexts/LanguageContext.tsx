@@ -12,7 +12,7 @@ const translations: Record<Language, Translations> = {
     // Navigation
     home: 'Home', studyMaterials: 'Study Materials', vocabulary: 'Vocabulary',
     aiStudyChat: 'AI Study Chat', createTable: 'Create Table', pomodoroTimer: 'Pomodoro Timer',
-    suggestions: 'Suggestions', messages: 'Messages', todoList: 'To-Do List',
+    suggestions: 'Suggestions', messages: 'Messages', todoList: 'To-Do List', technicalSupport: 'Technical Support',
     // Settings
     settings: 'Settings', profile: 'Profile', displayName: 'Display Name',
     save: 'Save', avatarColor: 'Avatar Color', avatarIcon: 'Avatar Icon',
