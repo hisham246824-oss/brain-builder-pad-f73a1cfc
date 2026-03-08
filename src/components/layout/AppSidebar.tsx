@@ -26,7 +26,7 @@ const BASE_NAV_ITEMS = [
 
 const LABEL_KEYS: Record<string, string> = {
   home: 'home', materials: 'studyMaterials', vocabulary: 'vocabulary',
-  pomodoro: 'pomodoroTimer',
+  'table-creator': 'createTable', pomodoro: 'pomodoroTimer',
   suggestions: 'suggestions', todos: 'todoList',
 };
 
