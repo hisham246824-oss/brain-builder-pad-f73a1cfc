@@ -127,6 +127,12 @@ export default function SettingsPage() {
 
   const IconComponent = settings?.avatar_icon ? ICON_MAP[settings.avatar_icon] : null;
   const avatarLetter = settings?.display_name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U';
+  const userCode = user?.id ? user.id.slice(0, 8).toUpperCase() : '';
+
+  const copyCode = () => {
+    navigator.clipboard.writeText(userCode);
+    toast.success(t('codeCopied') || 'Code copied!');
+  };
 
   return (
     <div className="min-h-screen bg-background" dir={isRTL ? 'rtl' : 'ltr'}>
