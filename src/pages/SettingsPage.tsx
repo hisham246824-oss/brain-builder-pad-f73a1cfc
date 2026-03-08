@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
-  User, Palette, Bot, Moon, Sun, GripVertical, Check, 
+  User, Palette, Moon, Sun, GripVertical, Check, 
   Star, Heart, Zap, Crown, Flame, Rocket, Diamond,
   Lock, Eye, EyeOff, ArrowLeft, LogOut, Globe, Copy, Hash
 } from 'lucide-react';
@@ -64,7 +64,7 @@ export default function SettingsPage() {
 
   const SIDEBAR_LABELS: Record<string, string> = {
     home: t('home'), materials: t('studyMaterials'), vocabulary: t('vocabulary'),
-    'ai-chat': t('aiStudyChat'), 'table-creator': t('createTable'), pomodoro: t('pomodoroTimer'),
+    'table-creator': t('createTable'), pomodoro: t('pomodoroTimer'),
     suggestions: t('suggestions'), messages: t('messages'), todos: t('todoList'),
   };
 
@@ -252,21 +252,6 @@ export default function SettingsPage() {
                 {language === lang.code && <Check className="h-4 w-4 text-primary ml-auto" />}
               </button>
             ))}
-          </div>
-        </motion.section>
-
-        {/* AI Section */}
-        <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-card rounded-2xl p-6 shadow-soft">
-          <div className="flex items-center gap-3 mb-6">
-            <Bot className="h-5 w-5 text-primary" />
-            <h2 className="text-lg font-semibold">{t('aiPreferences')}</h2>
-          </div>
-          <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">{t('customizeAi')}</p>
-            <Textarea value={aiPrompt} onChange={(e) => setAiPrompt(e.target.value)} placeholder={t('aiPlaceholder')} className="min-h-[80px] rounded-xl" />
-            <Button onClick={async () => { await updateSettings({ ai_custom_prompt: aiPrompt || null }); toast.success(t('aiPrefsUpdated')); }} className="rounded-xl">
-              {t('saveAiPrefs')}
-            </Button>
           </div>
         </motion.section>
 

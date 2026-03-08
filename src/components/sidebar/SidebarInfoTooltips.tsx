@@ -11,10 +11,6 @@ export const sidebarInfoMap: Record<string, { title: string; description: string
     title: 'Vocabulary',
     description: 'Build and manage your English-Arabic vocabulary. Add words with meanings and notes, track mastery with spaced repetition, practice with flashcards or multiple-choice quizzes, and focus on difficult words that need extra review.',
   },
-  'ai-chat': {
-    title: 'AI Study Chat',
-    description: 'Chat with an intelligent AI assistant powered by advanced models. Get explanations for complex topics, analyze images, generate study plans, and receive personalized learning guidance across all your subjects.',
-  },
   'table-creator': {
     title: 'Create Table',
     description: 'Design and edit custom tables to organize study data, comparisons, and schedules. Export your tables as high-quality images for easy sharing with classmates or embedding in your notes.',

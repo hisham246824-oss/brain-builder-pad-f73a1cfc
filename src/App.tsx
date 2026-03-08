@@ -19,7 +19,7 @@ import TableCreatorPage from "./pages/TableCreatorPage";
 import PomodoroPage from "./pages/PomodoroPage";
 import VocabularyPage from "./pages/VocabularyPage";
 import FlashcardsPage from "./pages/FlashcardsPage";
-import AIChatPage from "./pages/AIChatPage";
+
 import MessagesPage from "./pages/MessagesPage";
 import AdminDashboard from "./pages/AdminDashboard";
 import SettingsPage from "./pages/SettingsPage";
@@ -179,7 +179,7 @@ function AppRoutes() {
           <Route path="/pomodoro" element={<PomodoroPage />} />
           <Route path="/vocabulary" element={<VocabularyPage />} />
           <Route path="/flashcards" element={<FlashcardsPage />} />
-          <Route path="/ai-chat" element={<AIChatPage />} />
+          
           <Route path="/messages" element={<MessagesPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/suggestions" element={<SuggestionsPage />} />

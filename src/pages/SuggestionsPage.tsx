@@ -24,7 +24,6 @@ const PAGE_OPTIONS = [
   { value: 'general', label: 'General' },
   { value: 'materials', label: 'Study Materials' },
   { value: 'vocabulary', label: 'Vocabulary' },
-  { value: 'ai-chat', label: 'AI Study Chat' },
   { value: 'pomodoro', label: 'Pomodoro Timer' },
   { value: 'table-creator', label: 'Create Table' },
   { value: 'messages', label: 'Messages' },

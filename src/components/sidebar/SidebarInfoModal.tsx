@@ -1,11 +1,10 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, BookOpen, Home, Bot, Table2, Timer, Mail, Lightbulb, ListTodo, BookA } from 'lucide-react';
+import { X, BookOpen, Home, Table2, Timer, Mail, Lightbulb, ListTodo, BookA } from 'lucide-react';
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   home: Home,
   materials: BookOpen,
   vocabulary: BookA,
-  'ai-chat': Bot,
   'table-creator': Table2,
   pomodoro: Timer,
   messages: Mail,
