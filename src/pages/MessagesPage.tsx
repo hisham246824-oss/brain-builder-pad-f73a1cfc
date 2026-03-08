@@ -5,6 +5,7 @@ import { Mail, Heart, Check, Calendar, BarChart, MessageSquareDashed } from 'luc
 import { Card, CardContent } from '@/components/ui/card';
 import { useAdminMessages } from '@/hooks/useAdminMessages';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
