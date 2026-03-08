@@ -262,7 +262,7 @@ const TodoPage = () => {
           <p className="text-2xl font-bold text-destructive">{overdueCount}</p>
           <p className="text-[11px] text-muted-foreground">{t('overdue')}</p>
         </div>
-      </motion.div>
+      </div>
 
       {/* 3. Completion progress */}
       {todos.length > 0 && (
