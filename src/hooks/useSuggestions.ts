@@ -22,8 +22,10 @@ export function useSuggestions() {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchSuggestions = useCallback(async () => {
-    setIsLoading(true);
+  const hasLoadedOnce = useRef(false);
+
+  const fetchSuggestions = useCallback(async (silent = false) => {
+    if (!silent && !hasLoadedOnce.current) setIsLoading(true);
     try {
       const { data: suggestionsData, error } = await supabase
         .from('suggestions')
