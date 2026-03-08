@@ -278,14 +278,14 @@ const TodoPage = () => {
       {/* 4. Quick filter pills */}
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="flex gap-2 flex-wrap">
         <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-medium">
-          <Target className="h-3 w-3" /> {activeTodos.length} Active
+          <Target className="h-3 w-3" /> {activeTodos.length} {t('active')}
         </span>
         <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-green-500/10 text-green-600 text-xs font-medium">
-          <CheckCircle2 className="h-3 w-3" /> {completedTodos.length} Done
+          <CheckCircle2 className="h-3 w-3" /> {completedTodos.length} {t('done')}
         </span>
         {overdueCount > 0 && (
           <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-destructive/10 text-destructive text-xs font-medium animate-pulse">
-            <AlertTriangle className="h-3 w-3" /> {overdueCount} Overdue
+            <AlertTriangle className="h-3 w-3" /> {overdueCount} {t('overdue')}
           </span>
         )}
       </motion.div>
@@ -298,10 +298,10 @@ const TodoPage = () => {
           <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/10 mx-auto mb-4">
             <Sparkles className="h-10 w-10 text-primary" />
           </div>
-          <h3 className="text-xl font-semibold text-foreground mb-2">All clear!</h3>
-          <p className="text-muted-foreground mb-4">Add your first task to start tracking your progress</p>
-          <Button onClick={() => setShowAdd(true)} className="rounded-2xl gap-2">
-            <Plus className="h-4 w-4" /> Create First Task
+          <h3 className="text-xl font-semibold text-foreground mb-2">{t('allClear')}</h3>
+          <p className="text-muted-foreground mb-4">{t('addFirstTaskDesc')}</p>
+          <Button onClick={() => setShowAdd(true)} className="rounded-full gap-2">
+            <Plus className="h-4 w-4" /> {t('createFirstTask')}
           </Button>
         </motion.div>
       ) : (
