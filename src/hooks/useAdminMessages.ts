@@ -21,8 +21,9 @@ export function useAdminMessages() {
     } catch { return 0; }
   });
   const [isLoading, setIsLoading] = useState(true);
+  const hasLoadedOnce = useRef(false);
 
-  const fetchMessages = async () => {
+  const fetchMessages = async (silent = false) => {
     if (!user) {
       setMessages([]);
       setUnreadCount(0);
@@ -30,6 +31,7 @@ export function useAdminMessages() {
       return;
     }
 
+    if (!silent && !hasLoadedOnce.current) setIsLoading(true);
     try {
       // Get all admin messages
       const { data: messagesData, error: messagesError } = await supabase
