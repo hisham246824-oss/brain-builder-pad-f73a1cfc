@@ -274,7 +274,7 @@ const TodoPage = () => {
             <span className="font-bold text-primary">{completionPercent}%</span>
           </div>
           <Progress value={completionPercent} className="h-2.5" />
-        </motion.div>
+        </div>
       )}
 
       {/* 4. Quick filter pills */}
