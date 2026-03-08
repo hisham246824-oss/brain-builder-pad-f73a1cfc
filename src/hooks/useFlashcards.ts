@@ -13,6 +13,7 @@ export interface FlashcardWord {
   interval_days: number;
   repetitions: number;
   next_review_at: string;
+  created_at: string;
 }
 
 export type TestMode = 'flashcard' | 'mcq' | 'typing';
