@@ -72,6 +72,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         if (event === 'SIGNED_IN' && session?.user) {
           await transferLocalDataToDatabase(session.user.id);
+          // Detect and store user's country
+          detectAndStoreCountry(session.user.id);
         }
 
         if (event === 'SIGNED_OUT') {
