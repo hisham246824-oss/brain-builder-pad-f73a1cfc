@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookOpen, Home, X, GraduationCap, Timer, BookA, Mail, Settings, Star, Heart, Zap, Crown, Flame, Rocket, Diamond, Info, Lightbulb, ListTodo } from 'lucide-react';
+import { BookOpen, Home, X, GraduationCap, Timer, BookA, Mail, Settings, Star, Heart, Zap, Crown, Flame, Rocket, Diamond, Lightbulb, ListTodo, Table2 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdminMessages } from '@/hooks/useAdminMessages';
 import { useUserSettings } from '@/hooks/useUserSettings';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { SidebarInfoModal } from '@/components/sidebar/SidebarInfoModal';
 import { cn } from '@/lib/utils';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -19,6 +18,7 @@ const BASE_NAV_ITEMS = [
   { id: 'home', to: '/', icon: Home },
   { id: 'materials', to: '/materials', icon: BookOpen },
   { id: 'vocabulary', to: '/vocabulary', icon: BookA },
+  { id: 'table-creator', to: '/table-creator', icon: Table2 },
   { id: 'pomodoro', to: '/pomodoro', icon: Timer },
   { id: 'suggestions', to: '/suggestions', icon: Lightbulb },
   { id: 'todos', to: '/todos', icon: ListTodo },
@@ -26,7 +26,7 @@ const BASE_NAV_ITEMS = [
 
 const LABEL_KEYS: Record<string, string> = {
   home: 'home', materials: 'studyMaterials', vocabulary: 'vocabulary',
-  pomodoro: 'pomodoroTimer',
+  'table-creator': 'createTable', pomodoro: 'pomodoroTimer',
   suggestions: 'suggestions', todos: 'todoList',
 };
 
@@ -47,8 +47,6 @@ export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
   const { t, isRTL } = useLanguage();
   const { hasUnread, unreadCount } = useAdminMessages();
   const { settings } = useUserSettings();
-  
-  const [showGuide, setShowGuide] = useState(false);
 
   const getSortedNavItems = () => {
     if (!settings?.sidebar_order || settings.sidebar_order.length === 0) return BASE_NAV_ITEMS;
@@ -131,13 +129,6 @@ export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
                     <span className="text-lg font-semibold text-sidebar-foreground">StudyHub</span>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    {/* Info guide button */}
-                    <button
-                      onClick={() => setShowGuide(true)}
-                      className="flex h-9 w-9 items-center justify-center rounded-lg text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground"
-                    >
-                      <Info className="h-5 w-5" />
-                    </button>
                     {/* Messages button */}
                     {user && (
                       <button
@@ -225,7 +216,6 @@ export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
           </>
         )}
       </AnimatePresence>
-      <SidebarInfoModal isOpen={showGuide} onClose={() => setShowGuide(false)} />
     </>
   );
 }

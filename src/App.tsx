@@ -15,7 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Index from "./pages/Index";
 import MaterialsPage from "./pages/MaterialsPage";
 import MaterialDetailPage from "./pages/MaterialDetailPage";
-
+import TableCreatorPage from "./pages/TableCreatorPage";
 import PomodoroPage from "./pages/PomodoroPage";
 import VocabularyPage from "./pages/VocabularyPage";
 import FlashcardsPage from "./pages/FlashcardsPage";
@@ -32,12 +32,12 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 2, // 2 min stale time
+      staleTime: 1000 * 30, // 30 sec stale time
       gcTime: 1000 * 60 * 10,
-      refetchOnWindowFocus: true, // Stale-while-revalidate on tab focus
+      refetchOnWindowFocus: true,
       refetchOnReconnect: true,
-      refetchInterval: 30 * 1000, // Background sync every 30 seconds
-      refetchIntervalInBackground: false, // Only when tab is active
+      refetchInterval: 15 * 1000, // Background sync every 15 seconds
+      refetchIntervalInBackground: false,
       retry: 1,
     },
   },
@@ -177,7 +177,7 @@ function AppRoutes() {
           <Route path="/" element={<RootRedirect />} />
           <Route path="/materials" element={<MaterialsPage />} />
           <Route path="/materials/:id" element={<MaterialDetailPage />} />
-          
+          <Route path="/table-creator" element={<TableCreatorPage />} />
           <Route path="/pomodoro" element={<PomodoroPage />} />
           <Route path="/vocabulary" element={<VocabularyPage />} />
           <Route path="/flashcards" element={<FlashcardsPage />} />

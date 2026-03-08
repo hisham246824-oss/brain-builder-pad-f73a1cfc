@@ -11,7 +11,7 @@ const translations: Record<Language, Translations> = {
   en: {
     // Navigation
     home: 'Home', studyMaterials: 'Study Materials', vocabulary: 'Vocabulary',
-    pomodoroTimer: 'Pomodoro Timer',
+    createTable: 'Create Table', pomodoroTimer: 'Pomodoro Timer',
     suggestions: 'Suggestions', messages: 'Messages', todoList: 'To-Do List', technicalSupport: 'Technical Support',
     // Settings
     settings: 'Settings', profile: 'Profile', displayName: 'Display Name',
@@ -198,7 +198,7 @@ const translations: Record<Language, Translations> = {
   },
   ar: {
     home: 'الرئيسية', studyMaterials: 'المواد الدراسية', vocabulary: 'المفردات',
-    pomodoroTimer: 'مؤقت بومودورو',
+    createTable: 'إنشاء جدول', pomodoroTimer: 'مؤقت بومودورو',
     suggestions: 'الاقتراحات', messages: 'الرسائل', todoList: 'قائمة المهام', technicalSupport: 'الدعم الفني',
     settings: 'الإعدادات', profile: 'الملف الشخصي', displayName: 'اسم العرض',
     save: 'حفظ', avatarColor: 'لون الصورة الرمزية', avatarIcon: 'أيقونة الصورة الرمزية',
@@ -359,7 +359,7 @@ const translations: Record<Language, Translations> = {
   },
   fr: {
     home: 'Accueil', studyMaterials: 'Matériel d\'étude', vocabulary: 'Vocabulaire',
-    pomodoroTimer: 'Minuteur Pomodoro',
+    createTable: 'Créer un tableau', pomodoroTimer: 'Minuteur Pomodoro',
     suggestions: 'Suggestions', messages: 'Messages', todoList: 'Liste de tâches', technicalSupport: 'Support technique',
     settings: 'Paramètres', profile: 'Profil', displayName: 'Nom d\'affichage',
     save: 'Enregistrer', avatarColor: 'Couleur de l\'avatar', avatarIcon: 'Icône de l\'avatar',
@@ -514,7 +514,7 @@ const translations: Record<Language, Translations> = {
   },
   zh: {
     home: '首页', studyMaterials: '学习资料', vocabulary: '词汇',
-    pomodoroTimer: '番茄钟',
+    createTable: '创建表格', pomodoroTimer: '番茄钟',
     suggestions: '建议', messages: '消息', todoList: '待办事项', technicalSupport: '技术支持',
     settings: '设置', profile: '个人资料', displayName: '显示名称',
     save: '保存', avatarColor: '头像颜色', avatarIcon: '头像图标',
@@ -664,7 +664,7 @@ const translations: Record<Language, Translations> = {
   },
   ja: {
     home: 'ホーム', studyMaterials: '学習資料', vocabulary: '語彙',
-    pomodoroTimer: 'ポモドーロ',
+    createTable: 'テーブル作成', pomodoroTimer: 'ポモドーロ',
     suggestions: '提案', messages: 'メッセージ', todoList: 'やることリスト', technicalSupport: 'テクニカルサポート',
     settings: '設定', profile: 'プロフィール', displayName: '表示名',
     save: '保存', avatarColor: 'アバターの色', avatarIcon: 'アバターアイコン',
@@ -814,7 +814,7 @@ const translations: Record<Language, Translations> = {
   },
   hi: {
     home: 'होम', studyMaterials: 'अध्ययन सामग्री', vocabulary: 'शब्दावली',
-    pomodoroTimer: 'पोमोडोरो टाइमर',
+    createTable: 'तालिका बनाएं', pomodoroTimer: 'पोमोडोरो टाइमर',
     suggestions: 'सुझाव', messages: 'संदेश', todoList: 'कार्य सूची', technicalSupport: 'तकनीकी सहायता',
     settings: 'सेटिंग्स', profile: 'प्रोफ़ाइल', displayName: 'प्रदर्शन नाम',
     save: 'सहेजें', avatarColor: 'अवतार रंग', avatarIcon: 'अवतार आइकन',
@@ -964,7 +964,7 @@ const translations: Record<Language, Translations> = {
   },
   es: {
     home: 'Inicio', studyMaterials: 'Material de estudio', vocabulary: 'Vocabulario',
-    pomodoroTimer: 'Temporizador Pomodoro',
+    createTable: 'Crear tabla', pomodoroTimer: 'Temporizador Pomodoro',
     suggestions: 'Sugerencias', messages: 'Mensajes', todoList: 'Lista de tareas', technicalSupport: 'Soporte técnico',
     settings: 'Configuración', profile: 'Perfil', displayName: 'Nombre visible',
     save: 'Guardar', avatarColor: 'Color de avatar', avatarIcon: 'Ícono de avatar',
@@ -1114,7 +1114,7 @@ const translations: Record<Language, Translations> = {
   },
   pt: {
     home: 'Início', studyMaterials: 'Material de estudo', vocabulary: 'Vocabulário',
-    pomodoroTimer: 'Temporizador Pomodoro',
+    createTable: 'Criar tabela', pomodoroTimer: 'Temporizador Pomodoro',
     suggestions: 'Sugestões', messages: 'Mensagens', todoList: 'Lista de tarefas', technicalSupport: 'Suporte técnico',
     settings: 'Configurações', profile: 'Perfil', displayName: 'Nome de exibição',
     save: 'Salvar', avatarColor: 'Cor do avatar', avatarIcon: 'Ícone do avatar',
