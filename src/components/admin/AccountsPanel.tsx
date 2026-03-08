@@ -353,9 +353,10 @@ export function AccountsPanel({
                     Profile: {viewingProfile.avatar_color}
                   </p>
                 )}
-                {viewingProfile.language && (
+                {viewingProfile.language && LANGUAGE_INFO[viewingProfile.language] && (
                   <p className="flex items-center gap-1 justify-end">
-                    <Globe className="h-3 w-3" /> {LANGUAGE_NAMES[viewingProfile.language] || viewingProfile.language}
+                    <span className="text-base">{LANGUAGE_INFO[viewingProfile.language].flag}</span>
+                    {LANGUAGE_INFO[viewingProfile.language].name}
                   </p>
                 )}
               </div>
