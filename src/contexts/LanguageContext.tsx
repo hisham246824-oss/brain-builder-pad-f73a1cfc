@@ -33,6 +33,7 @@ const translations: Record<Language, Translations> = {
     tryDifferentSearch: 'Try a different search term',
     addFirstWord: 'Add your first vocabulary word to get started',
     showingDifficult: 'Showing difficult words that need more review',
+    searchingFor: 'Searching for', result: 'result', results: 'results',
     // Auth
     signIn: 'Sign In / Create Account', myProfile: 'My Profile',
     signInBtn: 'Sign In', createAccountBtn: 'Create Account',
