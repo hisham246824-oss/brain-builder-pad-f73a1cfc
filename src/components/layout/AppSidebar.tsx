@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookOpen, Home, X, GraduationCap, Table2, Timer, BookA, Mail, Settings, Star, Heart, Zap, Crown, Flame, Rocket, Diamond, Info, Lightbulb, ListTodo, Headphones } from 'lucide-react';
+import { BookOpen, Home, X, GraduationCap, Timer, BookA, Mail, Settings, Star, Heart, Zap, Crown, Flame, Rocket, Diamond, Info, Lightbulb, ListTodo, Headphones } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdminMessages } from '@/hooks/useAdminMessages';
