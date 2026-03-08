@@ -54,13 +54,14 @@ export default function SettingsPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPasswords, setShowPasswords] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
-  const [aiPrompt, setAiPrompt] = useState('');
   const [sidebarOrder, setSidebarOrder] = useState<string[]>([]);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
+
+  const VALID_SIDEBAR_IDS = ['home', 'materials', 'vocabulary', 'pomodoro', 'suggestions', 'messages', 'todos'];
 
   const SIDEBAR_LABELS: Record<string, string> = {
     home: t('home'), materials: t('studyMaterials'), vocabulary: t('vocabulary'),
@@ -71,8 +72,8 @@ export default function SettingsPage() {
   useEffect(() => {
     if (settings) {
       setDisplayName(settings.display_name || '');
-      setAiPrompt(settings.ai_custom_prompt || '');
-      setSidebarOrder(settings.sidebar_order || []);
+      const filteredOrder = (settings.sidebar_order || []).filter(id => VALID_SIDEBAR_IDS.includes(id));
+      setSidebarOrder(filteredOrder.length > 0 ? filteredOrder : VALID_SIDEBAR_IDS);
     }
   }, [settings]);
 

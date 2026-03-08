@@ -6,7 +6,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useAdminMessages } from '@/hooks/useAdminMessages';
 import { useUserSettings } from '@/hooks/useUserSettings';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { sidebarInfoMap } from '@/components/sidebar/SidebarInfoTooltips';
 import { SidebarInfoModal } from '@/components/sidebar/SidebarInfoModal';
 import { cn } from '@/lib/utils';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -49,7 +48,7 @@ export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
   const { hasUnread, unreadCount } = useAdminMessages();
   const { settings } = useUserSettings();
   
-  const [activeInfo, setActiveInfo] = useState<string | null>(null);
+  const [showGuide, setShowGuide] = useState(false);
 
   const getSortedNavItems = () => {
     if (!settings?.sidebar_order || settings.sidebar_order.length === 0) return BASE_NAV_ITEMS;
@@ -79,38 +78,23 @@ export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
   };
 
   const renderNavItem = (item: typeof BASE_NAV_ITEMS[0]) => {
-    const info = sidebarInfoMap[item.id];
     const label = t(LABEL_KEYS[item.id] || item.id);
 
     return (
-      <li key={item.to} className="relative">
-        <div className="flex items-center gap-0">
-          <NavLink
-            to={item.to}
-            onClick={onClose}
-            className="flex-1 flex items-center gap-3 rounded-xl px-4 py-3 text-sidebar-foreground/80 transition-all hover:bg-sidebar-accent hover:text-sidebar-foreground"
-            activeClassName="bg-sidebar-accent text-sidebar-primary font-medium"
-          >
-            <item.icon className="h-5 w-5" />
-            <span className="flex-1">{label}</span>
-          </NavLink>
-          
-          <div className="flex items-center gap-0.5 pr-1">
-            {info && (
-              <button
-                onClick={(e) => { e.stopPropagation(); setActiveInfo(activeInfo === item.id ? null : item.id); }}
-                className="p-1.5 rounded-lg text-sidebar-foreground/40 hover:text-sidebar-foreground/70 hover:bg-sidebar-accent/50 transition-all"
-              >
-                <Info className="h-3.5 w-3.5" />
-              </button>
-            )}
-          </div>
-        </div>
+      <li key={item.to}>
+        <NavLink
+          to={item.to}
+          onClick={onClose}
+          className="flex items-center gap-3 rounded-xl px-4 py-3 text-sidebar-foreground/80 transition-all hover:bg-sidebar-accent hover:text-sidebar-foreground"
+          activeClassName="bg-sidebar-accent text-sidebar-primary font-medium"
+        >
+          <item.icon className="h-5 w-5" />
+          <span className="flex-1">{label}</span>
+        </NavLink>
       </li>
     );
   };
 
-  // Sidebar slide direction based on RTL
   const slideFrom = isRTL ? { x: '100%' } : { x: '-100%' };
   const slideTo = { x: 0 };
 
@@ -147,6 +131,13 @@ export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
                     <span className="text-lg font-semibold text-sidebar-foreground">StudyHub</span>
                   </div>
                   <div className="flex items-center gap-1.5">
+                    {/* Info guide button */}
+                    <button
+                      onClick={() => setShowGuide(true)}
+                      className="flex h-9 w-9 items-center justify-center rounded-lg text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                    >
+                      <Info className="h-5 w-5" />
+                    </button>
                     {/* Messages button */}
                     {user && (
                       <button
@@ -179,32 +170,22 @@ export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
                         animate={{ opacity: 1, scale: [1, 1.02, 1] }}
                         transition={{ scale: { repeat: Infinity, duration: 2, ease: 'easeInOut' } }}
                       >
-                        <div className="flex items-center gap-0">
-                          <NavLink
-                            to={messagesItem.to}
-                            onClick={onClose}
-                            className={cn("flex-1 relative flex items-center gap-3 rounded-xl px-4 py-3 transition-all", "bg-primary/10 text-primary font-medium")}
-                            activeClassName="bg-primary text-primary-foreground"
-                          >
-                            <motion.div animate={{ rotate: [0, -10, 10, -10, 0] }} transition={{ repeat: Infinity, duration: 0.5, repeatDelay: 2 }}>
-                              <Mail className="h-5 w-5" />
-                            </motion.div>
-                            <span>{t('messages')}</span>
-                            {unreadCount > 0 && (
-                              <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-destructive px-1.5 text-xs font-bold text-destructive-foreground">
-                                {unreadCount}
-                              </span>
-                            )}
-                          </NavLink>
-                          {sidebarInfoMap.messages && (
-                            <button
-                              onClick={(e) => { e.stopPropagation(); setActiveInfo(activeInfo === 'messages' ? null : 'messages'); }}
-                              className="p-1.5 rounded-lg text-sidebar-foreground/40 hover:text-sidebar-foreground/70 hover:bg-sidebar-accent/50 transition-all pr-1"
-                            >
-                              <Info className="h-3.5 w-3.5" />
-                            </button>
+                        <NavLink
+                          to={messagesItem.to}
+                          onClick={onClose}
+                          className={cn("flex items-center gap-3 rounded-xl px-4 py-3 transition-all", "bg-primary/10 text-primary font-medium")}
+                          activeClassName="bg-primary text-primary-foreground"
+                        >
+                          <motion.div animate={{ rotate: [0, -10, 10, -10, 0] }} transition={{ repeat: Infinity, duration: 0.5, repeatDelay: 2 }}>
+                            <Mail className="h-5 w-5" />
+                          </motion.div>
+                          <span>{t('messages')}</span>
+                          {unreadCount > 0 && (
+                            <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-destructive px-1.5 text-xs font-bold text-destructive-foreground">
+                              {unreadCount}
+                            </span>
                           )}
-                        </div>
+                        </NavLink>
                       </motion.li>
                     )}
 
@@ -244,15 +225,7 @@ export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
           </>
         )}
       </AnimatePresence>
-      {activeInfo && sidebarInfoMap[activeInfo] && (
-        <SidebarInfoModal
-          isOpen={true}
-          onClose={() => setActiveInfo(null)}
-          title={sidebarInfoMap[activeInfo].title}
-          description={sidebarInfoMap[activeInfo].description}
-          itemId={activeInfo}
-        />
-      )}
+      <SidebarInfoModal isOpen={showGuide} onClose={() => setShowGuide(false)} />
     </>
   );
 }
