@@ -108,7 +108,7 @@ export default function MessagesPage() {
             <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10">
               <BarChart className="h-4 w-4 text-primary" />
             </div>
-            <h2 className="text-lg font-semibold text-foreground">Active Polls</h2>
+            <h2 className="text-lg font-semibold text-foreground">{t('activePolls')}</h2>
           </div>
           {polls.map((poll, index) => (
             <motion.div key={poll.id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 + index * 0.05 }}>
