@@ -63,6 +63,7 @@ export function useAdminMessages() {
       });
 
       setMessages(messagesWithStatus);
+      hasLoadedOnce.current = true;
       const count = messagesWithStatus.filter(m => !m.isRead).length;
       setUnreadCount(count);
       try { localStorage.setItem('studyhub-unread-count', String(count)); } catch {}
