@@ -71,6 +71,10 @@ const translations: Record<Language, Translations> = {
     smartDesc: 'Words needing review based on algorithm', startTest: 'Start Test',
     whatDoesWordMean: 'What does this word mean?', needsMorePractice: 'Needs more practice',
     back: 'Back',
+    typing: 'Typing', typingDesc: 'Type the meaning from memory',
+    typeMeaning: 'Type the meaning', typeYourAnswer: 'Type your answer...',
+    checkAnswer: 'Check Answer', correct: '✓ Correct!', incorrect: '✗ Incorrect',
+    offlineMode: 'Offline mode — using cached vocabulary', offline: 'Offline',
     // Home page
     yourUltimate: 'Your Ultimate', studyCompanion: 'Study Companion',
     homeDesc: 'Smart tools, organized materials, and focused study sessions — everything you need to ace your studies, all in one place.',
