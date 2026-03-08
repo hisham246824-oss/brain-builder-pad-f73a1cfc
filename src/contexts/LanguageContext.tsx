@@ -1129,6 +1129,9 @@ const translations: Record<Language, Translations> = {
     infoSuggestions: 'Comparte tus ideas para mejorar la plataforma. Envía solicitudes y vota por las sugerencias.',
     infoTodos: 'Gestiona tareas con prioridades de colores. Establece plazos con cuenta regresiva en vivo.',
     infoSupport: '¿Necesitas ayuda? Crea tickets de soporte, adjunta imágenes y chatea con el equipo.',
+    leaderboard: 'Clasificación',
+    leaderboardDesc: 'Mejores por tiempo dedicado',
+    noLeaderboardData: 'Sin datos aún',
   },
   pt: {
     home: 'Início', studyMaterials: 'Material de estudo', vocabulary: 'Vocabulário',
