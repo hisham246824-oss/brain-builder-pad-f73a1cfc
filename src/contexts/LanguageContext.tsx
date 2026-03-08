@@ -514,7 +514,7 @@ const translations: Record<Language, Translations> = {
   },
   zh: {
     home: '首页', studyMaterials: '学习资料', vocabulary: '词汇',
-    pomodoroTimer: '番茄钟',
+    createTable: '创建表格', pomodoroTimer: '番茄钟',
     suggestions: '建议', messages: '消息', todoList: '待办事项', technicalSupport: '技术支持',
     settings: '设置', profile: '个人资料', displayName: '显示名称',
     save: '保存', avatarColor: '头像颜色', avatarIcon: '头像图标',
