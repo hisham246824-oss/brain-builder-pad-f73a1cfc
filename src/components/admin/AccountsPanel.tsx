@@ -43,7 +43,13 @@ interface User {
   blocked_until: string | null;
   block_reason: string | null;
   country: string | null;
+  language: string | null;
 }
+
+const LANGUAGE_NAMES: Record<string, string> = {
+  en: 'English', ar: 'العربية', fr: 'Français', zh: '中文',
+  ja: '日本語', hi: 'हिन्दी', es: 'Español', pt: 'Português',
+};
 
 interface UserActivity {
   materials_count: number;
