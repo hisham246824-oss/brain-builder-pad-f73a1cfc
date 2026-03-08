@@ -540,6 +540,49 @@ export function AccountsPanel({
                 </CardContent>
               </Card>
             )}
+
+            {/* Inline Block Form */}
+            <AnimatePresence>
+              {showInlineBlock && viewingProfile && !viewingProfile.is_blocked && (
+                <motion.div ref={blockFormRef} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }}>
+                  <Card className="border-amber-500/30 bg-amber-500/5">
+                    <CardHeader>
+                      <CardTitle className="text-base flex items-center gap-2 text-amber-600">
+                        <Ban className="h-4 w-4" /> Block {viewingProfile.display_name || 'User'}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <p className="text-sm text-muted-foreground">Select a duration and optionally provide a reason. The user will see a block screen with the countdown.</p>
+                      <Select value={blockHours} onValueChange={setBlockHours}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="1">1 Hour</SelectItem>
+                          <SelectItem value="6">6 Hours</SelectItem>
+                          <SelectItem value="12">12 Hours</SelectItem>
+                          <SelectItem value="24">24 Hours</SelectItem>
+                          <SelectItem value="48">2 Days</SelectItem>
+                          <SelectItem value="168">1 Week</SelectItem>
+                          <SelectItem value="720">1 Month</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Textarea placeholder="Reason for blocking (optional)..." value={blockReason} onChange={e => setBlockReason(e.target.value)} rows={2} />
+                      <div className="flex gap-2">
+                        <Button onClick={async () => {
+                          await onBlockUser(viewingProfile.id, parseInt(blockHours), blockReason);
+                          setShowInlineBlock(false);
+                          setBlockHours('24');
+                          setBlockReason('');
+                          setViewingProfile(null);
+                        }} className="flex-1 gap-2 bg-amber-600 hover:bg-amber-700 text-white">
+                          <Ban className="h-4 w-4" /> Confirm Block
+                        </Button>
+                        <Button variant="outline" onClick={() => setShowInlineBlock(false)}>Cancel</Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </>
         ) : null}
       </div>
