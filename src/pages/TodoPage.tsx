@@ -296,7 +296,7 @@ const TodoPage = () => {
       {isLoading ? (
         <TodoSkeleton />
       ) : activeTodos.length === 0 && completedTodos.length === 0 ? (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-16">
+        <div className="text-center py-16">
           <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/10 mx-auto mb-4">
             <Sparkles className="h-10 w-10 text-primary" />
           </div>
