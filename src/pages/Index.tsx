@@ -8,32 +8,6 @@ import { useUserSettings } from '@/hooks/useUserSettings';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { HomeSkeleton } from '@/components/skeletons/HomeSkeleton';
 
-function AnimatedHomeBackground() {
-  const orbs = useMemo(() => [
-    { size: 'w-[400px] h-[400px]', position: { left: '-5%', top: '-10%' }, duration: 22, delay: 0 },
-    { size: 'w-[350px] h-[350px]', position: { right: '-8%', top: '20%' }, duration: 18, delay: 2 },
-    { size: 'w-[300px] h-[300px]', position: { left: '30%', bottom: '-5%' }, duration: 25, delay: 4 },
-    { size: 'w-[250px] h-[250px]', position: { right: '20%', bottom: '30%' }, duration: 20, delay: 1 },
-  ], []);
-
-  return (
-    <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-accent/8 to-primary/5 dark:from-primary/15 dark:via-accent/10 dark:to-primary/8" />
-      <motion.div className="absolute inset-0" animate={{ opacity: [0.3, 0.6, 0.3] }} transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-        style={{ background: 'radial-gradient(ellipse at 30% 20%, hsl(var(--primary) / 0.12) 0%, transparent 60%)' }} />
-      <motion.div className="absolute inset-0" animate={{ opacity: [0.2, 0.5, 0.2] }} transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 3 }}
-        style={{ background: 'radial-gradient(ellipse at 70% 80%, hsl(var(--primary) / 0.1) 0%, transparent 50%)' }} />
-      {orbs.map((orb, i) => (
-        <motion.div key={i} className={`absolute ${orb.size} rounded-full blur-3xl`}
-          style={{ ...orb.position, backgroundColor: 'hsl(var(--primary))', opacity: 0.15 }}
-          animate={{ x: [0, 60, -30, 0], y: [0, -50, 30, 0], scale: [1, 1.2, 0.9, 1] }}
-          transition={{ duration: orb.duration, repeat: Infinity, ease: 'easeInOut', delay: orb.delay }} />
-      ))}
-      <div className="absolute inset-0 opacity-[0.02] dark:opacity-[0.04]"
-        style={{ backgroundImage: `radial-gradient(circle, hsl(var(--foreground)) 1px, transparent 1px)`, backgroundSize: '40px 40px' }} />
-    </div>
-  );
-}
 
 function GuestHomePage() {
   const navigate = useNavigate();
