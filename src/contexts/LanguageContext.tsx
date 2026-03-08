@@ -425,6 +425,7 @@ const translations: Record<Language, Translations> = {
     random: 'Aléatoire', focus: 'Concentré', smartReview: 'Révision intelligente',
     randomDesc: 'Sélection aléatoire', focusDesc: 'Mots difficiles uniquement',
     smartDesc: 'Mots nécessitant une révision', startTest: 'Commencer le test',
+    byDate: 'Par date', byDateDesc: 'Quiz des mots ajoutés un jour spécifique', selectDate: 'Sélectionner une date', noDatesAvailable: 'Aucune date disponible',
     whatDoesWordMean: 'Que signifie ce mot ?', needsMorePractice: 'Besoin de plus de pratique',
     back: 'Retour',
     yourUltimate: 'Votre compagnon', studyCompanion: 'd\'étude ultime',
