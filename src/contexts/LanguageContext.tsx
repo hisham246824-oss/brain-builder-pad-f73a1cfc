@@ -556,6 +556,7 @@ const translations: Record<Language, Translations> = {
     greatNoDifficult: '太棒了！没有标记为困难的单词',
     tryDifferentSearch: '尝试不同的搜索词', addFirstWord: '添加您的第一个单词',
     showingDifficult: '显示需要复习的困难单词',
+    searchingFor: '搜索', result: '个结果', results: '个结果',
     signIn: '登录/创建账户', myProfile: '我的资料',
     signInBtn: '登录', createAccountBtn: '创建账户',
     welcomeBack: '欢迎回来', createYourAccount: '创建您的账户',
