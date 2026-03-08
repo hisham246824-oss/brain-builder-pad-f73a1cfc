@@ -242,7 +242,7 @@ const TodoPage = () => {
             <Plus className="h-5 w-5" /> {t('addTask')}
           </Button>
         </div>
-      </motion.div>
+      </div>
 
       {/* 2. Stats bar */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="grid grid-cols-2 sm:grid-cols-4 gap-3">
