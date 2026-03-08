@@ -34,7 +34,7 @@ const BASE_NAV_ITEMS = [
 const LABEL_KEYS: Record<string, string> = {
   home: 'home', materials: 'studyMaterials', vocabulary: 'vocabulary',
   'ai-chat': 'aiStudyChat', 'table-creator': 'createTable', pomodoro: 'pomodoroTimer',
-  suggestions: 'suggestions', todos: 'todoList', messages: 'messages',
+  suggestions: 'suggestions', todos: 'todoList', messages: 'messages', support: 'technicalSupport',
 };
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
