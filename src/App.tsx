@@ -59,6 +59,7 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
 function UserRoute({ children }: { children: React.ReactNode }) {
   const { isAdmin, isLoading } = useUserRole();
   const { isLoading: authLoading } = useAuth();
+  const { isImpersonating } = useAdminImpersonation();
 
   if (authLoading || isLoading) {
     return (
@@ -68,7 +69,8 @@ function UserRoute({ children }: { children: React.ReactNode }) {
     );
   }
 
-  if (isAdmin) {
+  // Allow admin through if impersonating
+  if (isAdmin && !isImpersonating) {
     return <Navigate to="/admin" replace />;
   }
 
