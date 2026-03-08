@@ -40,7 +40,7 @@ export default function PomodoroPage() {
       <div className="min-h-screen py-6 px-4">
         <div className="mx-auto max-w-md flex flex-col items-center">
           <div className="flex flex-col items-center gap-6 mb-6">
-            <TimerCircle minutes={minutes} seconds={seconds} totalSeconds={totalSeconds} remainingSeconds={remainingSeconds} color={currentColor} />
+            <TimerCircle minutes={minutes} seconds={seconds} totalSeconds={totalSeconds} remainingSeconds={remainingSeconds} color={currentColor} isRunning={isRunning} />
             <ModeSelector currentMode={mode} onModeChange={changeMode} isRunning={isRunning} />
             <TimerControls isRunning={isRunning} onStart={start} onPause={pause} onReset={reset} />
           </div>
@@ -108,7 +108,7 @@ export default function PomodoroPage() {
           className="flex flex-col items-center justify-center p-8"
         >
           <div className="flex flex-col items-center gap-8">
-            <TimerCircle minutes={minutes} seconds={seconds} totalSeconds={totalSeconds} remainingSeconds={remainingSeconds} color={currentColor} />
+            <TimerCircle minutes={minutes} seconds={seconds} totalSeconds={totalSeconds} remainingSeconds={remainingSeconds} color={currentColor} isRunning={isRunning} />
             <ModeSelector currentMode={mode} onModeChange={changeMode} isRunning={isRunning} />
             <TimerControls isRunning={isRunning} onStart={start} onPause={pause} onReset={reset} />
             <div className="mt-8 max-w-md"><MotivationalPhrases /></div>

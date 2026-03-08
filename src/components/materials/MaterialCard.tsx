@@ -28,12 +28,13 @@ export function MaterialCard({ material, index, onUpdateIcon }: MaterialCardProp
   return (
     <>
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: index * 0.1 }}
+        initial={{ opacity: 0, y: 20, scale: 0.97 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ delay: index * 0.08, type: 'spring', stiffness: 350, damping: 25 }}
+        whileHover={{ y: -4, scale: 1.02, transition: { duration: 0.2 } }}
       >
         <Link to={`/materials/${material.id}`}>
-          <div className="group relative overflow-hidden rounded-3xl bg-card p-6 shadow-card transition-all hover:shadow-soft hover:-translate-y-1">
+          <div className="group relative overflow-hidden rounded-3xl bg-card p-6 shadow-card transition-all duration-300 hover:shadow-[0_8px_30px_hsl(var(--primary)/0.12)]">
             {/* Color accent bar */}
             <div
               className="absolute left-0 top-0 h-full w-1.5 rounded-l-3xl"
