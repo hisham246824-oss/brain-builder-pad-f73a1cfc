@@ -20,7 +20,6 @@ const BASE_NAV_ITEMS = [
   { id: 'home', to: '/', icon: Home },
   { id: 'materials', to: '/materials', icon: BookOpen },
   { id: 'vocabulary', to: '/vocabulary', icon: BookA },
-  { id: 'ai-chat', to: '/ai-chat', icon: Bot },
   { id: 'table-creator', to: '/table-creator', icon: Table2 },
   { id: 'pomodoro', to: '/pomodoro', icon: Timer },
   { id: 'suggestions', to: '/suggestions', icon: Lightbulb },
@@ -31,7 +30,7 @@ const BASE_NAV_ITEMS = [
 
 const LABEL_KEYS: Record<string, string> = {
   home: 'home', materials: 'studyMaterials', vocabulary: 'vocabulary',
-  'ai-chat': 'aiStudyChat', 'table-creator': 'createTable', pomodoro: 'pomodoroTimer',
+  'table-creator': 'createTable', pomodoro: 'pomodoroTimer',
   suggestions: 'suggestions', todos: 'todoList', messages: 'messages', support: 'technicalSupport',
 };
 
