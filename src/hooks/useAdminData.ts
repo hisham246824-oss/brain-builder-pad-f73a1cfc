@@ -18,6 +18,7 @@ interface UserWithProfile {
   is_blocked: boolean;
   blocked_until: string | null;
   block_reason: string | null;
+  country: string | null;
 }
 
 interface AdminStats {
@@ -149,6 +150,7 @@ export function useAdminData() {
           is_blocked: !!block,
           blocked_until: block?.blocked_until || null,
           block_reason: block?.reason || null,
+          country: (profile as any).country || null,
         };
       });
       setUsers(usersWithRoles);

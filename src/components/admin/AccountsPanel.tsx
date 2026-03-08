@@ -42,6 +42,7 @@ interface User {
   is_blocked: boolean;
   blocked_until: string | null;
   block_reason: string | null;
+  country: string | null;
 }
 
 interface UserActivity {
@@ -321,8 +322,17 @@ export function AccountsPanel({
                   )}
                 </div>
               </div>
-              <div className="text-right text-xs text-muted-foreground">
-                <p className="flex items-center gap-1"><CalendarDays className="h-3 w-3" /> Joined {new Date(viewingProfile.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</p>
+              <div className="text-right text-xs text-muted-foreground space-y-1">
+                <p className="flex items-center gap-1 justify-end"><CalendarDays className="h-3 w-3" /> Joined {new Date(viewingProfile.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</p>
+                {viewingProfile.country && (
+                  <p className="flex items-center gap-1 justify-end"><MapPin className="h-3 w-3" /> {viewingProfile.country}</p>
+                )}
+                {viewingProfile.avatar_color && (
+                  <p className="flex items-center gap-1 justify-end">
+                    <span className="h-3 w-3 rounded-full inline-block" style={{ backgroundColor: getAvatarColor(viewingProfile.avatar_color) }} />
+                    Profile: {viewingProfile.avatar_color}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -612,12 +622,27 @@ export function AccountsPanel({
                       )}
                     </div>
                     <p className="text-xs text-muted-foreground truncate mt-0.5">{u.email || u.id.slice(0, 20) + '...'}</p>
-                    <div className="flex items-center gap-3 mt-1 text-[10px] text-muted-foreground">
+                    <div className="flex items-center gap-3 mt-1 text-[10px] text-muted-foreground flex-wrap">
                       <span>Joined {new Date(u.created_at).toLocaleDateString()}</span>
                       <span>•</span>
                       <span className={u.is_online ? 'text-green-600 font-medium' : ''}>
                         {u.is_online ? 'Online now' : `Last seen ${formatTimeAgo(u.last_sign_in_at)}`}
                       </span>
+                      {u.country && (
+                        <>
+                          <span>•</span>
+                          <span className="flex items-center gap-0.5"><MapPin className="h-2.5 w-2.5" />{u.country}</span>
+                        </>
+                      )}
+                      {u.avatar_color && u.avatar_color !== 'primary' && (
+                        <>
+                          <span>•</span>
+                          <span className="flex items-center gap-1">
+                            <span className="h-2.5 w-2.5 rounded-full inline-block" style={{ backgroundColor: getAvatarColor(u.avatar_color) }} />
+                            {u.avatar_color}
+                          </span>
+                        </>
+                      )}
                       {u.is_blocked && u.blocked_until && (
                         <>
                           <span>•</span>

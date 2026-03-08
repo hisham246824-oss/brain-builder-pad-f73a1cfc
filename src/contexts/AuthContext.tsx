@@ -72,6 +72,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         if (event === 'SIGNED_IN' && session?.user) {
           await transferLocalDataToDatabase(session.user.id);
+          // Detect and store user's country
+          detectAndStoreCountry(session.user.id);
         }
 
         if (event === 'SIGNED_OUT') {
@@ -161,6 +163,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     hasRevalidated.current = false;
   }, []);
+
+  const detectAndStoreCountry = async (userId: string) => {
+    try {
+      // Check if already stored
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('country')
+        .eq('user_id', userId)
+        .single();
+      if (profile?.country) return;
+
+      const res = await fetch('https://ipapi.co/json/');
+      if (!res.ok) return;
+      const geo = await res.json();
+      if (geo?.country_name) {
+        await supabase
+          .from('profiles')
+          .update({ country: geo.country_name } as any)
+          .eq('user_id', userId);
+      }
+    } catch { /* ignore geo failures */ }
+  };
 
   const transferLocalDataToDatabase = async (userId: string) => {
     try {
