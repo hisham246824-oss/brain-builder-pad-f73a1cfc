@@ -258,6 +258,7 @@ const translations: Record<Language, Translations> = {
     random: 'عشوائي', focus: 'تركيز', smartReview: 'مراجعة ذكية',
     randomDesc: 'اختيار عشوائي للكلمات', focusDesc: 'فقط الكلمات المصنفة ضعيفة أو صعبة',
     smartDesc: 'كلمات تحتاج مراجعة حسب الخوارزمية', startTest: 'ابدأ الاختبار',
+    byDate: 'حسب التاريخ', byDateDesc: 'اختبار الكلمات المضافة في يوم محدد', selectDate: 'اختر تاريخاً', noDatesAvailable: 'لا توجد تواريخ متاحة',
     whatDoesWordMean: 'ماذا تعني هذه الكلمة؟', needsMorePractice: 'تحتاج مزيداً من التدريب',
     back: 'رجوع',
     typing: 'كتابة', typingDesc: 'اكتب المعنى من الذاكرة',
