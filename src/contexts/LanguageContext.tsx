@@ -711,6 +711,7 @@ const translations: Record<Language, Translations> = {
     greatNoDifficult: '素晴らしい！難しい単語はありません',
     tryDifferentSearch: '別の検索語を試してください', addFirstWord: '最初の単語を追加',
     showingDifficult: '復習が必要な難しい単語を表示',
+    searchingFor: '検索中', result: '件', results: '件',
     signIn: 'ログイン/アカウント作成', myProfile: 'マイプロフィール',
     signInBtn: 'ログイン', createAccountBtn: 'アカウント作成',
     welcomeBack: 'おかえりなさい', createYourAccount: 'アカウント作成',
