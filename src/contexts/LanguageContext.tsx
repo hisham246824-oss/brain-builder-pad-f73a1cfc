@@ -69,6 +69,7 @@ const translations: Record<Language, Translations> = {
     random: 'Random', focus: 'Focus', smartReview: 'Smart Review',
     randomDesc: 'Random selection of words', focusDesc: 'Only words rated poor or difficult',
     smartDesc: 'Words needing review based on algorithm', startTest: 'Start Test',
+    byDate: 'By Date', byDateDesc: 'Quiz words added on a specific day', selectDate: 'Select a date', noDatesAvailable: 'No dates available',
     whatDoesWordMean: 'What does this word mean?', needsMorePractice: 'Needs more practice',
     back: 'Back',
     typing: 'Typing', typingDesc: 'Type the meaning from memory',
