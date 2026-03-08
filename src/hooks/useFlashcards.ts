@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNetworkStatus } from '@/hooks/useNetworkStatus';
+import { getCachedVocabulary, addPendingAction } from '@/lib/offlineCache';
 
 export interface FlashcardWord {
   id: string;
@@ -13,7 +15,7 @@ export interface FlashcardWord {
   next_review_at: string;
 }
 
-export type TestMode = 'flashcard' | 'mcq';
+export type TestMode = 'flashcard' | 'mcq' | 'typing';
 export type TestFormat = 'random' | 'focus' | 'smart';
 export type TestCount = 10 | 20 | 30 | 40 | 50 | 'all';
 
@@ -21,7 +23,7 @@ export interface TestResult {
   wordId: string;
   word: string;
   meanings: string;
-  quality: number; // 1-5
+  quality: number;
 }
 
 export interface MCQOption {
@@ -29,7 +31,7 @@ export interface MCQOption {
   isCorrect: boolean;
 }
 
-// SM-2 Algorithm implementation
+// SM-2 Algorithm
 function calculateNextReview(
   quality: number,
   easeFactor: number,
@@ -44,13 +46,9 @@ function calculateNextReview(
     newRepetitions = 0;
     newIntervalDays = 1;
   } else {
-    if (newRepetitions === 0) {
-      newIntervalDays = 1;
-    } else if (newRepetitions === 1) {
-      newIntervalDays = 6;
-    } else {
-      newIntervalDays = Math.round(intervalDays * easeFactor);
-    }
+    if (newRepetitions === 0) newIntervalDays = 1;
+    else if (newRepetitions === 1) newIntervalDays = 6;
+    else newIntervalDays = Math.round(intervalDays * easeFactor);
     newRepetitions += 1;
   }
 
@@ -79,6 +77,7 @@ function shuffleArray<T>(arr: T[]): T[] {
 
 export function useFlashcards() {
   const { user } = useAuth();
+  const { isOnline } = useNetworkStatus();
   const [allWords, setAllWords] = useState<FlashcardWord[]>([]);
   const [cards, setCards] = useState<FlashcardWord[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -92,6 +91,17 @@ export function useFlashcards() {
   const [mcqAnswered, setMcqAnswered] = useState(false);
   const [mcqSelectedIndex, setMcqSelectedIndex] = useState<number | null>(null);
   const [totalTestCards, setTotalTestCards] = useState(0);
+  const [typingAnswer, setTypingAnswer] = useState('');
+  const [typingSubmitted, setTypingSubmitted] = useState(false);
+
+  const mapWordData = (data: any[]): FlashcardWord[] =>
+    data.map(card => ({
+      ...card,
+      ease_factor: Number(card.ease_factor) || 2.5,
+      interval_days: card.interval_days || 0,
+      repetitions: card.repetitions || 0,
+      next_review_at: card.next_review_at || new Date().toISOString(),
+    }));
 
   const fetchAllWords = useCallback(async () => {
     if (!user) {
@@ -100,26 +110,29 @@ export function useFlashcards() {
       return;
     }
 
-    setIsLoading(true);
-    const { data, error } = await supabase
-      .from('vocabulary')
-      .select('id, word, meanings, notes, ease_factor, interval_days, repetitions, next_review_at')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false });
+    // Try online fetch first
+    if (isOnline) {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from('vocabulary')
+        .select('id, word, meanings, notes, ease_factor, interval_days, repetitions, next_review_at')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
 
-    if (error) {
-      console.error('Error fetching flashcards:', error);
-    } else {
-      setAllWords((data || []).map(card => ({
-        ...card,
-        ease_factor: Number(card.ease_factor) || 2.5,
-        interval_days: card.interval_days || 0,
-        repetitions: card.repetitions || 0,
-        next_review_at: card.next_review_at || new Date().toISOString(),
-      })));
+      if (!error && data) {
+        setAllWords(mapWordData(data));
+        setIsLoading(false);
+        return;
+      }
+    }
+
+    // Offline fallback: use cached vocabulary
+    const cached = getCachedVocabulary();
+    if (cached) {
+      setAllWords(mapWordData(cached));
     }
     setIsLoading(false);
-  }, [user]);
+  }, [user, isOnline]);
 
   useEffect(() => {
     fetchAllWords();
@@ -128,12 +141,8 @@ export function useFlashcards() {
   const generateMCQOptions = useCallback((correctCard: FlashcardWord, pool: FlashcardWord[]) => {
     const others = pool.filter(w => w.id !== correctCard.id);
     const wrongChoices = shuffleArray(others).slice(0, 3).map(w => w.meanings);
-    
-    // Pad with placeholder if not enough words
-    while (wrongChoices.length < 3) {
-      wrongChoices.push('—');
-    }
-    
+    while (wrongChoices.length < 3) wrongChoices.push('—');
+
     const options: MCQOption[] = shuffleArray([
       { text: correctCard.meanings, isCorrect: true },
       ...wrongChoices.map(t => ({ text: t, isCorrect: false })),
@@ -148,14 +157,11 @@ export function useFlashcards() {
     const now = new Date();
 
     if (format === 'focus') {
-      // Words rated poor/difficult: ease_factor < 2.0 or repetitions <= 1
       filtered = allWords.filter(w => w.ease_factor < 2.0 || w.repetitions <= 1);
     } else if (format === 'smart') {
-      // Words due for review or not reviewed in a long time
       filtered = [...allWords].sort((a, b) => {
         const aDate = new Date(a.next_review_at);
         const bDate = new Date(b.next_review_at);
-        // Prioritize overdue words, then by longest since last review
         const aOverdue = aDate <= now ? -aDate.getTime() : aDate.getTime();
         const bOverdue = bDate <= now ? -bDate.getTime() : bDate.getTime();
         return aOverdue - bOverdue;
@@ -165,7 +171,6 @@ export function useFlashcards() {
     }
 
     if (filtered.length === 0) filtered = shuffleArray(allWords);
-
     const limit = count === 'all' ? filtered.length : Math.min(count, filtered.length);
     const selected = filtered.slice(0, limit);
 
@@ -177,6 +182,8 @@ export function useFlashcards() {
     setTestFinished(false);
     setResults([]);
     setTestMode(mode);
+    setTypingAnswer('');
+    setTypingSubmitted(false);
 
     if (mode === 'mcq' && selected.length > 0) {
       generateMCQOptions(selected[0], allWords);
@@ -189,26 +196,49 @@ export function useFlashcards() {
     setIsFlipped(prev => !prev);
   }, []);
 
+  const advanceToNext = useCallback((nextIdx: number) => {
+    if (nextIdx >= cards.length) {
+      setTestFinished(true);
+    } else {
+      setCurrentIndex(nextIdx);
+      setIsFlipped(false);
+      setTypingAnswer('');
+      setTypingSubmitted(false);
+      if (testMode === 'mcq') {
+        generateMCQOptions(cards[nextIdx], allWords);
+      }
+    }
+  }, [cards, testMode, allWords, generateMCQOptions]);
+
   const rateCard = useCallback(async (quality: number) => {
     if (!user || !currentCard) return;
 
     const { easeFactor, intervalDays, repetitions, nextReviewAt } = calculateNextReview(
-      quality,
-      currentCard.ease_factor,
-      currentCard.interval_days,
-      currentCard.repetitions
+      quality, currentCard.ease_factor, currentCard.interval_days, currentCard.repetitions
     );
 
-    await supabase
-      .from('vocabulary')
-      .update({
-        ease_factor: easeFactor,
-        interval_days: intervalDays,
-        repetitions: repetitions,
-        next_review_at: nextReviewAt.toISOString(),
-      })
-      .eq('id', currentCard.id)
-      .eq('user_id', user.id);
+    const updateData = {
+      ease_factor: easeFactor,
+      interval_days: intervalDays,
+      repetitions,
+      next_review_at: nextReviewAt.toISOString(),
+    };
+
+    // Update in background — queue if offline
+    if (isOnline) {
+      supabase
+        .from('vocabulary')
+        .update(updateData)
+        .eq('id', currentCard.id)
+        .eq('user_id', user.id)
+        .then(() => {});
+    } else {
+      addPendingAction({
+        type: 'update',
+        table: 'vocabulary',
+        data: { id: currentCard.id, updates: updateData },
+      });
+    }
 
     setResults(prev => [...prev, {
       wordId: currentCard.id,
@@ -217,29 +247,33 @@ export function useFlashcards() {
       quality,
     }]);
 
-    const nextIndex = currentIndex + 1;
-    if (nextIndex >= cards.length) {
-      setTestFinished(true);
-    } else {
-      setCurrentIndex(nextIndex);
-      setIsFlipped(false);
-      if (testMode === 'mcq') {
-        generateMCQOptions(cards[nextIndex], allWords);
-      }
-    }
-  }, [user, currentCard, currentIndex, cards, testMode, allWords, generateMCQOptions]);
+    advanceToNext(currentIndex + 1);
+  }, [user, currentCard, currentIndex, isOnline, advanceToNext]);
 
   const answerMCQ = useCallback((optionIndex: number) => {
     if (mcqAnswered) return;
     setMcqAnswered(true);
     setMcqSelectedIndex(optionIndex);
     const isCorrect = mcqOptions[optionIndex]?.isCorrect;
-    
-    // Auto-rate: correct = 4 (Good), wrong = 1 (Again)
+
+    setTimeout(() => {
+      rateCard(isCorrect ? 4 : 1);
+    }, 1000);
+  }, [mcqAnswered, mcqOptions, rateCard]);
+
+  const submitTypingAnswer = useCallback(() => {
+    if (typingSubmitted || !currentCard) return;
+    setTypingSubmitted(true);
+    const correct = currentCard.meanings.trim().toLowerCase();
+    const answer = typingAnswer.trim().toLowerCase();
+    const isCorrect = correct === answer || correct.includes(answer) || answer.includes(correct);
+
     setTimeout(() => {
       rateCard(isCorrect ? 4 : 1);
     }, 1200);
-  }, [mcqAnswered, mcqOptions, rateCard]);
+
+    return isCorrect;
+  }, [typingSubmitted, currentCard, typingAnswer, rateCard]);
 
   const resetTest = useCallback(() => {
     setTestStarted(false);
@@ -248,11 +282,12 @@ export function useFlashcards() {
     setResults([]);
     setCurrentIndex(0);
     setIsFlipped(false);
+    setTypingAnswer('');
+    setTypingSubmitted(false);
     fetchAllWords();
   }, [fetchAllWords]);
 
   const completedCount = results.length;
-  const remaining = totalTestCards - completedCount;
   const progress = totalTestCards > 0 ? (completedCount / totalTestCards) * 100 : 0;
 
   return {
@@ -261,7 +296,7 @@ export function useFlashcards() {
     isFlipped,
     isLoading,
     totalTestCards,
-    remaining,
+    remaining: totalTestCards - completedCount,
     completedCount,
     progress,
     testStarted,
@@ -271,6 +306,10 @@ export function useFlashcards() {
     mcqOptions,
     mcqAnswered,
     mcqSelectedIndex,
+    typingAnswer,
+    setTypingAnswer,
+    typingSubmitted,
+    submitTypingAnswer,
     flipCard,
     rateCard,
     answerMCQ,
