@@ -66,7 +66,6 @@ export default function SettingsPage() {
     home: t('home'), materials: t('studyMaterials'), vocabulary: t('vocabulary'),
     pomodoro: t('pomodoroTimer'),
     suggestions: t('suggestions'), messages: t('messages'), todos: t('todoList'),
-    support: t('technicalSupport'),
   };
 
   useEffect(() => {
