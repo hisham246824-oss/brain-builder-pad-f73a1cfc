@@ -322,8 +322,17 @@ export function AccountsPanel({
                   )}
                 </div>
               </div>
-              <div className="text-right text-xs text-muted-foreground">
-                <p className="flex items-center gap-1"><CalendarDays className="h-3 w-3" /> Joined {new Date(viewingProfile.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</p>
+              <div className="text-right text-xs text-muted-foreground space-y-1">
+                <p className="flex items-center gap-1 justify-end"><CalendarDays className="h-3 w-3" /> Joined {new Date(viewingProfile.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</p>
+                {viewingProfile.country && (
+                  <p className="flex items-center gap-1 justify-end"><MapPin className="h-3 w-3" /> {viewingProfile.country}</p>
+                )}
+                {viewingProfile.avatar_color && (
+                  <p className="flex items-center gap-1 justify-end">
+                    <span className="h-3 w-3 rounded-full inline-block" style={{ backgroundColor: getAvatarColor(viewingProfile.avatar_color) }} />
+                    Profile: {viewingProfile.avatar_color}
+                  </p>
+                )}
               </div>
             </div>
 
