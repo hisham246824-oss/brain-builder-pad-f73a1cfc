@@ -42,6 +42,7 @@ interface User {
   is_blocked: boolean;
   blocked_until: string | null;
   block_reason: string | null;
+  country: string | null;
 }
 
 interface UserActivity {
