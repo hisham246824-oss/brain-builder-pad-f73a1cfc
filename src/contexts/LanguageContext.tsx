@@ -396,6 +396,7 @@ const translations: Record<Language, Translations> = {
     greatNoDifficult: 'Super ! Aucun mot n\'est marqué comme difficile',
     tryDifferentSearch: 'Essayez un autre terme', addFirstWord: 'Ajoutez votre premier mot',
     showingDifficult: 'Affichage des mots difficiles',
+    searchingFor: 'Recherche de', result: 'résultat', results: 'résultats',
     signIn: 'Connexion / Créer un compte', myProfile: 'Mon profil',
     signInBtn: 'Se connecter', createAccountBtn: 'Créer un compte',
     welcomeBack: 'Bienvenue', createYourAccount: 'Créez votre compte',
