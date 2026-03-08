@@ -8,6 +8,7 @@ export interface UserSettings {
   display_name: string | null;
   avatar_color: string;
   avatar_icon: string | null;
+  avatar_url: string | null;
   ai_custom_prompt: string | null;
   sidebar_order: string[];
   theme: string;
