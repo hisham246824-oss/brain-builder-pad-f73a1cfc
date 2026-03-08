@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookOpen, Home, X, GraduationCap, Timer, BookA, Mail, Settings, Star, Heart, Zap, Crown, Flame, Rocket, Diamond, Info, Lightbulb, ListTodo } from 'lucide-react';
+import { BookOpen, Home, X, GraduationCap, Timer, BookA, Mail, Settings, Star, Heart, Zap, Crown, Flame, Rocket, Diamond, Lightbulb, ListTodo, Table2 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdminMessages } from '@/hooks/useAdminMessages';
 import { useUserSettings } from '@/hooks/useUserSettings';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { SidebarInfoModal } from '@/components/sidebar/SidebarInfoModal';
 import { cn } from '@/lib/utils';
 import { useNavigate, useLocation } from 'react-router-dom';
 
