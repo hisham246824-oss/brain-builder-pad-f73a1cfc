@@ -693,6 +693,12 @@ export function AccountsPanel({
                           <span className="flex items-center gap-0.5"><MapPin className="h-2.5 w-2.5" />{u.country}</span>
                         </>
                       )}
+                      {u.language && (
+                        <>
+                          <span>•</span>
+                          <span className="flex items-center gap-0.5"><Globe className="h-2.5 w-2.5" />{LANGUAGE_NAMES[u.language] || u.language}</span>
+                        </>
+                      )}
                       {u.avatar_color && u.avatar_color !== 'primary' && (
                         <>
                           <span>•</span>
