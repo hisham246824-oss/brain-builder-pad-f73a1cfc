@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { 
   User, Palette, Bot, Moon, Sun, GripVertical, Check, 
   Star, Heart, Zap, Crown, Flame, Rocket, Diamond,
-  Lock, Eye, EyeOff, ArrowLeft, LogOut, Globe
+  Lock, Eye, EyeOff, ArrowLeft, LogOut, Globe, Copy, Hash
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -127,6 +127,12 @@ export default function SettingsPage() {
 
   const IconComponent = settings?.avatar_icon ? ICON_MAP[settings.avatar_icon] : null;
   const avatarLetter = settings?.display_name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U';
+  const userCode = user?.id ? user.id.slice(0, 8).toUpperCase() : '';
+
+  const copyCode = () => {
+    navigator.clipboard.writeText(userCode);
+    toast.success(t('codeCopied') || 'Code copied!');
+  };
 
   return (
     <div className="min-h-screen bg-background" dir={isRTL ? 'rtl' : 'ltr'}>
@@ -153,6 +159,18 @@ export default function SettingsPage() {
                 <p className="font-medium">{settings?.display_name || user?.email}</p>
                 <p className="text-sm text-muted-foreground">{user?.email}</p>
               </div>
+            </div>
+
+            {/* Unique Code */}
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-secondary/50 border border-border/50">
+              <Hash className="h-4 w-4 text-primary" />
+              <div className="flex-1">
+                <p className="text-xs text-muted-foreground">{t('yourUniqueCode') || 'Your Unique Code'}</p>
+                <p className="font-mono font-bold text-foreground tracking-widest">{userCode}</p>
+              </div>
+              <Button variant="ghost" size="icon" onClick={copyCode} className="h-8 w-8 rounded-xl">
+                <Copy className="h-4 w-4" />
+              </Button>
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">{t('displayName')}</label>
