@@ -18,7 +18,7 @@ interface TableCellProps {
   isHeader?: boolean;
 }
 
-export function TableCell({ value, style, onChange, isSelected, onSelect }: TableCellProps) {
+export function TableCell({ value, style, onChange, isSelected, onSelect, isHeader }: TableCellProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [localValue, setLocalValue] = useState(value);
 
