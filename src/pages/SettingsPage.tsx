@@ -61,12 +61,12 @@ export default function SettingsPage() {
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
 
-  const VALID_SIDEBAR_IDS = ['home', 'materials', 'vocabulary', 'table-creator', 'pomodoro', 'suggestions', 'messages', 'todos'];
+  const VALID_SIDEBAR_IDS = ['home', 'materials', 'pomodoro', 'suggestions', 'todos', 'vocabulary'];
 
   const SIDEBAR_LABELS: Record<string, string> = {
     home: t('home'), materials: t('studyMaterials'), vocabulary: t('vocabulary'),
-    'table-creator': t('createTable'), pomodoro: t('pomodoroTimer'),
-    suggestions: t('suggestions'), messages: t('messages'), todos: t('todoList'),
+    pomodoro: t('pomodoroTimer'),
+    suggestions: t('suggestions'), todos: t('todoList'),
   };
 
   useEffect(() => {
