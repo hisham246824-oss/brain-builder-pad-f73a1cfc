@@ -266,7 +266,7 @@ const TodoPage = () => {
 
       {/* 3. Completion progress */}
       {todos.length > 0 && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.15 }} className="bg-card border border-border rounded-[1.5rem] p-4">
+        <div className="bg-card border border-border rounded-[1.5rem] p-4">
           <div className="flex justify-between items-center text-sm mb-2">
             <span className="text-muted-foreground flex items-center gap-1.5">
               <TrendingUp className="h-4 w-4 text-primary" /> {t('overallProgress')}
