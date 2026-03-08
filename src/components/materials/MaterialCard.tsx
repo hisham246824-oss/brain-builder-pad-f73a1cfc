@@ -34,7 +34,7 @@ export function MaterialCard({ material, index, onUpdateIcon }: MaterialCardProp
         whileHover={{ y: -4, scale: 1.02, transition: { duration: 0.2 } }}
       >
         <Link to={`/materials/${material.id}`}>
-          <div className="group relative overflow-hidden rounded-3xl bg-card p-6 shadow-card transition-all hover:shadow-soft hover:-translate-y-1">
+          <div className="group relative overflow-hidden rounded-3xl bg-card p-6 shadow-card transition-all duration-300 hover:shadow-[0_8px_30px_hsl(var(--primary)/0.12)]">
             {/* Color accent bar */}
             <div
               className="absolute left-0 top-0 h-full w-1.5 rounded-l-3xl"
