@@ -724,7 +724,7 @@ export function AccountsPanel({
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-muted-foreground/70 truncate mt-0.5">{u.email || u.id.slice(0, 20) + '...'}</p>
+                    <p className="text-xs text-muted-foreground truncate mt-0.5">{u.email || 'No email'}</p>
                   </div>
 
                   {/* Right side: language & country */}
