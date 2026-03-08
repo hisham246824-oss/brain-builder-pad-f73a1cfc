@@ -14,6 +14,7 @@ export function AppLayout() {
   const location = useLocation();
   
   usePageVisitTracking();
+  useRealtimeNotifications();
   useTheme();
 
   return (
