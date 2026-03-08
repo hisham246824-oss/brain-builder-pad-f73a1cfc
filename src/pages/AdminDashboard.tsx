@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AdminLayout, type AdminTab } from '@/components/admin/AdminLayout';
 import { StatisticsPanel } from '@/components/admin/StatisticsPanel';
 import { AccountsPanel } from '@/components/admin/AccountsPanel';
@@ -6,7 +7,7 @@ import { SuggestionsPanel } from '@/components/admin/SuggestionsPanel';
 import { MessagesPanel } from '@/components/admin/MessagesPanel';
 import { PollsPanel } from '@/components/admin/PollsPanel';
 import { useAdminData } from '@/hooks/useAdminData';
-
+import { useAdminImpersonation } from '@/contexts/AdminImpersonationContext';
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<AdminTab>('statistics');
   const {
