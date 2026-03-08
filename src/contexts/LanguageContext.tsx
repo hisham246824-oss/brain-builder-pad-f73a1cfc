@@ -359,7 +359,7 @@ const translations: Record<Language, Translations> = {
   },
   fr: {
     home: 'Accueil', studyMaterials: 'Matériel d\'étude', vocabulary: 'Vocabulaire',
-    pomodoroTimer: 'Minuteur Pomodoro',
+    createTable: 'Créer un tableau', pomodoroTimer: 'Minuteur Pomodoro',
     suggestions: 'Suggestions', messages: 'Messages', todoList: 'Liste de tâches', technicalSupport: 'Support technique',
     settings: 'Paramètres', profile: 'Profil', displayName: 'Nom d\'affichage',
     save: 'Enregistrer', avatarColor: 'Couleur de l\'avatar', avatarIcon: 'Icône de l\'avatar',
