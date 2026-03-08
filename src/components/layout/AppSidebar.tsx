@@ -28,6 +28,7 @@ const BASE_NAV_ITEMS = [
   { id: 'suggestions', to: '/suggestions', icon: Lightbulb },
   { id: 'todos', to: '/todos', icon: ListTodo },
   { id: 'messages', to: '/messages', icon: Mail },
+  { id: 'support', to: '/support', icon: Headphones },
 ];
 
 const LABEL_KEYS: Record<string, string> = {
