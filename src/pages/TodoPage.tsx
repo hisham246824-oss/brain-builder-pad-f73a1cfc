@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Clock, CheckCircle2, Trash2, AlertTriangle, AlertCircle, Leaf, Calendar, PartyPopper, X, ListTodo, Target, TrendingUp, Sparkles, Timer, FileText, Flag, BarChart3 } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
