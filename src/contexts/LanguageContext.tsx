@@ -127,7 +127,7 @@ const translations: Record<Language, Translations> = {
   ar: {
     home: 'الرئيسية', studyMaterials: 'المواد الدراسية', vocabulary: 'المفردات',
     aiStudyChat: 'محادثة الذكاء الاصطناعي', createTable: 'إنشاء جدول', pomodoroTimer: 'مؤقت بومودورو',
-    suggestions: 'الاقتراحات', messages: 'الرسائل', todoList: 'قائمة المهام',
+    suggestions: 'الاقتراحات', messages: 'الرسائل', todoList: 'قائمة المهام', technicalSupport: 'الدعم الفني',
     settings: 'الإعدادات', profile: 'الملف الشخصي', displayName: 'اسم العرض',
     save: 'حفظ', avatarColor: 'لون الصورة الرمزية', avatarIcon: 'أيقونة الصورة الرمزية',
     changePassword: 'تغيير كلمة المرور', newPassword: 'كلمة المرور الجديدة...',
