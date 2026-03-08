@@ -499,7 +499,7 @@ const translations: Record<Language, Translations> = {
   hi: {
     home: 'होम', studyMaterials: 'अध्ययन सामग्री', vocabulary: 'शब्दावली',
     aiStudyChat: 'AI चैट', createTable: 'तालिका बनाएं', pomodoroTimer: 'पोमोडोरो टाइमर',
-    suggestions: 'सुझाव', messages: 'संदेश', todoList: 'कार्य सूची',
+    suggestions: 'सुझाव', messages: 'संदेश', todoList: 'कार्य सूची', technicalSupport: 'तकनीकी सहायता',
     settings: 'सेटिंग्स', profile: 'प्रोफ़ाइल', displayName: 'प्रदर्शन नाम',
     save: 'सहेजें', avatarColor: 'अवतार रंग', avatarIcon: 'अवतार आइकन',
     changePassword: 'पासवर्ड बदलें', newPassword: 'नया पासवर्ड...',
