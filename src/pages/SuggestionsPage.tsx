@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { SuggestionsSkeleton } from '@/components/skeletons/SuggestionsSkeleton';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Lightbulb, Plus, ThumbsUp, Send, X, Sparkles, Star, Heart, Zap, Crown, Flame, Rocket, Diamond } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -107,11 +108,7 @@ export default function SuggestionsPage() {
 
       {/* Suggestions List */}
       {isLoading ? (
-        <div className="space-y-4">
-          {[...Array(3)].map((_, i) => (
-            <div key={i} className="h-40 animate-pulse rounded-2xl bg-muted" />
-          ))}
-        </div>
+        <SuggestionsSkeleton />
       ) : suggestions.length === 0 ? (
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}

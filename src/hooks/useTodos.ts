@@ -89,6 +89,34 @@ export function useTodos() {
 
   useEffect(() => { fetchTodos(); }, [fetchTodos]);
 
+  // Realtime subscription for cross-device sync
+  useEffect(() => {
+    if (!user) return;
+    const channel = supabase
+      .channel('todos-realtime')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'todos',
+        filter: `user_id=eq.${user.id}`,
+      }, () => {
+        fetchTodos();
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [user, fetchTodos]);
+
+  // Background refetch on tab focus (stale-while-revalidate)
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible' && isOnline && user) {
+        fetchTodos();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, [fetchTodos, isOnline, user]);
+
   const addTodo = useCallback(async (todo: { title: string; description?: string; importance: string; deadline?: string }) => {
     if (!user) return;
 

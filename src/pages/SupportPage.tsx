@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { SupportSkeleton } from '@/components/skeletons/SupportSkeleton';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Headphones, Plus, Send, ArrowLeft, Clock, CheckCircle2, 
@@ -115,9 +116,7 @@ export default function SupportPage() {
 
       {/* Tickets */}
       {isLoading ? (
-        <div className="space-y-4">
-          {[...Array(3)].map((_, i) => <div key={i} className="h-28 animate-pulse rounded-[2rem] bg-secondary" />)}
-        </div>
+        <SupportSkeleton />
       ) : tickets.length === 0 ? (
         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
           <Card className="rounded-[2rem] border-none shadow-sm">

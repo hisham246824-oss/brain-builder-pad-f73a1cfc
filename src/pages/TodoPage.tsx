@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { useTodos, Todo } from '@/hooks/useTodos';
 import { useAuth } from '@/contexts/AuthContext';
 import { AuthDialog } from '@/components/auth/AuthDialog';
+import { TodoSkeleton } from '@/components/skeletons/TodoSkeleton';
 import confetti from 'canvas-confetti';
 
 const IMPORTANCE_CONFIG = {
@@ -289,9 +290,7 @@ const TodoPage = () => {
 
       {/* 5. Tasks list */}
       {isLoading ? (
-        <div className="flex justify-center py-12">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-        </div>
+        <TodoSkeleton />
       ) : activeTodos.length === 0 && completedTodos.length === 0 ? (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-16">
           <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/10 mx-auto mb-4">

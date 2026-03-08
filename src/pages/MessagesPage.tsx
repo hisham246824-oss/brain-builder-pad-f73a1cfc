@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { MessagesSkeleton } from '@/components/skeletons/MessagesSkeleton';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Heart, Check, Calendar, BarChart, Sparkles, MessageSquareDashed } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -90,18 +91,7 @@ export default function MessagesPage() {
   }, [user]);
 
   if (isLoading && pollsLoading) {
-    return (
-      <div className="max-w-3xl mx-auto space-y-6">
-        <div className="flex items-center gap-3">
-          <div className="h-14 w-14 animate-pulse rounded-[2rem] bg-secondary" />
-          <div className="space-y-2">
-            <div className="h-6 w-40 animate-pulse rounded-full bg-secondary" />
-            <div className="h-4 w-28 animate-pulse rounded-full bg-secondary" />
-          </div>
-        </div>
-        <div className="space-y-4">{[...Array(3)].map((_, i) => <div key={i} className="h-36 animate-pulse rounded-[2rem] bg-secondary" />)}</div>
-      </div>
-    );
+    return <MessagesSkeleton />;
   }
 
   return (

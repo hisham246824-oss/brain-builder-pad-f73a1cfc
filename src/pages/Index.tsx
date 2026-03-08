@@ -1,11 +1,12 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
-import { Bot, BookOpen, Timer, CheckSquare, ArrowRight, GraduationCap, Sparkles } from 'lucide-react';
+import { BookOpen, Timer, CheckSquare, ArrowRight, GraduationCap, Sparkles, Table2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserSettings } from '@/hooks/useUserSettings';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { HomeSkeleton } from '@/components/skeletons/HomeSkeleton';
 
 function AnimatedHomeBackground() {
   const orbs = useMemo(() => [
@@ -39,10 +40,10 @@ function GuestHomePage() {
   const { t } = useLanguage();
 
   const features = [
-    { icon: Bot, title: t('aiStudyAssistant'), description: t('aiStudyAssistantDesc'), gradient: 'from-blue-500/20 to-cyan-500/20', iconBg: 'bg-blue-500/15 text-blue-600 dark:text-blue-400' },
     { icon: BookOpen, title: t('organizeMaterials'), description: t('organizeMaterialsDesc'), gradient: 'from-emerald-500/20 to-teal-500/20', iconBg: 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400' },
     { icon: Timer, title: t('pomodoroTimerTitle'), description: t('pomodoroTimerDesc'), gradient: 'from-orange-500/20 to-amber-500/20', iconBg: 'bg-orange-500/15 text-orange-600 dark:text-orange-400' },
     { icon: CheckSquare, title: t('vocabFlashcards'), description: t('vocabFlashcardsDesc'), gradient: 'from-purple-500/20 to-pink-500/20', iconBg: 'bg-purple-500/15 text-purple-600 dark:text-purple-400' },
+    { icon: Table2, title: t('tableCreatorTitle'), description: t('tableCreatorDesc') || 'Create custom tables for organizing study data and comparisons.', gradient: 'from-blue-500/20 to-cyan-500/20', iconBg: 'bg-blue-500/15 text-blue-600 dark:text-blue-400' },
   ];
 
   return (
@@ -114,7 +115,6 @@ function LoggedInHomePage() {
   const [phraseIndex, setPhraseIndex] = useState(0);
 
   const motivationalPhrases = useMemo(() => [
-    { text: t('askAnything'), action: t('aiStudyChat'), link: "/ai-chat" },
     { text: t('organizeMaterials'), action: t('studyMaterials'), link: "/materials" },
     { text: t('pomodoroTimerTitle'), action: t('pomodoroTimer'), link: "/pomodoro" },
     { text: t('vocabFlashcards'), action: t('vocabulary'), link: "/vocabulary" },
@@ -160,10 +160,10 @@ function LoggedInHomePage() {
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }}
         className="grid gap-4 grid-cols-2 md:grid-cols-4 w-full max-w-3xl mb-12">
         {[
-          { icon: Bot, label: t('aiStudyChat'), to: '/ai-chat', color: 'text-blue-500' },
           { icon: BookOpen, label: t('studyMaterials'), to: '/materials', color: 'text-emerald-500' },
           { icon: Timer, label: t('pomodoroTimer'), to: '/pomodoro', color: 'text-orange-500' },
           { icon: CheckSquare, label: t('vocabulary'), to: '/vocabulary', color: 'text-purple-500' },
+          { icon: Table2, label: t('createTable'), to: '/table-creator', color: 'text-blue-500' },
         ].map((item, i) => (
           <motion.div key={i} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 + i * 0.08 }}
             whileHover={{ y: -3, transition: { duration: 0.15 } }}>
@@ -211,8 +211,9 @@ const Index = () => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      <div className="relative">
+        <AnimatedHomeBackground />
+        <HomeSkeleton />
       </div>
     );
   }

@@ -98,6 +98,17 @@ export function useVocabulary() {
     fetchWords();
   }, [fetchWords]);
 
+  // Background refetch on tab focus
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible' && isOnline && user) {
+        fetchWords();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, [fetchWords, isOnline, user]);
+
   // Subscribe to realtime changes
   useEffect(() => {
     if (!user) return;
