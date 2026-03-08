@@ -83,7 +83,7 @@ export function TableEditor() {
       <div className="overflow-x-auto">
         <div
           ref={tableRef}
-          className="inline-block min-w-full bg-card rounded-2xl border border-border overflow-hidden shadow-card"
+          className="inline-block min-w-full bg-card rounded-2xl border border-border overflow-hidden shadow-card dark:bg-card"
         >
           <div
             className="grid"
