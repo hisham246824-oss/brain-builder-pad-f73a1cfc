@@ -793,6 +793,10 @@ const translations: Record<Language, Translations> = {
     noSuggestions: 'Nenhuma sugestão', submitSuggestion: 'Enviar',
     tableCreatorTitle: 'Criar tabela', tableCreatorDesc: 'Crie tabelas bonitas.',
     study: 'Estudo', shortBreak: 'Pausa curta', longBreak: 'Pausa longa',
+    addNewWord: 'Adicionar nova palavra', englishWord: 'Palavra em inglês', enterEnglishWord: 'Digite a palavra em inglês...',
+    meaningLabel: 'Significado', enterMeaning: 'Digite o significado...', notesOptional: 'Notas (Opcional)',
+    addNotes: 'Adicione notas adicionais...', adding: 'Adicionando...', letters: 'letras',
+    english: 'INGLÊS', targetLanguage: 'SIGNIFICADO',
   },
 };
 
