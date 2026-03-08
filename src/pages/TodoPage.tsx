@@ -290,7 +290,7 @@ const TodoPage = () => {
             <AlertTriangle className="h-3 w-3" /> {overdueCount} {t('overdue')}
           </span>
         )}
-      </motion.div>
+      </div>
 
       {/* 5. Tasks list */}
       {isLoading ? (
