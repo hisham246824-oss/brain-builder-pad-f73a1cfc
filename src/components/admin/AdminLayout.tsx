@@ -2,14 +2,14 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   BarChart3, Users, Lightbulb, Menu, X, Shield, LogOut,
-  MessageSquare, BarChart, RefreshCw, Home
+  MessageSquare, BarChart, RefreshCw, Home, Headphones
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useNavigate } from 'react-router-dom';
 
-export type AdminTab = 'statistics' | 'accounts' | 'suggestions' | 'messages' | 'polls';
+export type AdminTab = 'statistics' | 'accounts' | 'suggestions' | 'messages' | 'polls' | 'support';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -30,6 +30,7 @@ export function AdminLayout({ children, activeTab, onTabChange, onRefresh }: Adm
     { id: 'messages' as const, label: 'Messages', icon: MessageSquare },
     { id: 'polls' as const, label: 'Polls', icon: BarChart },
     { id: 'suggestions' as const, label: 'Suggestions', icon: Lightbulb },
+    { id: 'support' as const, label: 'Support', icon: Headphones },
   ];
 
   const TabButton = ({ tab, mobile }: { tab: typeof tabs[0]; mobile?: boolean }) => (

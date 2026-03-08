@@ -12,7 +12,7 @@ const translations: Record<Language, Translations> = {
     // Navigation
     home: 'Home', studyMaterials: 'Study Materials', vocabulary: 'Vocabulary',
     aiStudyChat: 'AI Study Chat', createTable: 'Create Table', pomodoroTimer: 'Pomodoro Timer',
-    suggestions: 'Suggestions', messages: 'Messages', todoList: 'To-Do List',
+    suggestions: 'Suggestions', messages: 'Messages', todoList: 'To-Do List', technicalSupport: 'Technical Support',
     // Settings
     settings: 'Settings', profile: 'Profile', displayName: 'Display Name',
     save: 'Save', avatarColor: 'Avatar Color', avatarIcon: 'Avatar Icon',
@@ -127,7 +127,7 @@ const translations: Record<Language, Translations> = {
   ar: {
     home: 'الرئيسية', studyMaterials: 'المواد الدراسية', vocabulary: 'المفردات',
     aiStudyChat: 'محادثة الذكاء الاصطناعي', createTable: 'إنشاء جدول', pomodoroTimer: 'مؤقت بومودورو',
-    suggestions: 'الاقتراحات', messages: 'الرسائل', todoList: 'قائمة المهام',
+    suggestions: 'الاقتراحات', messages: 'الرسائل', todoList: 'قائمة المهام', technicalSupport: 'الدعم الفني',
     settings: 'الإعدادات', profile: 'الملف الشخصي', displayName: 'اسم العرض',
     save: 'حفظ', avatarColor: 'لون الصورة الرمزية', avatarIcon: 'أيقونة الصورة الرمزية',
     changePassword: 'تغيير كلمة المرور', newPassword: 'كلمة المرور الجديدة...',
@@ -227,7 +227,7 @@ const translations: Record<Language, Translations> = {
   fr: {
     home: 'Accueil', studyMaterials: 'Matériel d\'étude', vocabulary: 'Vocabulaire',
     aiStudyChat: 'Chat IA', createTable: 'Créer un tableau', pomodoroTimer: 'Minuteur Pomodoro',
-    suggestions: 'Suggestions', messages: 'Messages', todoList: 'Liste de tâches',
+    suggestions: 'Suggestions', messages: 'Messages', todoList: 'Liste de tâches', technicalSupport: 'Support technique',
     settings: 'Paramètres', profile: 'Profil', displayName: 'Nom d\'affichage',
     save: 'Enregistrer', avatarColor: 'Couleur de l\'avatar', avatarIcon: 'Icône de l\'avatar',
     changePassword: 'Changer le mot de passe', newPassword: 'Nouveau mot de passe...',
@@ -321,7 +321,7 @@ const translations: Record<Language, Translations> = {
   zh: {
     home: '首页', studyMaterials: '学习资料', vocabulary: '词汇',
     aiStudyChat: 'AI学习聊天', createTable: '创建表格', pomodoroTimer: '番茄钟',
-    suggestions: '建议', messages: '消息', todoList: '待办事项',
+    suggestions: '建议', messages: '消息', todoList: '待办事项', technicalSupport: '技术支持',
     settings: '设置', profile: '个人资料', displayName: '显示名称',
     save: '保存', avatarColor: '头像颜色', avatarIcon: '头像图标',
     changePassword: '更改密码', newPassword: '新密码...',
@@ -410,7 +410,7 @@ const translations: Record<Language, Translations> = {
   ja: {
     home: 'ホーム', studyMaterials: '学習資料', vocabulary: '語彙',
     aiStudyChat: 'AIチャット', createTable: 'テーブル作成', pomodoroTimer: 'ポモドーロ',
-    suggestions: '提案', messages: 'メッセージ', todoList: 'やることリスト',
+    suggestions: '提案', messages: 'メッセージ', todoList: 'やることリスト', technicalSupport: 'テクニカルサポート',
     settings: '設定', profile: 'プロフィール', displayName: '表示名',
     save: '保存', avatarColor: 'アバターの色', avatarIcon: 'アバターアイコン',
     changePassword: 'パスワード変更', newPassword: '新しいパスワード...',
@@ -499,7 +499,7 @@ const translations: Record<Language, Translations> = {
   hi: {
     home: 'होम', studyMaterials: 'अध्ययन सामग्री', vocabulary: 'शब्दावली',
     aiStudyChat: 'AI चैट', createTable: 'तालिका बनाएं', pomodoroTimer: 'पोमोडोरो टाइमर',
-    suggestions: 'सुझाव', messages: 'संदेश', todoList: 'कार्य सूची',
+    suggestions: 'सुझाव', messages: 'संदेश', todoList: 'कार्य सूची', technicalSupport: 'तकनीकी सहायता',
     settings: 'सेटिंग्स', profile: 'प्रोफ़ाइल', displayName: 'प्रदर्शन नाम',
     save: 'सहेजें', avatarColor: 'अवतार रंग', avatarIcon: 'अवतार आइकन',
     changePassword: 'पासवर्ड बदलें', newPassword: 'नया पासवर्ड...',
@@ -588,7 +588,7 @@ const translations: Record<Language, Translations> = {
   es: {
     home: 'Inicio', studyMaterials: 'Material de estudio', vocabulary: 'Vocabulario',
     aiStudyChat: 'Chat IA', createTable: 'Crear tabla', pomodoroTimer: 'Temporizador Pomodoro',
-    suggestions: 'Sugerencias', messages: 'Mensajes', todoList: 'Lista de tareas',
+    suggestions: 'Sugerencias', messages: 'Mensajes', todoList: 'Lista de tareas', technicalSupport: 'Soporte técnico',
     settings: 'Configuración', profile: 'Perfil', displayName: 'Nombre visible',
     save: 'Guardar', avatarColor: 'Color de avatar', avatarIcon: 'Ícono de avatar',
     changePassword: 'Cambiar contraseña', newPassword: 'Nueva contraseña...',
@@ -678,7 +678,7 @@ const translations: Record<Language, Translations> = {
   pt: {
     home: 'Início', studyMaterials: 'Material de estudo', vocabulary: 'Vocabulário',
     aiStudyChat: 'Chat IA', createTable: 'Criar tabela', pomodoroTimer: 'Temporizador Pomodoro',
-    suggestions: 'Sugestões', messages: 'Mensagens', todoList: 'Lista de tarefas',
+    suggestions: 'Sugestões', messages: 'Mensagens', todoList: 'Lista de tarefas', technicalSupport: 'Suporte técnico',
     settings: 'Configurações', profile: 'Perfil', displayName: 'Nome de exibição',
     save: 'Salvar', avatarColor: 'Cor do avatar', avatarIcon: 'Ícone do avatar',
     changePassword: 'Alterar senha', newPassword: 'Nova senha...',

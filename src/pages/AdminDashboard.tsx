@@ -6,6 +6,7 @@ import { AccountsPanel } from '@/components/admin/AccountsPanel';
 import { SuggestionsPanel } from '@/components/admin/SuggestionsPanel';
 import { MessagesPanel } from '@/components/admin/MessagesPanel';
 import { PollsPanel } from '@/components/admin/PollsPanel';
+import { SupportPanel } from '@/components/admin/SupportPanel';
 import { useAdminData } from '@/hooks/useAdminData';
 import { useAdminImpersonation } from '@/contexts/AdminImpersonationContext';
 export default function AdminDashboard() {
@@ -66,6 +67,7 @@ export default function AdminDashboard() {
           onAccept={acceptSuggestion} onReject={rejectSuggestion}
         />
       )}
+      {activeTab === 'support' && <SupportPanel />}
     </AdminLayout>
   );
 }
