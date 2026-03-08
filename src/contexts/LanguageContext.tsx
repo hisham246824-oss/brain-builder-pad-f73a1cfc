@@ -964,7 +964,7 @@ const translations: Record<Language, Translations> = {
   },
   es: {
     home: 'Inicio', studyMaterials: 'Material de estudio', vocabulary: 'Vocabulario',
-    pomodoroTimer: 'Temporizador Pomodoro',
+    createTable: 'Crear tabla', pomodoroTimer: 'Temporizador Pomodoro',
     suggestions: 'Sugerencias', messages: 'Mensajes', todoList: 'Lista de tareas', technicalSupport: 'Soporte técnico',
     settings: 'Configuración', profile: 'Perfil', displayName: 'Nombre visible',
     save: 'Guardar', avatarColor: 'Color de avatar', avatarIcon: 'Ícono de avatar',
