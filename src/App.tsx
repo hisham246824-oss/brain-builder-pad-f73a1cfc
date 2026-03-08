@@ -184,6 +184,7 @@ function AppRoutes() {
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/suggestions" element={<SuggestionsPage />} />
           <Route path="/todos" element={<TodoPage />} />
+          <Route path="/support" element={<SupportPage />} />
         </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>
