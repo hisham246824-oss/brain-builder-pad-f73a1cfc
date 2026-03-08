@@ -14,8 +14,7 @@ Deno.serve(async (req) => {
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
@@ -23,19 +22,21 @@ Deno.serve(async (req) => {
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
-    // Validate caller is super_admin
     const callerClient = createClient(supabaseUrl, supabaseAnonKey, {
       global: { headers: { Authorization: authHeader } },
     });
+
     const token = authHeader.replace("Bearer ", "");
-    const { data: { user: caller }, error: callerError } = await callerClient.auth.getUser(token);
-    if (callerError || !caller) {
+    const { data: claimsData, error: claimsError } = await callerClient.auth.getClaims(token);
+    if (claimsError || !claimsData?.claims) {
       return new Response(JSON.stringify({ error: "Invalid authentication" }), {
         status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const { data: isSuperAdmin } = await callerClient.rpc("is_super_admin", { _user_id: caller.id });
+    const callerId = claimsData.claims.sub as string;
+
+    const { data: isSuperAdmin } = await callerClient.rpc("is_super_admin", { _user_id: callerId });
     if (!isSuperAdmin) {
       return new Response(JSON.stringify({ error: "Super admin access required" }), {
         status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -49,8 +50,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Prevent deleting self
-    if (user_id === caller.id) {
+    if (user_id === callerId) {
       return new Response(JSON.stringify({ error: "Cannot delete your own account" }), {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -58,7 +58,6 @@ Deno.serve(async (req) => {
 
     const adminClient = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Delete all user data from public tables
     const tables = [
       { table: 'material_files', column: 'user_id' },
       { table: 'lessons', column: 'user_id' },
@@ -90,7 +89,6 @@ Deno.serve(async (req) => {
       await adminClient.from(table).delete().eq(column, user_id);
     }
 
-    // Delete the auth user
     const { error: deleteError } = await adminClient.auth.admin.deleteUser(user_id);
     if (deleteError) {
       return new Response(JSON.stringify({ error: `Failed to delete auth user: ${deleteError.message}` }), {
