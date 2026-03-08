@@ -165,8 +165,10 @@ export function AccountsPanel({
   
   // Delete
   const [deleteTarget, setDeleteTarget] = useState<User | null>(null);
+  const [showInlineDelete, setShowInlineDelete] = useState(false);
   const [deletePassword, setDeletePassword] = useState('');
-  const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const deleteFormRef = useRef<HTMLDivElement>(null);
   
   // Promote
   const [promoteTarget, setPromoteTarget] = useState<User | null>(null);
@@ -242,12 +244,13 @@ export function AccountsPanel({
   };
 
   const handleDeleteUser = async () => {
-    if (!deleteTarget || !deletePassword || deleteConfirmText !== 'DELETE') return;
-    const success = await onDeleteUser(deleteTarget.id, deletePassword);
+    if (!viewingProfile || !deletePassword) return;
+    setDeleteLoading(true);
+    const success = await onDeleteUser(viewingProfile.id, deletePassword);
+    setDeleteLoading(false);
     if (success) {
-      setDeleteTarget(null);
+      setShowInlineDelete(false);
       setDeletePassword('');
-      setDeleteConfirmText('');
       setViewingProfile(null);
     }
   };
@@ -467,7 +470,10 @@ export function AccountsPanel({
                           <Shield className="h-4 w-4" /> Promote to Full Admin
                         </Button>
                       )}
-                      <Button variant="destructive" className="w-full justify-start gap-2" onClick={() => setDeleteTarget(viewingProfile)}>
+                      <Button variant="destructive" className="w-full justify-start gap-2" onClick={() => {
+                        setShowInlineDelete(true);
+                        setTimeout(() => deleteFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+                      }}>
                         <Trash2 className="h-4 w-4" /> Delete Account Permanently
                       </Button>
                     </>
@@ -597,6 +603,42 @@ export function AccountsPanel({
                 </motion.div>
               )}
             </AnimatePresence>
+
+            {/* Inline Delete Confirmation */}
+            <AnimatePresence>
+              {showInlineDelete && viewingProfile && (
+                <motion.div ref={deleteFormRef} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }}>
+                  <Card className="border-destructive/30 bg-destructive/5">
+                    <CardHeader>
+                      <CardTitle className="text-base flex items-center gap-2 text-destructive">
+                        <Trash2 className="h-4 w-4" /> Delete {viewingProfile.display_name || 'User'} Permanently
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <p className="text-sm text-muted-foreground">This will permanently delete the account and ALL data. This cannot be undone.</p>
+                      <Input
+                        type="password"
+                        placeholder="Enter your admin password to confirm"
+                        value={deletePassword}
+                        onChange={e => setDeletePassword(e.target.value)}
+                        onKeyDown={e => { if (e.key === 'Enter' && deletePassword) handleDeleteUser(); }}
+                      />
+                      <div className="flex gap-2">
+                        <Button
+                          variant="destructive"
+                          onClick={handleDeleteUser}
+                          disabled={!deletePassword || deleteLoading}
+                          className="flex-1 gap-2"
+                        >
+                          <Trash2 className="h-4 w-4" /> {deleteLoading ? 'Deleting...' : 'Confirm Delete'}
+                        </Button>
+                        <Button variant="outline" onClick={() => { setShowInlineDelete(false); setDeletePassword(''); }}>Cancel</Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </>
         ) : null}
       </div>
@@ -707,34 +749,6 @@ export function AccountsPanel({
           </div>
         )}
       </div>
-
-      {/* Delete Dialog with password confirmation */}
-      <AlertDialog open={!!deleteTarget} onOpenChange={() => { setDeleteTarget(null); setDeletePassword(''); setDeleteConfirmText(''); }}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-destructive">⚠️ Permanently Delete Account</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will permanently delete <strong>{deleteTarget?.display_name || 'User'}</strong> and ALL their data from the database. This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <div className="space-y-3">
-            <div>
-              <label className="text-sm font-medium">Type "DELETE" to confirm</label>
-              <Input value={deleteConfirmText} onChange={e => setDeleteConfirmText(e.target.value)} placeholder="DELETE" className="mt-1" />
-            </div>
-            <div>
-              <label className="text-sm font-medium">Admin Password</label>
-              <Input type="password" value={deletePassword} onChange={e => setDeletePassword(e.target.value)} placeholder="Enter your password" className="mt-1" />
-            </div>
-          </div>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteUser} disabled={deleteConfirmText !== 'DELETE' || !deletePassword} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Delete Permanently
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
 
       {/* Promote Dialog */}
       <AlertDialog open={!!promoteTarget} onOpenChange={() => { setPromoteTarget(null); setAdminPassword(''); }}>
