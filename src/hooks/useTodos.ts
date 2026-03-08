@@ -24,6 +24,7 @@ export function useTodos() {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const hasSyncedPending = useRef(false);
+  const hasLoadedOnce = useRef(false);
 
   // Sync pending todo actions
   const syncPendingActions = useCallback(async () => {
