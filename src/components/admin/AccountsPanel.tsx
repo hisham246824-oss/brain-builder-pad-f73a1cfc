@@ -456,12 +456,15 @@ export function AccountsPanel({
                   {isSuperAdmin && viewingProfile.role !== 'super_admin' && (
                     <>
                       {viewingProfile.role === 'admin' ? (
-                        <Button variant="outline" className="w-full justify-start gap-2 text-orange-600" onClick={() => { onDemoteFromAdmin(viewingProfile.id); setViewingProfile(null); }}>
-                          <ShieldAlert className="h-4 w-4" /> Remove Admin
+                        <Button variant="outline" className="w-full justify-start gap-2 text-orange-600" onClick={async () => {
+                          const success = await onDemoteFromAdmin(viewingProfile.id);
+                          if (success) setViewingProfile(null);
+                        }}>
+                          <ShieldAlert className="h-4 w-4" /> Revoke Admin Privileges
                         </Button>
                       ) : (
                         <Button variant="outline" className="w-full justify-start gap-2 text-blue-600" onClick={() => setPromoteTarget(viewingProfile)}>
-                          <Shield className="h-4 w-4" /> Promote to Admin
+                          <Shield className="h-4 w-4" /> Promote to Full Admin
                         </Button>
                       )}
                       <Button variant="destructive" className="w-full justify-start gap-2" onClick={() => setDeleteTarget(viewingProfile)}>
