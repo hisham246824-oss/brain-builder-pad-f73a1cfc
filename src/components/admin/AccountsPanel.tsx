@@ -750,34 +750,6 @@ export function AccountsPanel({
         )}
       </div>
 
-      {/* Delete Dialog with password confirmation */}
-      <AlertDialog open={!!deleteTarget} onOpenChange={() => { setDeleteTarget(null); setDeletePassword(''); setDeleteConfirmText(''); }}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-destructive">⚠️ Permanently Delete Account</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will permanently delete <strong>{deleteTarget?.display_name || 'User'}</strong> and ALL their data from the database. This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <div className="space-y-3">
-            <div>
-              <label className="text-sm font-medium">Type "DELETE" to confirm</label>
-              <Input value={deleteConfirmText} onChange={e => setDeleteConfirmText(e.target.value)} placeholder="DELETE" className="mt-1" />
-            </div>
-            <div>
-              <label className="text-sm font-medium">Admin Password</label>
-              <Input type="password" value={deletePassword} onChange={e => setDeletePassword(e.target.value)} placeholder="Enter your password" className="mt-1" />
-            </div>
-          </div>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteUser} disabled={deleteConfirmText !== 'DELETE' || !deletePassword} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Delete Permanently
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
       {/* Promote Dialog */}
       <AlertDialog open={!!promoteTarget} onOpenChange={() => { setPromoteTarget(null); setAdminPassword(''); }}>
         <AlertDialogContent>
