@@ -123,6 +123,11 @@ const translations: Record<Language, Translations> = {
     tableCreatorDesc: 'Design beautiful tables with custom formatting and download as images.',
     // Pomodoro
     study: 'Study', shortBreak: 'Short Break', longBreak: 'Long Break',
+    // Vocabulary dialog & card
+    addNewWord: 'Add New Word', englishWord: 'English Word', enterEnglishWord: 'Enter the English word...',
+    meaningLabel: 'Meaning', enterMeaning: 'Enter the meaning...', notesOptional: 'Notes (Optional)',
+    addNotes: 'Add any additional notes...', adding: 'Adding...', letters: 'letters',
+    english: 'ENGLISH', targetLanguage: 'MEANING',
   },
   ar: {
     home: 'الرئيسية', studyMaterials: 'المواد الدراسية', vocabulary: 'المفردات',
@@ -223,6 +228,10 @@ const translations: Record<Language, Translations> = {
     tableCreatorTitle: 'إنشاء جدول',
     tableCreatorDesc: 'صمم جداول جميلة بتنسيق مخصص وحمّلها كصور.',
     study: 'دراسة', shortBreak: 'استراحة قصيرة', longBreak: 'استراحة طويلة',
+    addNewWord: 'إضافة كلمة جديدة', englishWord: 'الكلمة بالإنجليزية', enterEnglishWord: 'أدخل الكلمة بالإنجليزية...',
+    meaningLabel: 'المعنى', enterMeaning: 'أدخل المعنى...', notesOptional: 'ملاحظات (اختياري)',
+    addNotes: 'أضف ملاحظات إضافية...', adding: 'جارٍ الإضافة...', letters: 'حروف',
+    english: 'الإنجليزية', targetLanguage: 'المعنى',
   },
   fr: {
     home: 'Accueil', studyMaterials: 'Matériel d\'étude', vocabulary: 'Vocabulaire',
@@ -317,6 +326,10 @@ const translations: Record<Language, Translations> = {
     tableCreatorTitle: 'Créer un tableau',
     tableCreatorDesc: 'Créez de beaux tableaux avec un formatage personnalisé.',
     study: 'Étude', shortBreak: 'Pause courte', longBreak: 'Pause longue',
+    addNewWord: 'Ajouter un nouveau mot', englishWord: 'Mot en anglais', enterEnglishWord: 'Entrez le mot en anglais...',
+    meaningLabel: 'Signification', enterMeaning: 'Entrez la signification...', notesOptional: 'Notes (Optionnel)',
+    addNotes: 'Ajoutez des notes supplémentaires...', adding: 'Ajout...', letters: 'lettres',
+    english: 'ANGLAIS', targetLanguage: 'SIGNIFICATION',
   },
   zh: {
     home: '首页', studyMaterials: '学习资料', vocabulary: '词汇',
@@ -406,6 +419,10 @@ const translations: Record<Language, Translations> = {
     noSuggestions: '暂无建议', submitSuggestion: '提交',
     tableCreatorTitle: '创建表格', tableCreatorDesc: '设计漂亮的表格。',
     study: '学习', shortBreak: '短休息', longBreak: '长休息',
+    addNewWord: '添加新单词', englishWord: '英文单词', enterEnglishWord: '输入英文单词...',
+    meaningLabel: '含义', enterMeaning: '输入含义...', notesOptional: '备注（可选）',
+    addNotes: '添加额外备注...', adding: '添加中...', letters: '个字母',
+    english: '英文', targetLanguage: '含义',
   },
   ja: {
     home: 'ホーム', studyMaterials: '学習資料', vocabulary: '語彙',
@@ -495,6 +512,10 @@ const translations: Record<Language, Translations> = {
     noSuggestions: '提案なし', submitSuggestion: '送信',
     tableCreatorTitle: 'テーブル作成', tableCreatorDesc: '美しいテーブルを作成。',
     study: '学習', shortBreak: '短い休憩', longBreak: '長い休憩',
+    addNewWord: '新しい単語を追加', englishWord: '英語の単語', enterEnglishWord: '英語の単語を入力...',
+    meaningLabel: '意味', enterMeaning: '意味を入力...', notesOptional: 'メモ（任意）',
+    addNotes: '追加メモを入力...', adding: '追加中...', letters: '文字',
+    english: '英語', targetLanguage: '意味',
   },
   hi: {
     home: 'होम', studyMaterials: 'अध्ययन सामग्री', vocabulary: 'शब्दावली',
@@ -584,6 +605,10 @@ const translations: Record<Language, Translations> = {
     noSuggestions: 'कोई सुझाव नहीं', submitSuggestion: 'भेजें',
     tableCreatorTitle: 'तालिका बनाएं', tableCreatorDesc: 'सुंदर तालिकाएं बनाएं।',
     study: 'अध्ययन', shortBreak: 'छोटा ब्रेक', longBreak: 'लंबा ब्रेक',
+    addNewWord: 'नया शब्द जोड़ें', englishWord: 'अंग्रेजी शब्द', enterEnglishWord: 'अंग्रेजी शब्द दर्ज करें...',
+    meaningLabel: 'अर्थ', enterMeaning: 'अर्थ दर्ज करें...', notesOptional: 'नोट्स (वैकल्पिक)',
+    addNotes: 'अतिरिक्त नोट्स जोड़ें...', adding: 'जोड़ रहा...', letters: 'अक्षर',
+    english: 'अंग्रेजी', targetLanguage: 'अर्थ',
   },
   es: {
     home: 'Inicio', studyMaterials: 'Material de estudio', vocabulary: 'Vocabulario',
@@ -674,6 +699,10 @@ const translations: Record<Language, Translations> = {
     noSuggestions: 'Sin sugerencias', submitSuggestion: 'Enviar',
     tableCreatorTitle: 'Crear tabla', tableCreatorDesc: 'Diseña tablas hermosas.',
     study: 'Estudio', shortBreak: 'Descanso corto', longBreak: 'Descanso largo',
+    addNewWord: 'Agregar nueva palabra', englishWord: 'Palabra en inglés', enterEnglishWord: 'Ingresa la palabra en inglés...',
+    meaningLabel: 'Significado', enterMeaning: 'Ingresa el significado...', notesOptional: 'Notas (Opcional)',
+    addNotes: 'Agrega notas adicionales...', adding: 'Agregando...', letters: 'letras',
+    english: 'INGLÉS', targetLanguage: 'SIGNIFICADO',
   },
   pt: {
     home: 'Início', studyMaterials: 'Material de estudo', vocabulary: 'Vocabulário',
@@ -764,6 +793,10 @@ const translations: Record<Language, Translations> = {
     noSuggestions: 'Nenhuma sugestão', submitSuggestion: 'Enviar',
     tableCreatorTitle: 'Criar tabela', tableCreatorDesc: 'Crie tabelas bonitas.',
     study: 'Estudo', shortBreak: 'Pausa curta', longBreak: 'Pausa longa',
+    addNewWord: 'Adicionar nova palavra', englishWord: 'Palavra em inglês', enterEnglishWord: 'Digite a palavra em inglês...',
+    meaningLabel: 'Significado', enterMeaning: 'Digite o significado...', notesOptional: 'Notas (Opcional)',
+    addNotes: 'Adicione notas adicionais...', adding: 'Adicionando...', letters: 'letras',
+    english: 'INGLÊS', targetLanguage: 'SIGNIFICADO',
   },
 };
 

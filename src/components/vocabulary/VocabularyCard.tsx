@@ -5,6 +5,7 @@ import { format } from 'date-fns';
 import { VocabularyWord } from '@/hooks/useVocabulary';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface VocabularyCardProps {
   word: VocabularyWord;
@@ -18,6 +19,7 @@ export function VocabularyCard({ word, index, onDelete, onEdit }: VocabularyCard
   const [editWord, setEditWord] = useState(word.word);
   const [editMeanings, setEditMeanings] = useState(word.meanings);
   const [editNotes, setEditNotes] = useState(word.notes || '');
+  const { t } = useLanguage();
 
   const speakWord = () => {
     const utterance = new SpeechSynthesisUtterance(word.word);
@@ -93,19 +95,19 @@ export function VocabularyCard({ word, index, onDelete, onEdit }: VocabularyCard
 
       {/* Content */}
       <div className="p-5 space-y-4">
-        <span className="text-xs font-semibold text-primary uppercase tracking-wider">ENGLISH</span>
+        <span className="text-xs font-semibold text-primary uppercase tracking-wider">{t('english')}</span>
 
         {isEditing ? (
           <div className="space-y-3">
             <Input value={editWord} onChange={e => setEditWord(e.target.value)} className="rounded-xl text-lg font-bold" />
-            <Input value={editMeanings} onChange={e => setEditMeanings(e.target.value)} className="rounded-xl text-right" dir="rtl" placeholder="المعنى" />
-            <Textarea value={editNotes} onChange={e => setEditNotes(e.target.value)} className="rounded-xl min-h-[60px]" placeholder="Notes (optional)" />
+            <Input value={editMeanings} onChange={e => setEditMeanings(e.target.value)} className="rounded-xl" placeholder={t('meaningLabel')} />
+            <Textarea value={editNotes} onChange={e => setEditNotes(e.target.value)} className="rounded-xl min-h-[60px]" placeholder={t('notesOptional')} />
           </div>
         ) : (
           <>
             <h3 className="text-2xl font-bold text-primary text-center">{word.word}</h3>
-            <span className="text-xs font-semibold text-destructive">العربية</span>
-            <p className="text-lg text-destructive font-medium text-right" dir="rtl">{word.meanings}</p>
+            <span className="text-xs font-semibold text-destructive">{t('targetLanguage')}</span>
+            <p className="text-lg text-destructive font-medium" dir="auto">{word.meanings}</p>
             {word.notes && <p className="text-sm text-muted-foreground" dir="auto">{word.notes}</p>}
           </>
         )}
@@ -117,7 +119,7 @@ export function VocabularyCard({ word, index, onDelete, onEdit }: VocabularyCard
           </div>
           <div className="flex items-center gap-1 text-xs text-muted-foreground">
             <Hash className="h-3 w-3" />
-            <span>{letterCount} letters</span>
+            <span>{letterCount} {t('letters')}</span>
           </div>
         </div>
       </div>

@@ -4,6 +4,7 @@ import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface AddWordDialogProps {
   isOpen: boolean;
@@ -16,6 +17,7 @@ export function AddWordDialog({ isOpen, onClose, onAdd }: AddWordDialogProps) {
   const [meanings, setMeanings] = useState('');
   const [notes, setNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { t, isRTL } = useLanguage();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,7 +52,7 @@ export function AddWordDialog({ isOpen, onClose, onAdd }: AddWordDialogProps) {
             <div className="rounded-3xl bg-card p-6 shadow-soft">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-semibold text-card-foreground">
-                  Add New Word
+                  {t('addNewWord')}
                 </h2>
                 <button
                   onClick={onClose}
@@ -63,12 +65,12 @@ export function AddWordDialog({ isOpen, onClose, onAdd }: AddWordDialogProps) {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label className="text-sm font-medium text-muted-foreground mb-1 block">
-                    English Word
+                    {t('englishWord')}
                   </label>
                   <Input
                     value={word}
                     onChange={(e) => setWord(e.target.value)}
-                    placeholder="Enter the English word..."
+                    placeholder={t('enterEnglishWord')}
                     className="rounded-xl"
                     autoFocus
                   />
@@ -76,25 +78,24 @@ export function AddWordDialog({ isOpen, onClose, onAdd }: AddWordDialogProps) {
 
                 <div>
                   <label className="text-sm font-medium text-muted-foreground mb-1 block">
-                    Arabic Meaning (المعنى)
+                    {t('meaningLabel')}
                   </label>
                   <Input
                     value={meanings}
                     onChange={(e) => setMeanings(e.target.value)}
-                    placeholder="أدخل المعنى بالعربية..."
-                    className="rounded-xl text-right"
-                    dir="rtl"
+                    placeholder={t('enterMeaning')}
+                    className={`rounded-xl ${isRTL ? '' : ''}`}
                   />
                 </div>
 
                 <div>
                   <label className="text-sm font-medium text-muted-foreground mb-1 block">
-                    Notes (Optional)
+                    {t('notesOptional')}
                   </label>
                   <Textarea
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
-                    placeholder="Add any additional notes..."
+                    placeholder={t('addNotes')}
                     className="rounded-xl min-h-[80px]"
                   />
                 </div>
@@ -104,7 +105,7 @@ export function AddWordDialog({ isOpen, onClose, onAdd }: AddWordDialogProps) {
                   disabled={!word.trim() || !meanings.trim() || isSubmitting}
                   className="w-full rounded-2xl py-6 text-lg font-medium"
                 >
-                  {isSubmitting ? 'Adding...' : 'Add Word'}
+                  {isSubmitting ? t('adding') : t('addWord')}
                 </Button>
               </form>
             </div>
