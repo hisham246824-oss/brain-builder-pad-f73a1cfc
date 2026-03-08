@@ -260,13 +260,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    // Clear local state first for instant UI feedback
+    setUser(null);
+    setSession(null);
+    setIsOfflineMode(false);
+    setIsReadOnlyMode(false);
     localStorage.removeItem('study-data');
     localStorage.removeItem('table-data');
     clearOfflineCache();
     clearCachedAuth();
-    setIsOfflineMode(false);
-    setIsReadOnlyMode(false);
+    // Then sign out from server (don't block on failure)
+    try {
+      await supabase.auth.signOut();
+    } catch {
+      // Already cleared locally, ignore server errors
+    }
   };
 
   return (
