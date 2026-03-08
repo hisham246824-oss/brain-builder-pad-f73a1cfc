@@ -160,6 +160,18 @@ export default function SettingsPage() {
                 <p className="text-sm text-muted-foreground">{user?.email}</p>
               </div>
             </div>
+
+            {/* Unique Code */}
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-secondary/50 border border-border/50">
+              <Hash className="h-4 w-4 text-primary" />
+              <div className="flex-1">
+                <p className="text-xs text-muted-foreground">{t('yourUniqueCode') || 'Your Unique Code'}</p>
+                <p className="font-mono font-bold text-foreground tracking-widest">{userCode}</p>
+              </div>
+              <Button variant="ghost" size="icon" onClick={copyCode} className="h-8 w-8 rounded-xl">
+                <Copy className="h-4 w-4" />
+              </Button>
+            </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">{t('displayName')}</label>
               <div className="flex gap-2">

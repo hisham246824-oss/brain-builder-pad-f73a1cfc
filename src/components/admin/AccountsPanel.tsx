@@ -193,9 +193,12 @@ export function AccountsPanel({
   const [editPmContent, setEditPmContent] = useState('');
 
   let filteredUsers = users.filter(u => {
-    const matchesSearch = u.display_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      u.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      u.id.toLowerCase().includes(searchQuery.toLowerCase());
+    const query = searchQuery.toLowerCase();
+    const userCode = u.id.slice(0, 8).toLowerCase();
+    const matchesSearch = u.display_name?.toLowerCase().includes(query) ||
+      u.email?.toLowerCase().includes(query) ||
+      u.id.toLowerCase().includes(query) ||
+      userCode.includes(query);
     const matchesRole = filterRole === 'all' || u.role === filterRole;
     const matchesStatus = filterStatus === 'all' || 
       (filterStatus === 'online' && u.is_online) ||
