@@ -92,7 +92,6 @@ function LoggedInHomePage() {
     { text: t('organizeMaterials'), action: t('studyMaterials'), link: "/materials" },
     { text: t('pomodoroTimerTitle'), action: t('pomodoroTimer'), link: "/pomodoro" },
     { text: t('vocabFlashcards'), action: t('vocabulary'), link: "/vocabulary" },
-    { text: t('tableCreatorTitle'), action: t('createTable'), link: "/table-creator" },
   ], [t]);
 
   useEffect(() => {
