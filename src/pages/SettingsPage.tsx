@@ -120,6 +120,39 @@ export default function SettingsPage() {
 
   const handleLogout = async () => { await signOut(); navigate('/'); };
 
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    if (!file.type.startsWith('image/')) { toast.error('Please select an image file'); return; }
+    if (file.size > 5 * 1024 * 1024) { toast.error('Image must be less than 5MB'); return; }
+    
+    setIsUploadingAvatar(true);
+    try {
+      const ext = file.name.split('.').pop();
+      const filePath = `${user.id}/avatar.${ext}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file, { upsert: true });
+      
+      if (uploadError) throw uploadError;
+      
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+      
+      const avatarUrl = `${publicUrl}?t=${Date.now()}`;
+      await updateSettings({ avatar_url: avatarUrl } as any);
+      toast.success(t('profilePictureUpdated') || 'Profile picture updated!');
+    } catch (error: any) {
+      console.error('Avatar upload error:', error);
+      toast.error('Failed to upload profile picture');
+    } finally {
+      setIsUploadingAvatar(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
