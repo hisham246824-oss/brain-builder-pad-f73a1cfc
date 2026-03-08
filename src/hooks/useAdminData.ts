@@ -663,6 +663,8 @@ export function useAdminData() {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'suggestions' }, () => fetchSuggestions())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => fetchUsers())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'user_settings' }, () => fetchUsers())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'page_visits' }, () => fetchUsers())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'user_blocks' }, () => fetchUsers())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'study_materials' }, () => fetchStats())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'vocabulary' }, () => fetchStats())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'todos' }, () => fetchStats())
