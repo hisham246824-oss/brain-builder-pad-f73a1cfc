@@ -11,10 +11,6 @@ export const sidebarInfoMap: Record<string, { title: string; description: string
     title: 'Vocabulary',
     description: 'Build and manage your English-Arabic vocabulary. Add words with meanings and notes, track mastery with spaced repetition, practice with flashcards or multiple-choice quizzes, and focus on difficult words that need extra review.',
   },
-  support: {
-    title: 'Technical Support',
-    description: 'Get help from our team by creating support tickets. Track your open and resolved issues, and communicate directly with administrators to resolve any problems.',
-  },
   pomodoro: {
     title: 'Pomodoro Timer',
     description: 'Stay focused using the proven Pomodoro technique. Customize study and break durations, choose calming color themes, set alarm sounds, and enjoy ambient nature sounds to enhance concentration.',
