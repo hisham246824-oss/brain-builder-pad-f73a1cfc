@@ -19,6 +19,7 @@ interface UserWithProfile {
   blocked_until: string | null;
   block_reason: string | null;
   country: string | null;
+  language: string | null;
 }
 
 interface AdminStats {
