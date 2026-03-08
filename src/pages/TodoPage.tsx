@@ -342,29 +342,29 @@ const TodoPage = () => {
 
       {/* Add Task Dialog */}
       <Dialog open={showAdd} onOpenChange={setShowAdd}>
-        <DialogContent className="sm:max-w-md rounded-3xl">
+        <DialogContent className="sm:max-w-md rounded-[2rem]">
           <DialogHeader>
             <DialogTitle className="text-xl text-primary flex items-center gap-2">
-              <Plus className="h-5 w-5" /> Add New Task
+              <Plus className="h-5 w-5" /> {t('addNewTask')}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 pt-2">
             <div>
-              <label className="text-sm font-medium text-foreground mb-1.5 block">Title</label>
-              <Input value={title} onChange={e => setTitle(e.target.value)} placeholder="What needs to be done?" className="rounded-xl text-lg font-semibold" />
+              <label className="text-sm font-medium text-foreground mb-1.5 block">{t('title')}</label>
+              <Input value={title} onChange={e => setTitle(e.target.value)} placeholder={t('whatNeedsToBeDone')} className="rounded-[1.25rem] text-lg font-semibold" />
             </div>
             <div>
-              <label className="text-sm font-medium text-foreground mb-1.5 block">Details</label>
-              <Textarea value={description} onChange={e => setDescription(e.target.value)} placeholder="Add more context..." className="rounded-xl min-h-[80px]" />
+              <label className="text-sm font-medium text-foreground mb-1.5 block">{t('details')}</label>
+              <Textarea value={description} onChange={e => setDescription(e.target.value)} placeholder={t('addMoreContext')} className="rounded-[1.25rem] min-h-[80px]" />
             </div>
             <div>
-              <label className="text-sm font-medium text-foreground mb-2 block">Priority</label>
+              <label className="text-sm font-medium text-foreground mb-2 block">{t('priority')}</label>
               <div className="flex gap-2">
                 {(Object.entries(IMPORTANCE_CONFIG) as [string, typeof IMPORTANCE_CONFIG.red][]).map(([key, cfg]) => (
                   <button
                     key={key}
                     onClick={() => setImportance(key as 'red' | 'yellow' | 'green')}
-                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 text-sm font-medium transition-all ${
+                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-[1.25rem] border-2 text-sm font-medium transition-all ${
                       importance === key
                         ? `bg-gradient-to-br ${cfg.gradient} ${cfg.border} ${cfg.badge}`
                         : 'border-border bg-card text-muted-foreground hover:border-border/80'
@@ -377,14 +377,14 @@ const TodoPage = () => {
               </div>
             </div>
             <div>
-              <label className="text-sm font-medium text-foreground mb-1.5 block">Deadline</label>
+              <label className="text-sm font-medium text-foreground mb-1.5 block">{t('dueDate')}</label>
               <div className="relative">
                 <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input type="datetime-local" value={deadline} onChange={e => setDeadline(e.target.value)} className="rounded-xl pl-10" />
+                <Input type="datetime-local" value={deadline} onChange={e => setDeadline(e.target.value)} className="rounded-[1.25rem] pl-10" />
               </div>
             </div>
-            <Button onClick={handleAdd} disabled={!title.trim()} className="w-full rounded-xl py-6 text-base font-semibold">
-              Create Task
+            <Button onClick={handleAdd} disabled={!title.trim()} className="w-full rounded-full py-6 text-base font-semibold">
+              {t('createFirstTask')}
             </Button>
           </div>
         </DialogContent>
