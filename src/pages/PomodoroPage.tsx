@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/button';
 export default function PomodoroPage() {
   const { settings, updateSettings } = usePomodoroSettings();
   const isMobile = useIsMobile();
+  const { t } = useLanguage();
   const [isPanelVisible, setIsPanelVisible] = useState(true);
   const [showSettings, setShowSettings] = useState(false);
 
