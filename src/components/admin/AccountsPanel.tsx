@@ -46,9 +46,15 @@ interface User {
   language: string | null;
 }
 
-const LANGUAGE_NAMES: Record<string, string> = {
-  en: 'English', ar: 'العربية', fr: 'Français', zh: '中文',
-  ja: '日本語', hi: 'हिन्दी', es: 'Español', pt: 'Português',
+const LANGUAGE_INFO: Record<string, { name: string; native: string; flag: string }> = {
+  en: { name: 'English', native: 'English', flag: '🇬🇧' },
+  ar: { name: 'Arabic', native: 'العربية', flag: '🇸🇦' },
+  fr: { name: 'French', native: 'Français', flag: '🇫🇷' },
+  zh: { name: 'Chinese', native: '中文', flag: '🇨🇳' },
+  ja: { name: 'Japanese', native: '日本語', flag: '🇯🇵' },
+  hi: { name: 'Hindi', native: 'हिन्दी', flag: '🇮🇳' },
+  es: { name: 'Spanish', native: 'Español', flag: '🇪🇸' },
+  pt: { name: 'Portuguese', native: 'Português', flag: '🇧🇷' },
 };
 
 interface UserActivity {
