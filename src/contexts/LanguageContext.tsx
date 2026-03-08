@@ -419,6 +419,10 @@ const translations: Record<Language, Translations> = {
     noSuggestions: '暂无建议', submitSuggestion: '提交',
     tableCreatorTitle: '创建表格', tableCreatorDesc: '设计漂亮的表格。',
     study: '学习', shortBreak: '短休息', longBreak: '长休息',
+    addNewWord: '添加新单词', englishWord: '英文单词', enterEnglishWord: '输入英文单词...',
+    meaningLabel: '含义', enterMeaning: '输入含义...', notesOptional: '备注（可选）',
+    addNotes: '添加额外备注...', adding: '添加中...', letters: '个字母',
+    english: '英文', targetLanguage: '含义',
   },
   ja: {
     home: 'ホーム', studyMaterials: '学習資料', vocabulary: '語彙',
