@@ -83,21 +83,6 @@ export function StatisticsPanel({ stats, isLoading }: StatisticsPanelProps) {
   const totalContent = (stats?.totalMaterials || 0) + (stats?.totalLessons || 0) + (stats?.totalVocabulary || 0) + (stats?.totalTodos || 0);
   const engagementRate = stats?.totalUsers ? Math.round((stats.activeToday / stats.totalUsers) * 100) : 0;
 
-  const mainStats = [
-    { title: 'Total Users', value: stats?.totalUsers || 0, icon: Users, color: 'text-blue-500', bg: 'bg-blue-500/10' },
-    { title: 'Active Today', value: stats?.activeToday || 0, icon: UserCheck, color: 'text-green-500', bg: 'bg-green-500/10' },
-    { title: 'Materials', value: stats?.totalMaterials || 0, icon: BookOpen, color: 'text-purple-500', bg: 'bg-purple-500/10' },
-    { title: 'Lessons', value: stats?.totalLessons || 0, icon: GraduationCap, color: 'text-orange-500', bg: 'bg-orange-500/10' },
-    { title: 'Vocabulary', value: stats?.totalVocabulary || 0, icon: Languages, color: 'text-teal-500', bg: 'bg-teal-500/10' },
-    { title: 'Tasks', value: stats?.totalTodos || 0, icon: ListTodo, color: 'text-cyan-500', bg: 'bg-cyan-500/10' },
-    { title: 'Suggestions', value: stats?.totalSuggestions || 0, icon: Lightbulb, color: 'text-yellow-500', bg: 'bg-yellow-500/10' },
-    { title: 'Broadcasts', value: stats?.totalMessages || 0, icon: MessageSquare, color: 'text-pink-500', bg: 'bg-pink-500/10' },
-    { title: 'Polls', value: stats?.totalPolls || 0, icon: BarChart, color: 'text-indigo-500', bg: 'bg-indigo-500/10' },
-    { title: 'Private Messages', value: stats?.totalPrivateMessages || 0, icon: Mail, color: 'text-violet-500', bg: 'bg-violet-500/10' },
-    { title: 'Page Views', value: stats?.totalPageVisits || 0, icon: Eye, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
-    { title: 'Blocked Users', value: stats?.blockedUsers || 0, icon: Ban, color: 'text-red-500', bg: 'bg-red-500/10' },
-  ];
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -107,59 +92,28 @@ export function StatisticsPanel({ stats, isLoading }: StatisticsPanelProps) {
         </div>
       </div>
 
-      {/* Quick Overview Cards */}
-      <div className="grid gap-3 grid-cols-2 lg:grid-cols-3">
+      {/* Key Stats */}
+      <div className="grid gap-3 grid-cols-2">
         <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
           <CardContent className="p-4">
             <div className="flex items-center gap-2 text-primary">
-              <Zap className="h-5 w-5" />
-              <span className="text-sm font-medium">Engagement Rate</span>
+              <Users className="h-5 w-5" />
+              <span className="text-sm font-medium">Total Users</span>
             </div>
-            <p className="mt-2 text-3xl font-bold text-foreground">{engagementRate}%</p>
-            <Progress value={engagementRate} className="mt-2 h-1.5" />
+            <p className="mt-2 text-3xl font-bold text-foreground"><LiveCounter value={stats?.totalUsers || 0} /></p>
           </CardContent>
         </Card>
         <Card className="bg-gradient-to-br from-green-500/10 to-green-500/5 border-green-500/20">
           <CardContent className="p-4">
             <div className="flex items-center gap-2 text-green-600">
-              <FileText className="h-5 w-5" />
-              <span className="text-sm font-medium">Total Content</span>
+              <UserCheck className="h-5 w-5" />
+              <span className="text-sm font-medium">Online Now</span>
             </div>
-            <p className="mt-2 text-3xl font-bold text-foreground"><LiveCounter value={totalContent} /></p>
-            <p className="text-xs text-muted-foreground mt-1">+{stats?.contentCreatedToday || 0} today</p>
+            <p className="mt-2 text-3xl font-bold text-foreground"><LiveCounter value={stats?.activeToday || 0} /></p>
+            <Progress value={engagementRate} className="mt-2 h-1.5" />
+            <p className="text-xs text-muted-foreground mt-1">{engagementRate}% of users</p>
           </CardContent>
         </Card>
-        <Card className="bg-gradient-to-br from-orange-500/10 to-orange-500/5 border-orange-500/20">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2 text-orange-600">
-              <Clock className="h-5 w-5" />
-              <span className="text-sm font-medium">Avg Session</span>
-            </div>
-            <p className="mt-2 text-3xl font-bold text-foreground">{formatDuration(stats?.averageSessionDuration || 0)}</p>
-            <p className="text-xs text-muted-foreground mt-1">per page visit</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Stats Grid */}
-      <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
-        {mainStats.map((stat, index) => (
-          <motion.div key={stat.title} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.03 }}>
-            <Card className="overflow-hidden hover:shadow-md transition-shadow">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs text-muted-foreground">{stat.title}</p>
-                    <p className="mt-0.5 text-2xl font-bold text-foreground"><LiveCounter value={stat.value} /></p>
-                  </div>
-                  <div className={cn('rounded-xl p-2.5', stat.bg)}>
-                    <stat.icon className={cn('h-5 w-5', stat.color)} />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        ))}
       </div>
 
       {/* User Growth */}
