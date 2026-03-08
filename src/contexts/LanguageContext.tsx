@@ -678,7 +678,7 @@ const translations: Record<Language, Translations> = {
   pt: {
     home: 'Início', studyMaterials: 'Material de estudo', vocabulary: 'Vocabulário',
     aiStudyChat: 'Chat IA', createTable: 'Criar tabela', pomodoroTimer: 'Temporizador Pomodoro',
-    suggestions: 'Sugestões', messages: 'Mensagens', todoList: 'Lista de tarefas',
+    suggestions: 'Sugestões', messages: 'Mensagens', todoList: 'Lista de tarefas', technicalSupport: 'Suporte técnico',
     settings: 'Configurações', profile: 'Perfil', displayName: 'Nome de exibição',
     save: 'Salvar', avatarColor: 'Cor do avatar', avatarIcon: 'Ícone do avatar',
     changePassword: 'Alterar senha', newPassword: 'Nova senha...',
