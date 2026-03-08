@@ -1251,6 +1251,16 @@ const translations: Record<Language, Translations> = {
     greatJob: 'Ótimo trabalho! Você está pegando fogo! 🔥', taskCompleted: 'Tarefa concluída! Continue! 💪',
     wellDone: 'Muito bem! Mais um passo! 🎯', amazing: 'Incrível! ⭐',
     incredibleProgress: 'Progresso incrível! 🚀',
+    siteGuideTitle: 'Guia do site',
+    siteGuideSubtitle: 'Descubra todos os recursos',
+    infoHome: 'Seu painel pessoal com estatísticas de estudo, atividade recente e acesso rápido a todos os recursos.',
+    infoMaterials: 'Organize seus cursos em módulos estruturados. Adicione aulas com texto rico e exporte como PDF.',
+    infoVocabulary: 'Construa e gerencie seu vocabulário. Pratique com cartões ou quiz e acompanhe seu domínio.',
+    infoPomodoro: 'Mantenha o foco com a técnica Pomodoro. Personalize os tempos de estudo e descanso.',
+    infoMessages: 'Leia anúncios e atualizações do administrador. Participe de enquetes e fique informado.',
+    infoSuggestions: 'Compartilhe suas ideias para melhorar a plataforma. Envie solicitações e vote nas sugestões.',
+    infoTodos: 'Gerencie tarefas com prioridades coloridas. Defina prazos com contagem regressiva ao vivo.',
+    infoSupport: 'Precisa de ajuda? Crie tickets de suporte, anexe imagens e converse com a equipe.',
   },
 };
 
