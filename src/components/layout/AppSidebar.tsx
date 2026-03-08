@@ -23,13 +23,12 @@ const BASE_NAV_ITEMS = [
   { id: 'pomodoro', to: '/pomodoro', icon: Timer },
   { id: 'suggestions', to: '/suggestions', icon: Lightbulb },
   { id: 'todos', to: '/todos', icon: ListTodo },
-  { id: 'messages', to: '/messages', icon: Mail },
 ];
 
 const LABEL_KEYS: Record<string, string> = {
   home: 'home', materials: 'studyMaterials', vocabulary: 'vocabulary',
   pomodoro: 'pomodoroTimer',
-  suggestions: 'suggestions', todos: 'todoList', messages: 'messages',
+  suggestions: 'suggestions', todos: 'todoList',
 };
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
