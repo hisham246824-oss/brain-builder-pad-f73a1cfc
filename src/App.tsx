@@ -99,38 +99,41 @@ function RootRedirect() {
 
 function AppRoutes() {
   return (
-    <Routes>
-      {/* Auth pages - full screen, no layout */}
-      <Route path="/auth" element={<AuthPage />} />
+    <>
+      <AdminImpersonationBar />
+      <Routes>
+        {/* Auth pages - full screen, no layout */}
+        <Route path="/auth" element={<AuthPage />} />
 
-      {/* Admin routes */}
-      <Route
-        path="/admin"
-        element={
-          <AdminRoute>
-            <AdminDashboard />
-          </AdminRoute>
-        }
-      />
+        {/* Admin routes */}
+        <Route
+          path="/admin"
+          element={
+            <AdminRoute>
+              <AdminDashboard />
+            </AdminRoute>
+          }
+        />
 
-      {/* User routes */}
-      <Route element={<AppLayout />}>
-        <Route path="/" element={<RootRedirect />} />
-        <Route path="/materials" element={<MaterialsPage />} />
-        <Route path="/materials/:id" element={<MaterialDetailPage />} />
-        <Route path="/table-creator" element={<TableCreatorPage />} />
-        <Route path="/pomodoro" element={<PomodoroPage />} />
-        <Route path="/vocabulary" element={<VocabularyPage />} />
-        <Route path="/flashcards" element={<FlashcardsPage />} />
-        <Route path="/ai-chat" element={<AIChatPage />} />
-        <Route path="/messages" element={<MessagesPage />} />
-        <Route path="/settings" element={<SettingsPage />} />
-        <Route path="/suggestions" element={<SuggestionsPage />} />
-        <Route path="/todos" element={<TodoPage />} />
-      </Route>
-      
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+        {/* User routes */}
+        <Route element={<AppLayout />}>
+          <Route path="/" element={<RootRedirect />} />
+          <Route path="/materials" element={<MaterialsPage />} />
+          <Route path="/materials/:id" element={<MaterialDetailPage />} />
+          <Route path="/table-creator" element={<TableCreatorPage />} />
+          <Route path="/pomodoro" element={<PomodoroPage />} />
+          <Route path="/vocabulary" element={<VocabularyPage />} />
+          <Route path="/flashcards" element={<FlashcardsPage />} />
+          <Route path="/ai-chat" element={<AIChatPage />} />
+          <Route path="/messages" element={<MessagesPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/suggestions" element={<SuggestionsPage />} />
+          <Route path="/todos" element={<TodoPage />} />
+        </Route>
+        
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </>
   );
 }
 
