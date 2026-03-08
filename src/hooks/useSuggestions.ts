@@ -102,7 +102,7 @@ export function useSuggestions() {
   useEffect(() => {
     const handleVisibility = () => {
       if (document.visibilityState === 'visible') {
-        fetchSuggestions();
+        fetchSuggestions(true);
       }
     };
     document.addEventListener('visibilitychange', handleVisibility);

@@ -71,6 +71,8 @@ export function useTodos() {
       return;
     }
 
+    if (!hasLoadedOnce.current) setIsLoading(true);
+
     const { data, error } = await supabase
       .from('todos')
       .select('*')
@@ -84,6 +86,7 @@ export function useTodos() {
     } else {
       setTodos((data as Todo[]) || []);
       cacheTodos(data || []);
+      hasLoadedOnce.current = true;
     }
     setIsLoading(false);
   }, [user, isOnline]);

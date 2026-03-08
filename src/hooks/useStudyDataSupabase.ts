@@ -147,8 +147,8 @@ export function useStudyDataSupabase() {
     }));
 
     setMaterials(materialsWithRelations);
-    // Cache for offline use
     cacheMaterials(materialsWithRelations);
+    hasLoadedOnce.current = true;
     setIsLoading(false);
   }, [user, isOnline]);
 

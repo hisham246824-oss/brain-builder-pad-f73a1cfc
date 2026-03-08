@@ -36,6 +36,8 @@ const queryClient = new QueryClient({
       gcTime: 1000 * 60 * 10,
       refetchOnWindowFocus: true, // Stale-while-revalidate on tab focus
       refetchOnReconnect: true,
+      refetchInterval: 30 * 1000, // Background sync every 30 seconds
+      refetchIntervalInBackground: false, // Only when tab is active
       retry: 1,
     },
   },

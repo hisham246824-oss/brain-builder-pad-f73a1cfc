@@ -89,8 +89,8 @@ export function useVocabulary() {
       }
     } else {
       setWords(data || []);
-      // Cache for offline use
       cacheVocabulary(data || []);
+      hasLoadedOnce.current = true;
     }
     setIsLoading(false);
   }, [user, isOnline]);

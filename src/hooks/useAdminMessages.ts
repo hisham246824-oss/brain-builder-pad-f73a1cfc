@@ -176,7 +176,7 @@ export function useAdminMessages() {
   useEffect(() => {
     const handleVisibility = () => {
       if (document.visibilityState === 'visible' && user) {
-        fetchMessages();
+        fetchMessages(true);
       }
     };
     document.addEventListener('visibilitychange', handleVisibility);

@@ -55,7 +55,7 @@ export function useSupportTickets() {
     const channel = supabase
       .channel('support-tickets-realtime')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'support_tickets' }, () => {
-        fetchTickets();
+        fetchTickets(true);
       })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
