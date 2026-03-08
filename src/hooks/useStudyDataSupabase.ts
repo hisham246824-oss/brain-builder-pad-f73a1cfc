@@ -88,7 +88,7 @@ export function useStudyDataSupabase() {
       return;
     }
 
-    if (showLoading) {
+    if (showLoading && !hasLoadedOnce.current) {
       setIsLoading(true);
     }
 
