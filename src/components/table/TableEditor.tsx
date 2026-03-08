@@ -37,8 +37,9 @@ export function TableEditor() {
       
       await new Promise((resolve) => setTimeout(resolve, 100));
       
+      const isDark = document.documentElement.classList.contains('dark');
       const dataUrl = await toPng(tableRef.current, {
-        backgroundColor: '#ffffff',
+        backgroundColor: isDark ? '#1a1f2e' : '#ffffff',
         pixelRatio: 2,
         style: {
           borderRadius: '16px',
