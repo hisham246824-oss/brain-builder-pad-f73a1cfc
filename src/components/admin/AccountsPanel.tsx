@@ -613,12 +613,27 @@ export function AccountsPanel({
                       )}
                     </div>
                     <p className="text-xs text-muted-foreground truncate mt-0.5">{u.email || u.id.slice(0, 20) + '...'}</p>
-                    <div className="flex items-center gap-3 mt-1 text-[10px] text-muted-foreground">
+                    <div className="flex items-center gap-3 mt-1 text-[10px] text-muted-foreground flex-wrap">
                       <span>Joined {new Date(u.created_at).toLocaleDateString()}</span>
                       <span>•</span>
                       <span className={u.is_online ? 'text-green-600 font-medium' : ''}>
                         {u.is_online ? 'Online now' : `Last seen ${formatTimeAgo(u.last_sign_in_at)}`}
                       </span>
+                      {u.country && (
+                        <>
+                          <span>•</span>
+                          <span className="flex items-center gap-0.5"><MapPin className="h-2.5 w-2.5" />{u.country}</span>
+                        </>
+                      )}
+                      {u.avatar_color && u.avatar_color !== 'primary' && (
+                        <>
+                          <span>•</span>
+                          <span className="flex items-center gap-1">
+                            <span className="h-2.5 w-2.5 rounded-full inline-block" style={{ backgroundColor: getAvatarColor(u.avatar_color) }} />
+                            {u.avatar_color}
+                          </span>
+                        </>
+                      )}
                       {u.is_blocked && u.blocked_until && (
                         <>
                           <span>•</span>
