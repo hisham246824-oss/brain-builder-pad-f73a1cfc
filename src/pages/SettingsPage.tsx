@@ -72,8 +72,8 @@ export default function SettingsPage() {
   useEffect(() => {
     if (settings) {
       setDisplayName(settings.display_name || '');
-      setAiPrompt(settings.ai_custom_prompt || '');
-      setSidebarOrder(settings.sidebar_order || []);
+      const filteredOrder = (settings.sidebar_order || []).filter(id => VALID_SIDEBAR_IDS.includes(id));
+      setSidebarOrder(filteredOrder.length > 0 ? filteredOrder : VALID_SIDEBAR_IDS);
     }
   }, [settings]);
 
