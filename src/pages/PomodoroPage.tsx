@@ -4,7 +4,6 @@ import { ChevronLeft, Settings } from 'lucide-react';
 import { TimerCircle } from '@/components/pomodoro/TimerCircle';
 import { ModeSelector } from '@/components/pomodoro/ModeSelector';
 import { TimerControls } from '@/components/pomodoro/TimerControls';
-import { NatureSounds } from '@/components/pomodoro/NatureSounds';
 import { PomodoroSettings, getColorValue } from '@/components/pomodoro/PomodoroSettings';
 import { MotivationalPhrases } from '@/components/pomodoro/MotivationalPhrases';
 import { AnimatedBackground } from '@/components/pomodoro/AnimatedBackground';
@@ -12,7 +11,6 @@ import { usePomodoro } from '@/hooks/usePomodoro';
 import { usePomodoroSettings } from '@/hooks/usePomodoroSettings';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
 
 export default function PomodoroPage() {
   const { settings, updateSettings } = usePomodoroSettings();
@@ -33,7 +31,6 @@ export default function PomodoroPage() {
     reset,
   } = usePomodoro(settings.alarmSound);
 
-  // Get current color based on mode
   const getCurrentColor = () => {
     switch (mode) {
       case 'study':
@@ -55,11 +52,7 @@ export default function PomodoroPage() {
       <div className="min-h-screen py-6 px-4 relative">
         <AnimatedBackground color={currentColor} />
         
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mx-auto max-w-md flex flex-col items-center"
-        >
+        <div className="mx-auto max-w-md flex flex-col items-center">
           {/* Timer Section */}
           <div className="flex flex-col items-center gap-6 mb-6">
             <TimerCircle
@@ -82,11 +75,6 @@ export default function PomodoroPage() {
               onPause={pause}
               onReset={reset}
             />
-          </div>
-
-          {/* Nature Sounds */}
-          <div className="w-full bg-card/80 backdrop-blur-sm rounded-2xl p-4 shadow-lg mb-4">
-            <NatureSounds accentColor={currentColor} />
           </div>
 
           {/* Settings Toggle */}
@@ -122,7 +110,7 @@ export default function PomodoroPage() {
           <div className="w-full">
             <MotivationalPhrases />
           </div>
-        </motion.div>
+        </div>
       </div>
     );
   }
@@ -133,12 +121,12 @@ export default function PomodoroPage() {
       <AnimatedBackground color={currentColor} />
       
       <div className="flex h-screen relative">
-        {/* Left Panel - Sounds & Settings */}
+        {/* Left Panel - Settings */}
         <AnimatePresence mode="wait">
           {isPanelVisible && (
             <motion.div
               initial={{ width: 0, opacity: 0 }}
-              animate={{ width: '50%', opacity: 1 }}
+              animate={{ width: '40%', opacity: 1 }}
               exit={{ width: 0, opacity: 0 }}
               transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
               className="h-full bg-card/60 backdrop-blur-md border-r border-border/50 overflow-hidden relative"
@@ -152,13 +140,8 @@ export default function PomodoroPage() {
               >
                 <h2 className="text-2xl font-bold text-foreground mb-6">Focus Zone</h2>
                 
-                {/* Nature Sounds */}
-                <div className="flex-1 min-h-0 mb-6">
-                  <NatureSounds accentColor={currentColor} />
-                </div>
-
                 {/* Settings */}
-                <div className="border-t border-border/50 pt-6">
+                <div>
                   <h3 className="text-lg font-semibold text-foreground mb-4">Settings</h3>
                   <PomodoroSettings
                     settings={settings}
@@ -171,7 +154,7 @@ export default function PomodoroPage() {
           )}
         </AnimatePresence>
 
-        {/* Toggle Button - Anchored to the divider line */}
+        {/* Toggle Button */}
         <div className="relative z-20">
           <div className="absolute top-1/2 -translate-y-1/2 left-0">
             <Button
@@ -192,17 +175,11 @@ export default function PomodoroPage() {
 
         {/* Right Panel - Timer */}
         <motion.div
-          animate={{ 
-            width: isPanelVisible ? '50%' : '100%',
-          }}
+          animate={{ width: isPanelVisible ? '60%' : '100%' }}
           transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
           className="flex flex-col items-center justify-center p-8"
         >
-          <motion.div
-            layout
-            transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-            className="flex flex-col items-center gap-8"
-          >
+          <div className="flex flex-col items-center gap-8">
             <TimerCircle
               minutes={minutes}
               seconds={seconds}
@@ -228,7 +205,7 @@ export default function PomodoroPage() {
             <div className="mt-8 max-w-md">
               <MotivationalPhrases />
             </div>
-          </motion.div>
+          </div>
         </motion.div>
       </div>
     </div>

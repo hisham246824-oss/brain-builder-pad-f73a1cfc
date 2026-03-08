@@ -26,7 +26,6 @@ export default function MessagesPage() {
   const { messages, isLoading, toggleLike, markAllAsRead } = useAdminMessages();
   const { user } = useAuth();
   const { t } = useLanguage();
-  const { user } = useAuth();
   const [polls, setPolls] = useState<UserPoll[]>([]);
   const [pollsLoading, setPollsLoading] = useState(true);
 
