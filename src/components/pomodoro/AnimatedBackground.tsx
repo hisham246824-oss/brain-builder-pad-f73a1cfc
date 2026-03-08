@@ -55,7 +55,7 @@ export function AnimatedBackground({ color }: AnimatedBackgroundProps) {
   ], []);
 
   return (
-    <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+    <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none contain-paint">
       {/* Base gradient that follows the color */}
       <motion.div
         className="absolute inset-0"
