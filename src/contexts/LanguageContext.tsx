@@ -664,7 +664,7 @@ const translations: Record<Language, Translations> = {
   },
   ja: {
     home: 'ホーム', studyMaterials: '学習資料', vocabulary: '語彙',
-    pomodoroTimer: 'ポモドーロ',
+    createTable: 'テーブル作成', pomodoroTimer: 'ポモドーロ',
     suggestions: '提案', messages: 'メッセージ', todoList: 'やることリスト', technicalSupport: 'テクニカルサポート',
     settings: '設定', profile: 'プロフィール', displayName: '表示名',
     save: '保存', avatarColor: 'アバターの色', avatarIcon: 'アバターアイコン',
