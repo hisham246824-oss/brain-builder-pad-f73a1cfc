@@ -9,6 +9,12 @@ import { usePageVisitTracking } from '@/hooks/usePageVisitTracking';
 import { useRealtimeNotifications } from '@/hooks/useRealtimeNotifications';
 import { useTheme } from '@/hooks/useTheme';
 
+const pageVariants = {
+  initial: { opacity: 0 },
+  animate: { opacity: 1 },
+  exit: { opacity: 0 },
+};
+
 export function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
@@ -22,19 +28,15 @@ export function AppLayout() {
       <OfflineIndicator />
       <Header onMenuClick={() => setSidebarOpen(true)} />
       <AppSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      <main className="flex-1 mx-auto max-w-5xl px-4 py-6 md:px-6 md:py-8 w-full contain-paint">
+      <main className="flex-1 mx-auto max-w-5xl px-4 py-6 md:px-6 md:py-8 w-full">
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={location.pathname}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -4 }}
-            transition={{ 
-              duration: 0.166, 
-              ease: [0.22, 1, 0.36, 1],
-              opacity: { duration: 0.133 }
-            }}
-            className="h-full composite-layer"
+            variants={pageVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            transition={{ duration: 0.15, ease: 'easeOut' }}
           >
             <Outlet />
           </motion.div>

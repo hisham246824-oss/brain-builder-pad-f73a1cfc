@@ -85,7 +85,7 @@ export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
         <NavLink
           to={item.to}
           onClick={onClose}
-          className="flex items-center gap-3 rounded-xl px-4 py-3 text-sidebar-foreground/80 transition-all hover:bg-sidebar-accent hover:text-sidebar-foreground"
+          className="flex items-center gap-3 rounded-xl px-4 py-3 text-sidebar-foreground/80 transition-colors duration-150 hover:bg-sidebar-accent hover:text-sidebar-foreground active:scale-[0.98]"
           activeClassName="bg-sidebar-accent text-sidebar-primary font-medium"
         >
           <item.icon className="h-5 w-5" />
@@ -108,7 +108,7 @@ export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.15 }}
-              className="fixed inset-0 z-40 bg-foreground/20 backdrop-blur-sm"
+              className="fixed inset-0 z-40 bg-foreground/20"
               onClick={onClose}
             />
             
@@ -116,9 +116,9 @@ export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
               initial={slideFrom}
               animate={slideTo}
               exit={slideFrom}
-              transition={{ type: 'spring', damping: 32, stiffness: 400, mass: 0.8 }}
+              transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
               className={cn(
-                "fixed top-0 z-50 h-full w-72 bg-sidebar shadow-soft gpu-accelerated will-change-transform",
+                "fixed top-0 z-50 h-full w-72 bg-sidebar shadow-soft gpu",
                 isRTL ? "right-0 rounded-l-3xl" : "left-0 rounded-r-3xl"
               )}
             >
@@ -131,11 +131,10 @@ export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
                     <span className="text-lg font-semibold text-sidebar-foreground">StudyHub</span>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    {/* Messages button */}
                     {user && (
                       <button
                         onClick={handleMessagesClick}
-                        className="relative flex h-9 w-9 items-center justify-center rounded-lg text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                        className="relative flex h-9 w-9 items-center justify-center rounded-lg text-sidebar-foreground/70 transition-colors duration-150 hover:bg-sidebar-accent hover:text-sidebar-foreground"
                       >
                         <Mail className="h-5 w-5" />
                         {unreadCount > 0 && (
@@ -145,10 +144,9 @@ export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
                         )}
                       </button>
                     )}
-                    {/* Close button */}
                     <button
                       onClick={onClose}
-                      className="flex h-9 w-9 items-center justify-center rounded-lg text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                      className="flex h-9 w-9 items-center justify-center rounded-lg text-sidebar-foreground/70 transition-colors duration-150 hover:bg-sidebar-accent hover:text-sidebar-foreground"
                     >
                       <X className="h-5 w-5" />
                     </button>
@@ -158,20 +156,14 @@ export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
                 <nav className="flex-1 p-4 overflow-y-auto">
                   <ul className="space-y-1">
                     {user && messagesAtTop && messagesItem && (
-                      <motion.li
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: [1, 1.02, 1] }}
-                        transition={{ scale: { repeat: Infinity, duration: 2, ease: 'easeInOut' } }}
-                      >
+                      <li>
                         <NavLink
                           to={messagesItem.to}
                           onClick={onClose}
-                          className={cn("flex items-center gap-3 rounded-xl px-4 py-3 transition-all", "bg-primary/10 text-primary font-medium")}
+                          className={cn("flex items-center gap-3 rounded-xl px-4 py-3 transition-colors duration-150", "bg-primary/10 text-primary font-medium")}
                           activeClassName="bg-primary text-primary-foreground"
                         >
-                          <motion.div animate={{ rotate: [0, -10, 10, -10, 0] }} transition={{ repeat: Infinity, duration: 0.5, repeatDelay: 2 }}>
-                            <Mail className="h-5 w-5" />
-                          </motion.div>
+                          <Mail className="h-5 w-5" />
                           <span>{t('messages')}</span>
                           {unreadCount > 0 && (
                             <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-destructive px-1.5 text-xs font-bold text-destructive-foreground">
@@ -179,20 +171,17 @@ export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
                             </span>
                           )}
                         </NavLink>
-                      </motion.li>
+                      </li>
                     )}
 
                     {otherNavItems.map(item => renderNavItem(item))}
 
                     {user && !messagesAtTop && messagesItem && renderNavItem(messagesItem)}
 
-                    {/* Leaderboard as a nav item */}
                     <li>
                       <button
                         onClick={() => { setLeaderboardOpen(true); onClose(); }}
-                        className={cn(
-                          "flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sidebar-foreground/80 transition-all hover:bg-sidebar-accent hover:text-sidebar-foreground"
-                        )}
+                        className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sidebar-foreground/80 transition-colors duration-150 hover:bg-sidebar-accent hover:text-sidebar-foreground active:scale-[0.98]"
                       >
                         <Trophy className="h-5 w-5" />
                         <span className="flex-1 text-left">{t('leaderboard')}</span>
@@ -205,7 +194,7 @@ export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
                   {user ? (
                     <button
                       onClick={handleProfileClick}
-                      className="w-full flex items-center gap-3 rounded-xl px-3 py-3 text-sidebar-foreground/80 transition-all hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                      className="w-full flex items-center gap-3 rounded-xl px-3 py-3 text-sidebar-foreground/80 transition-colors duration-150 hover:bg-sidebar-accent hover:text-sidebar-foreground"
                     >
                       {settings?.avatar_url ? (
                         <img src={settings.avatar_url} alt="Avatar" className="h-10 w-10 rounded-full object-cover shrink-0" />
@@ -223,7 +212,7 @@ export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
                   ) : (
                     <button
                       onClick={handleAuthClick}
-                      className="w-full flex items-center gap-3 rounded-xl px-4 py-3 text-sidebar-foreground/80 transition-all hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                      className="w-full flex items-center gap-3 rounded-xl px-4 py-3 text-sidebar-foreground/80 transition-colors duration-150 hover:bg-sidebar-accent hover:text-sidebar-foreground"
                     >
                       <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-medium">?</div>
                       <span>{t('signIn')}</span>
