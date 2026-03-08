@@ -11,7 +11,7 @@ const translations: Record<Language, Translations> = {
   en: {
     // Navigation
     home: 'Home', studyMaterials: 'Study Materials', vocabulary: 'Vocabulary',
-    pomodoroTimer: 'Pomodoro Timer',
+    createTable: 'Create Table', pomodoroTimer: 'Pomodoro Timer',
     suggestions: 'Suggestions', messages: 'Messages', todoList: 'To-Do List', technicalSupport: 'Technical Support',
     // Settings
     settings: 'Settings', profile: 'Profile', displayName: 'Display Name',
