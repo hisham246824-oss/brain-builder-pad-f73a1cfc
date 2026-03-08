@@ -120,11 +120,8 @@
     font-family: 'DM Sans', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-  }
-
-  /* Performance optimizations */
-  .will-change-transform {
-    will-change: transform;
+    /* Prevent layout shifts from scrollbar */
+    overflow-y: scroll;
   }
 
   /* Reduce layout shifts */
@@ -155,9 +152,38 @@
     box-shadow: var(--shadow-glow);
   }
 
-  /* GPU-accelerated transitions */
+  /* GPU-accelerated transitions for smooth sidebar/page animations */
   .gpu-accelerated {
     transform: translateZ(0);
     backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+
+  /* Optimized will-change for animated elements */
+  .will-change-transform {
+    will-change: transform;
+  }
+
+  .will-change-opacity {
+    will-change: opacity;
+  }
+
+  /* Contain paint for heavy sections to isolate repaints */
+  .contain-paint {
+    contain: paint;
+  }
+
+  .contain-layout {
+    contain: layout;
+  }
+
+  /* Smooth transitions with hardware acceleration */
+  .transition-gpu {
+    transition-property: transform, opacity;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 200ms;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
   }
 }

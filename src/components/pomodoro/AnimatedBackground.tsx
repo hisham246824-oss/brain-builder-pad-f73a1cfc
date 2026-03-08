@@ -69,7 +69,7 @@ export function AnimatedBackground({ color }: AnimatedBackgroundProps) {
       {orbs.map((orb, index) => (
         <motion.div
           key={index}
-          className={`absolute ${orb.size} rounded-full blur-3xl`}
+          className={`absolute ${orb.size} rounded-full blur-2xl gpu-accelerated will-change-transform`}
           style={{ 
             ...orb.position,
             opacity: orb.opacity,
