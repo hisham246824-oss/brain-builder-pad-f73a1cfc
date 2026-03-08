@@ -290,13 +290,25 @@ function AdminChatView({ ticket, onBack, onStatusChange }: { ticket: Ticket; onB
   const handleSend = async () => {
     if (!newMessage.trim() || !user || isSending) return;
     setIsSending(true);
-    const msg = newMessage;
+    const msg = newMessage.trim();
     setNewMessage('');
+    
+    // Optimistic: add message instantly to UI
+    const optimisticMsg: Message = {
+      id: `temp-${Date.now()}`,
+      ticket_id: ticket.id,
+      sender_id: user.id,
+      content: msg,
+      is_admin: true,
+      created_at: new Date().toISOString(),
+    };
+    setMessages(prev => [...prev, optimisticMsg]);
+    
     try {
       const { error } = await supabase.from('support_messages').insert({
         ticket_id: ticket.id,
         sender_id: user.id,
-        content: msg.trim(),
+        content: msg,
         is_admin: true,
       });
       if (error) throw error;
@@ -304,6 +316,8 @@ function AdminChatView({ ticket, onBack, onStatusChange }: { ticket: Ticket; onB
     } catch (err) {
       console.error('Error:', err);
       toast.error('Failed to send message');
+      // Remove optimistic message on failure
+      setMessages(prev => prev.filter(m => m.id !== optimisticMsg.id));
     } finally {
       setIsSending(false);
     }
