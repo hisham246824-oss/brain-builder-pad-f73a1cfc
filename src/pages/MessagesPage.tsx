@@ -118,65 +118,28 @@ export default function MessagesPage() {
           </div>
           {polls.map((poll, index) => (
             <motion.div key={poll.id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 + index * 0.05 }}>
-              <Card className="rounded-[2rem] overflow-hidden border-none shadow-md hover:shadow-xl transition-shadow duration-300">
-                <div className="h-1.5 w-full bg-gradient-to-r from-primary via-primary/80 to-accent" />
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between gap-3">
-                    <h3 className="font-semibold text-foreground text-lg leading-snug">{poll.question}</h3>
-                    <span className="shrink-0 inline-flex items-center gap-1 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
-                      <Sparkles className="h-3 w-3" />
-                      {poll.total_votes} votes
-                    </span>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1.5 flex items-center gap-1.5">
-                    <Calendar className="h-3 w-3" />
-                    {new Date(poll.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                  </p>
-                  <div className="mt-5 space-y-2.5">
+              <Card className="rounded-[2rem] overflow-hidden border-none shadow-lg">
+                <CardContent className="p-8">
+                  <h3 className="font-bold text-foreground text-xl leading-snug mb-6">{poll.question}</h3>
+                  <div className="space-y-3">
                     {poll.options.map((opt, idx) => {
                       const isSelected = poll.user_vote === idx;
-                      const hasVoted = poll.user_vote !== null;
-                      const count = poll.vote_counts[idx] || 0;
-                      const pct = poll.total_votes > 0 ? (count / poll.total_votes) * 100 : 0;
-                      const colorGrad = POLL_COLORS[idx % POLL_COLORS.length];
-
                       return (
                         <motion.button
                           key={idx}
-                          whileHover={{ scale: 1.01 }}
                           whileTap={{ scale: 0.98 }}
                           onClick={() => handleVote(poll.id, idx)}
-                          className={cn(
-                            'w-full relative rounded-[1.25rem] border-2 p-4 text-left transition-all text-sm overflow-hidden',
-                            isSelected
-                              ? 'border-primary bg-primary/5 shadow-sm'
-                              : 'border-border/50 hover:border-primary/30 hover:bg-secondary/30'
-                          )}
+                          className="w-full flex items-center gap-4 p-3 rounded-2xl text-left transition-all hover:bg-secondary/40"
                         >
-                          {hasVoted && (
-                            <motion.div
-                              initial={{ width: 0 }}
-                              animate={{ width: `${pct}%` }}
-                              transition={{ duration: 0.7, ease: 'easeOut' }}
-                              className={cn("absolute left-0 top-0 h-full rounded-[1.25rem] bg-gradient-to-r opacity-15", colorGrad)}
-                            />
-                          )}
-                          <div className="relative flex items-center justify-between">
-                            <div className="flex items-center gap-2.5">
-                              <div className={cn(
-                                "flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold transition-all",
-                                isSelected ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground"
-                              )}>
-                                {isSelected ? <Check className="h-3.5 w-3.5" /> : String.fromCharCode(65 + idx)}
-                              </div>
-                              <span className="font-medium">{opt}</span>
-                            </div>
-                            {hasVoted && (
-                              <span className={cn("text-xs font-semibold", isSelected ? "text-primary" : "text-muted-foreground")}>
-                                {Math.round(pct)}%
-                              </span>
-                            )}
+                          <div className={cn(
+                            "flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 transition-all",
+                            isSelected
+                              ? "border-primary bg-primary"
+                              : "border-muted-foreground/40 bg-transparent"
+                          )}>
+                            {isSelected && <Check className="h-3.5 w-3.5 text-primary-foreground" />}
                           </div>
+                          <span className={cn("text-sm font-medium", isSelected ? "text-primary" : "text-foreground")}>{opt}</span>
                         </motion.button>
                       );
                     })}
