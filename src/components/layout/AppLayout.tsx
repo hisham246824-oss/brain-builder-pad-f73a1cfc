@@ -6,6 +6,7 @@ import { AppSidebar } from './AppSidebar';
 import { OfflineIndicator } from '@/components/OfflineIndicator';
 import { CopyrightFooter } from './CopyrightFooter';
 import { usePageVisitTracking } from '@/hooks/usePageVisitTracking';
+import { useRealtimeNotifications } from '@/hooks/useRealtimeNotifications';
 import { useTheme } from '@/hooks/useTheme';
 
 export function AppLayout() {
@@ -13,6 +14,7 @@ export function AppLayout() {
   const location = useLocation();
   
   usePageVisitTracking();
+  useRealtimeNotifications();
   useTheme();
 
   return (

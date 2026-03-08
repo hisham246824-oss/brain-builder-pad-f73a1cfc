@@ -127,7 +127,17 @@ export function useSupportChat(ticketId: string | null) {
         filter: `ticket_id=eq.${ticketId}`,
       }, (payload) => {
         if (payload.eventType === 'INSERT') {
-          setMessages(prev => [...prev, payload.new as SupportMessage]);
+          const newMsg = payload.new as SupportMessage;
+          setMessages(prev => {
+            // Replace optimistic message if exists
+            const hasTemp = prev.some(m => m.id.startsWith('temp-') && m.content === newMsg.content);
+            if (hasTemp) {
+              return prev.map(m => m.id.startsWith('temp-') && m.content === newMsg.content ? newMsg : m);
+            }
+            // Avoid duplicates
+            if (prev.some(m => m.id === newMsg.id)) return prev;
+            return [...prev, newMsg];
+          });
         } else if (payload.eventType === 'UPDATE') {
           setMessages(prev => prev.map(m => m.id === (payload.new as SupportMessage).id ? payload.new as SupportMessage : m));
         } else if (payload.eventType === 'DELETE') {
@@ -140,6 +150,19 @@ export function useSupportChat(ticketId: string | null) {
 
   const sendMessage = useCallback(async (content: string, isAdmin: boolean = false, attachmentUrl?: string) => {
     if (!user || !ticketId || (!content.trim() && !attachmentUrl)) return;
+    
+    // Optimistic update
+    const optimisticMsg: SupportMessage = {
+      id: `temp-${Date.now()}`,
+      ticket_id: ticketId,
+      sender_id: user.id,
+      content: content.trim() || '📎 Attachment',
+      is_admin: isAdmin,
+      created_at: new Date().toISOString(),
+      attachment_url: attachmentUrl || null,
+    };
+    setMessages(prev => [...prev, optimisticMsg]);
+    
     try {
       const insertData: any = {
         ticket_id: ticketId,
@@ -156,6 +179,8 @@ export function useSupportChat(ticketId: string | null) {
     } catch (err) {
       console.error('Error sending message:', err);
       toast.error('Failed to send message');
+      // Remove optimistic message on failure
+      setMessages(prev => prev.filter(m => m.id !== optimisticMsg.id));
     }
   }, [user, ticketId]);
 

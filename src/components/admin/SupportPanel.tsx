@@ -281,7 +281,17 @@ function AdminChatView({ ticket, onBack, onStatusChange }: { ticket: Ticket; onB
         event: 'INSERT', schema: 'public', table: 'support_messages',
         filter: `ticket_id=eq.${ticket.id}`,
       }, (payload) => {
-        setMessages(prev => [...prev, payload.new as Message]);
+        const newMsg = payload.new as Message;
+        // Replace optimistic message or add if from other user
+        setMessages(prev => {
+          const hasTemp = prev.some(m => m.id.startsWith('temp-') && m.content === newMsg.content);
+          if (hasTemp) {
+            return prev.map(m => m.id.startsWith('temp-') && m.content === newMsg.content ? newMsg : m);
+          }
+          // Avoid duplicates
+          if (prev.some(m => m.id === newMsg.id)) return prev;
+          return [...prev, newMsg];
+        });
       })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
@@ -290,13 +300,25 @@ function AdminChatView({ ticket, onBack, onStatusChange }: { ticket: Ticket; onB
   const handleSend = async () => {
     if (!newMessage.trim() || !user || isSending) return;
     setIsSending(true);
-    const msg = newMessage;
+    const msg = newMessage.trim();
     setNewMessage('');
+    
+    // Optimistic: add message instantly to UI
+    const optimisticMsg: Message = {
+      id: `temp-${Date.now()}`,
+      ticket_id: ticket.id,
+      sender_id: user.id,
+      content: msg,
+      is_admin: true,
+      created_at: new Date().toISOString(),
+    };
+    setMessages(prev => [...prev, optimisticMsg]);
+    
     try {
       const { error } = await supabase.from('support_messages').insert({
         ticket_id: ticket.id,
         sender_id: user.id,
-        content: msg.trim(),
+        content: msg,
         is_admin: true,
       });
       if (error) throw error;
@@ -304,6 +326,8 @@ function AdminChatView({ ticket, onBack, onStatusChange }: { ticket: Ticket; onB
     } catch (err) {
       console.error('Error:', err);
       toast.error('Failed to send message');
+      // Remove optimistic message on failure
+      setMessages(prev => prev.filter(m => m.id !== optimisticMsg.id));
     } finally {
       setIsSending(false);
     }
