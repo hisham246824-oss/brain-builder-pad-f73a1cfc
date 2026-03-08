@@ -656,26 +656,25 @@ export function AccountsPanel({
           <motion.div key={u.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.02 }}>
             <Card 
               className={cn(
-                "cursor-pointer transition-all hover:shadow-lg hover:border-primary/20 rounded-2xl overflow-hidden",
+                "cursor-pointer transition-all hover:shadow-lg hover:border-primary/20 rounded-3xl overflow-hidden",
                 u.is_blocked && "border-destructive/30 bg-destructive/5"
               )}
               onClick={() => handleViewActivity(u)}
             >
-              <div className="h-1" style={{ background: getAvatarColor(u.avatar_color) }} />
               <CardContent className="p-4">
-                <div className="flex items-center gap-4">
-                  {/* Avatar with online indicator */}
+                <div className="flex items-center gap-3">
+                  {/* Avatar */}
                   <div className="relative flex-shrink-0">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl text-lg font-bold text-white shadow-sm" style={{ backgroundColor: getAvatarColor(u.avatar_color) }}>
+                    <div className="flex h-11 w-11 items-center justify-center rounded-full text-base font-bold text-white shadow-sm" style={{ backgroundColor: getAvatarColor(u.avatar_color) }}>
                       {u.display_name?.charAt(0)?.toUpperCase() || '?'}
                     </div>
-                    <div className={cn("absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-card", u.is_online ? "bg-green-500" : "bg-muted-foreground/40")} />
+                    <div className={cn("absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-card", u.is_online ? "bg-green-500" : "bg-muted-foreground/40")} />
                   </div>
 
-                  {/* Info */}
+                  {/* Name + Email */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <p className="font-semibold text-foreground truncate">{u.display_name || 'User'}</p>
+                      <p className="font-semibold text-sm text-foreground truncate">{u.display_name || 'User'}</p>
                       {getRoleBadge(u.role)}
                       {u.is_blocked && (
                         <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-destructive/10 text-destructive font-semibold flex items-center gap-0.5">
@@ -683,41 +682,19 @@ export function AccountsPanel({
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-muted-foreground truncate mt-0.5">{u.email || u.id.slice(0, 20) + '...'}</p>
-                    <div className="flex items-center gap-3 mt-1 text-[10px] text-muted-foreground flex-wrap">
-                      <span>Joined {new Date(u.created_at).toLocaleDateString()}</span>
-                      <span>•</span>
-                      <span className={u.is_online ? 'text-green-600 font-medium' : ''}>
-                        {u.is_online ? 'Online now' : `Last seen ${formatTimeAgo(u.last_sign_in_at)}`}
-                      </span>
-                      {u.country && (
-                        <>
-                          <span>•</span>
-                          <span className="flex items-center gap-0.5"><MapPin className="h-2.5 w-2.5" />{u.country}</span>
-                        </>
-                      )}
-                      {u.language && (
-                        <>
-                          <span>•</span>
-                          <span className="flex items-center gap-0.5"><Globe className="h-2.5 w-2.5" />{LANGUAGE_NAMES[u.language] || u.language}</span>
-                        </>
-                      )}
-                      {u.avatar_color && u.avatar_color !== 'primary' && (
-                        <>
-                          <span>•</span>
-                          <span className="flex items-center gap-1">
-                            <span className="h-2.5 w-2.5 rounded-full inline-block" style={{ backgroundColor: getAvatarColor(u.avatar_color) }} />
-                            {u.avatar_color}
-                          </span>
-                        </>
-                      )}
-                      {u.is_blocked && u.blocked_until && (
-                        <>
-                          <span>•</span>
-                          <BlockTimer blockedUntil={u.blocked_until} />
-                        </>
-                      )}
-                    </div>
+                    <p className="text-xs text-muted-foreground/70 truncate mt-0.5">{u.email || u.id.slice(0, 20) + '...'}</p>
+                  </div>
+
+                  {/* Right side: language & country */}
+                  <div className="flex items-center gap-3 text-xs text-muted-foreground flex-shrink-0">
+                    {u.country && (
+                      <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{u.country}</span>
+                    )}
+                    {u.language && (
+                      <span className="flex items-center gap-1"><Globe className="h-3 w-3" />{LANGUAGE_NAMES[u.language] || u.language}</span>
+                    )}
+                    <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
+                  </div>
                   </div>
 
                   {/* Actions */}
