@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { 
   User, Palette, Moon, Sun, GripVertical, Check, 
   Star, Heart, Zap, Crown, Flame, Rocket, Diamond,
-  Lock, Eye, EyeOff, ArrowLeft, LogOut, Globe, Copy, Hash, Headphones, ChevronRight
+  Lock, Eye, EyeOff, ArrowLeft, LogOut, Globe, Copy, Hash, Headphones, ChevronRight, Camera
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
