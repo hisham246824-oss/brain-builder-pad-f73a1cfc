@@ -658,13 +658,13 @@ export function AccountsPanel({
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col gap-3 sm:flex-row">
+      <div className="flex flex-col sm:flex-row">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input placeholder="Search by name, email, or ID..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-9" />
+          <Input placeholder="Search by name, email, or ID..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-9 rounded-none rounded-t-2xl sm:rounded-t-none sm:rounded-l-2xl border-r-0 sm:border-r-0 focus-visible:z-10" />
         </div>
         <Select value={filterRole} onValueChange={setFilterRole}>
-          <SelectTrigger className="w-[130px]"><SelectValue placeholder="Role" /></SelectTrigger>
+          <SelectTrigger className="w-full sm:w-[130px] rounded-none border-t-0 sm:border-t sm:border-l-0 focus:z-10"><SelectValue placeholder="Role" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Roles</SelectItem>
             <SelectItem value="super_admin">Super Admin</SelectItem>
@@ -673,7 +673,7 @@ export function AccountsPanel({
           </SelectContent>
         </Select>
         <Select value={filterStatus} onValueChange={setFilterStatus}>
-          <SelectTrigger className="w-[130px]"><SelectValue placeholder="Status" /></SelectTrigger>
+          <SelectTrigger className="w-full sm:w-[130px] rounded-none border-t-0 sm:border-t sm:border-l-0 focus:z-10"><SelectValue placeholder="Status" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Status</SelectItem>
             <SelectItem value="online">Online</SelectItem>
@@ -682,7 +682,7 @@ export function AccountsPanel({
           </SelectContent>
         </Select>
         <Select value={sortBy} onValueChange={setSortBy}>
-          <SelectTrigger className="w-[130px]"><SelectValue placeholder="Sort" /></SelectTrigger>
+          <SelectTrigger className="w-full sm:w-[130px] rounded-none rounded-b-2xl sm:rounded-b-none sm:rounded-r-2xl border-t-0 sm:border-t sm:border-l-0 focus:z-10"><SelectValue placeholder="Sort" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="newest">Newest</SelectItem>
             <SelectItem value="oldest">Oldest</SelectItem>
