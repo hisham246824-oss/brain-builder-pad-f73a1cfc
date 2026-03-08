@@ -134,7 +134,7 @@ export default function PomodoroPage() {
                 transition={{ duration: 0.3, delay: 0.1 }}
                 className="h-full flex flex-col p-6 overflow-hidden"
               >
-                <h2 className="text-2xl font-bold text-foreground mb-6">Focus Zone</h2>
+                <h2 className="text-2xl font-bold text-foreground mb-6">{t('focusZone')}</h2>
                 
                 {/* Settings */}
                 <div>
