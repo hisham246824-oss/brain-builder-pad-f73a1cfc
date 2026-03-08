@@ -137,7 +137,7 @@ function LoggedInHomePage() {
           { icon: BookOpen, label: t('studyMaterials'), to: '/materials', color: 'text-emerald-500' },
           { icon: Timer, label: t('pomodoroTimer'), to: '/pomodoro', color: 'text-orange-500' },
           { icon: CheckSquare, label: t('vocabulary'), to: '/vocabulary', color: 'text-purple-500' },
-          { icon: Table2, label: t('createTable'), to: '/table-creator', color: 'text-blue-500' },
+          
         ].map((item, i) => (
           <motion.div key={i} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 + i * 0.08 }}
             whileHover={{ y: -3, transition: { duration: 0.15 } }}>
