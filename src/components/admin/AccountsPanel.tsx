@@ -747,8 +747,11 @@ export function AccountsPanel({
                     {u.country && (
                       <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{u.country}</span>
                     )}
-                    {u.language && (
-                      <span className="flex items-center gap-1"><Globe className="h-3 w-3" />{LANGUAGE_NAMES[u.language] || u.language}</span>
+                    {u.language && LANGUAGE_INFO[u.language] && (
+                      <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-secondary/80 text-xs">
+                        <span>{LANGUAGE_INFO[u.language].flag}</span>
+                        <span className="font-medium">{LANGUAGE_INFO[u.language].name}</span>
+                      </span>
                     )}
                     <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
                   </div>
