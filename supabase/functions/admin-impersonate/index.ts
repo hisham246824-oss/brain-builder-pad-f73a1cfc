@@ -23,22 +23,23 @@ Deno.serve(async (req) => {
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
-    // Validate caller
     const callerClient = createClient(supabaseUrl, supabaseAnonKey, {
       global: { headers: { Authorization: authHeader } },
     });
 
     const token = authHeader.replace("Bearer ", "");
-    const { data: { user: caller }, error: callerError } = await callerClient.auth.getUser(token);
-    if (callerError || !caller) {
+    const { data: claimsData, error: claimsError } = await callerClient.auth.getClaims(token);
+    if (claimsError || !claimsData?.claims) {
       return new Response(JSON.stringify({ error: "Invalid authentication" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
+    const callerId = claimsData.claims.sub as string;
+
     // Verify caller is admin
-    const { data: isAdmin } = await callerClient.rpc("is_admin", { _user_id: caller.id });
+    const { data: isAdmin } = await callerClient.rpc("is_admin", { _user_id: callerId });
     if (!isAdmin) {
       return new Response(JSON.stringify({ error: "Admin access required" }), {
         status: 403,
@@ -67,7 +68,7 @@ Deno.serve(async (req) => {
 
     // Don't allow impersonating super admins
     const { data: isSuperAdmin } = await adminClient.rpc("is_super_admin", { _user_id: targetUserId });
-    if (isSuperAdmin && caller.id !== targetUserId) {
+    if (isSuperAdmin && callerId !== targetUserId) {
       return new Response(JSON.stringify({ error: "Cannot impersonate super admins" }), {
         status: 403,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -87,16 +88,11 @@ Deno.serve(async (req) => {
       });
     }
 
-    // The action_link contains the full verification URL - we need to verify it server-side
-    // to get a valid session for the target user
     const actionLink = linkData.properties.action_link;
-    
-    // Extract token from the action link and verify it server-side to get session tokens
     const url = new URL(actionLink);
     const tokenHash = url.searchParams.get("token") || url.hash?.match(/token=([^&]+)/)?.[1];
     const type = url.searchParams.get("type") || "magiclink";
     
-    // Use the admin client to verify the OTP immediately (before it expires)
     const verifyResponse = await fetch(`${supabaseUrl}/auth/v1/verify`, {
       method: "POST",
       headers: {
