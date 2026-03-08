@@ -34,6 +34,7 @@ export function AppLayout() {
             <Outlet />
           </motion.div>
         </AnimatePresence>
+        </div>
       </main>
       <CopyrightFooter />
     </div>

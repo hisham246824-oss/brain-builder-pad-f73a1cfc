@@ -105,9 +105,10 @@ export function TableEditor() {
                       ...cellData.style,
                       fontWeight: isHeader && cellData.style.fontWeight === 'normal' ? 'bold' : cellData.style.fontWeight,
                       backgroundColor: isHeader && cellData.style.backgroundColor === '#ffffff' 
-                        ? '#f8f9fa' 
-                        : cellData.style.backgroundColor,
+                        ? undefined 
+                        : cellData.style.backgroundColor === '#ffffff' ? undefined : cellData.style.backgroundColor,
                     }}
+                    isHeader={isHeader}
                     onChange={(value) => updateCellValue(rowIndex, colIndex, value)}
                     isSelected={selectedCell === key}
                     onSelect={() => setSelectedCell(key)}
