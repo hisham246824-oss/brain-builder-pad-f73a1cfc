@@ -184,20 +184,10 @@ const Index = () => {
   const { user, isLoading } = useAuth();
 
   if (isLoading) {
-    return (
-      <div className="relative">
-        <AnimatedHomeBackground />
-        <HomeSkeleton />
-      </div>
-    );
+    return <HomeSkeleton />;
   }
 
-  return (
-    <div className="relative">
-      <AnimatedHomeBackground />
-      {user ? <LoggedInHomePage /> : <GuestHomePage />}
-    </div>
-  );
+  return user ? <LoggedInHomePage /> : <GuestHomePage />;
 };
 
 export default Index;
