@@ -54,7 +54,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Use service role to get target user
+    // Use service role
     const adminClient = createClient(supabaseUrl, supabaseServiceKey);
 
     const { data: targetUser, error: targetError } = await adminClient.auth.admin.getUserById(targetUserId);
@@ -74,22 +74,54 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Generate a magic link for the target user
+    // Generate magic link and extract the action link
     const { data: linkData, error: linkError } = await adminClient.auth.admin.generateLink({
       type: "magiclink",
       email: targetUser.user.email!,
     });
 
     if (linkError || !linkData) {
-      return new Response(JSON.stringify({ error: "Failed to generate link: " + (linkError?.message || "Unknown error") }), {
+      return new Response(JSON.stringify({ error: "Failed to generate link: " + (linkError?.message || "Unknown") }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
+    // The action_link contains the full verification URL - we need to verify it server-side
+    // to get a valid session for the target user
+    const actionLink = linkData.properties.action_link;
+    
+    // Extract token from the action link and verify it server-side to get session tokens
+    const url = new URL(actionLink);
+    const tokenHash = url.searchParams.get("token") || url.hash?.match(/token=([^&]+)/)?.[1];
+    const type = url.searchParams.get("type") || "magiclink";
+    
+    // Use the admin client to verify the OTP immediately (before it expires)
+    const verifyResponse = await fetch(`${supabaseUrl}/auth/v1/verify`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": supabaseServiceKey,
+      },
+      body: JSON.stringify({
+        token_hash: tokenHash,
+        type: type,
+      }),
+    });
+
+    if (!verifyResponse.ok) {
+      const errBody = await verifyResponse.text();
+      return new Response(JSON.stringify({ error: "Verification failed: " + errBody }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const sessionData = await verifyResponse.json();
+
     return new Response(JSON.stringify({
-      email: targetUser.user.email,
-      token_hash: linkData.properties.hashed_token,
+      access_token: sessionData.access_token,
+      refresh_token: sessionData.refresh_token,
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
