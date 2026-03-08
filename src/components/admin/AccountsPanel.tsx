@@ -244,12 +244,13 @@ export function AccountsPanel({
   };
 
   const handleDeleteUser = async () => {
-    if (!deleteTarget || !deletePassword || deleteConfirmText !== 'DELETE') return;
-    const success = await onDeleteUser(deleteTarget.id, deletePassword);
+    if (!viewingProfile || !deletePassword) return;
+    setDeleteLoading(true);
+    const success = await onDeleteUser(viewingProfile.id, deletePassword);
+    setDeleteLoading(false);
     if (success) {
-      setDeleteTarget(null);
+      setShowInlineDelete(false);
       setDeletePassword('');
-      setDeleteConfirmText('');
       setViewingProfile(null);
     }
   };
