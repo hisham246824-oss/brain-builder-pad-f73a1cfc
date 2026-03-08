@@ -25,10 +25,11 @@ export function useSupportTickets() {
   const { user } = useAuth();
   const [tickets, setTickets] = useState<SupportTicket[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const hasLoadedOnce = useRef(false);
 
-  const fetchTickets = useCallback(async () => {
+  const fetchTickets = useCallback(async (silent = false) => {
     if (!user) return;
-    setIsLoading(true);
+    if (!silent && !hasLoadedOnce.current) setIsLoading(true);
     try {
       const { data, error } = await supabase
         .from('support_tickets')
