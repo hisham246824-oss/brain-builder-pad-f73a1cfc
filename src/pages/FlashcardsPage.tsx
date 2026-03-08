@@ -513,7 +513,7 @@ export default function FlashcardsPage() {
           </motion.div>
         </AnimatePresence>
       ) : (
-        <TestSetup totalWords={allWords.length} onStart={startTest} />
+        <TestSetup totalWords={allWords.length} allWords={allWords} onStart={startTest} />
       )}
     </div>
   );

@@ -891,6 +891,7 @@ const translations: Record<Language, Translations> = {
     flipToReveal: 'अर्थ देखने के लिए पलटें', pickCorrect: 'सही उत्तर चुनें',
     random: 'यादृच्छिक', focus: 'केंद्रित', smartReview: 'स्मार्ट समीक्षा',
     randomDesc: 'यादृच्छिक चयन', focusDesc: 'केवल कठिन शब्द',
+    byDate: 'तारीख के अनुसार', byDateDesc: 'किसी विशिष्ट दिन जोड़े गए शब्दों का क्विज़', selectDate: 'तारीख चुनें', noDatesAvailable: 'कोई तारीख उपलब्ध नहीं',
     smartDesc: 'समीक्षा की आवश्यकता वाले शब्द', startTest: 'परीक्षा शुरू',
     whatDoesWordMean: 'इस शब्द का अर्थ?', needsMorePractice: 'और अभ्यास चाहिए',
     back: 'वापस',
