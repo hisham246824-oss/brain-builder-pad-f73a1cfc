@@ -131,6 +131,14 @@ export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
                     <span className="text-lg font-semibold text-sidebar-foreground">StudyHub</span>
                   </div>
                   <div className="flex items-center gap-1.5">
+                    {/* Leaderboard button */}
+                    <button
+                      onClick={() => setLeaderboardOpen(true)}
+                      className="flex h-9 w-9 items-center justify-center rounded-lg text-yellow-500 transition-colors hover:bg-sidebar-accent"
+                      title={t('leaderboard')}
+                    >
+                      <Trophy className="h-5 w-5" />
+                    </button>
                     {/* Messages button */}
                     {user && (
                       <button
