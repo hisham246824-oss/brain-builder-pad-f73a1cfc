@@ -10,6 +10,8 @@ import { useAdminData } from '@/hooks/useAdminData';
 import { useAdminImpersonation } from '@/contexts/AdminImpersonationContext';
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<AdminTab>('statistics');
+  const navigate = useNavigate();
+  const { startImpersonation } = useAdminImpersonation();
   const {
     users, stats, messages, suggestions, polls, isLoading,
     sendBroadcastMessage, updateMessage, deleteMessage,
@@ -19,6 +21,17 @@ export default function AdminDashboard() {
     sendPrivateMessage, getPrivateMessages, updatePrivateMessage, deletePrivateMessage,
     blockUser, unblockUser,
   } = useAdminData();
+
+  const handleImpersonateUser = useCallback((userId: string) => {
+    const targetUser = users.find(u => u.id === userId);
+    if (!targetUser) return;
+    startImpersonation({
+      userId: targetUser.id,
+      displayName: targetUser.display_name,
+      email: targetUser.email,
+    });
+    navigate('/');
+  }, [users, startImpersonation, navigate]);
 
   return (
     <AdminLayout activeTab={activeTab} onTabChange={setActiveTab} onRefresh={refreshData}>
