@@ -74,7 +74,8 @@ function TodoCard({ todo, onToggle, onDelete, index }: { todo: Todo; onToggle: (
       initial={{ opacity: 0, y: 20, scale: 0.97 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, x: -100, scale: 0.95 }}
-      transition={{ delay: index * 0.05 }}
+      transition={{ delay: index * 0.05, type: 'spring', stiffness: 350, damping: 25 }}
+      whileHover={{ y: -2, scale: 1.005, transition: { duration: 0.2 } }}
       className={`relative rounded-[1.25rem] border-2 overflow-hidden transition-all ${
         todo.completed
           ? 'border-border/20 bg-muted/20 opacity-50'

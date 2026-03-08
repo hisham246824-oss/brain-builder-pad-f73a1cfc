@@ -28,9 +28,10 @@ export function MaterialCard({ material, index, onUpdateIcon }: MaterialCardProp
   return (
     <>
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: index * 0.1 }}
+        initial={{ opacity: 0, y: 20, scale: 0.97 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ delay: index * 0.08, type: 'spring', stiffness: 350, damping: 25 }}
+        whileHover={{ y: -4, scale: 1.02, transition: { duration: 0.2 } }}
       >
         <Link to={`/materials/${material.id}`}>
           <div className="group relative overflow-hidden rounded-3xl bg-card p-6 shadow-card transition-all hover:shadow-soft hover:-translate-y-1">

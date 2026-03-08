@@ -46,11 +46,12 @@ export function VocabularyCard({ word, index, onDelete, onEdit }: VocabularyCard
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ delay: index * 0.05 }}
-      className="relative bg-card rounded-3xl overflow-hidden shadow-card hover:shadow-lg transition-shadow"
+      initial={{ opacity: 0, y: 20, scale: 0.97 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.95, y: -10 }}
+      transition={{ delay: index * 0.05, type: 'spring', stiffness: 350, damping: 25 }}
+      whileHover={{ y: -3, scale: 1.01, transition: { duration: 0.2 } }}
+      className="relative bg-card rounded-3xl overflow-hidden shadow-card hover:shadow-[0_8px_25px_hsl(var(--primary)/0.12)] transition-shadow duration-300"
     >
       {/* Header with action buttons */}
       <div className="bg-gradient-to-r from-primary to-primary/80 p-4 flex items-center justify-between">
