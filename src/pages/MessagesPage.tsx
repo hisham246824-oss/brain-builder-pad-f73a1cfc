@@ -69,7 +69,7 @@ export default function MessagesPage() {
       toast.success(t('thankYouVote'));
       fetchPolls();
     } catch {
-      toast.error('Failed to vote');
+      toast.error(t('failedToVote'));
     }
   };
 
