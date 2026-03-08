@@ -113,6 +113,7 @@
 @layer base {
   * {
     @apply border-border;
+    -webkit-tap-highlight-color: transparent;
   }
 
   body {
@@ -122,19 +123,20 @@
     -moz-osx-font-smoothing: grayscale;
     /* Prevent layout shifts from scrollbar */
     overflow-y: scroll;
+    /* Enable smooth text rendering on high-DPI */
+    text-rendering: optimizeLegibility;
   }
 
-  /* Reduce layout shifts */
+  /* Reduce layout shifts & lazy-load offscreen images */
   img, video {
     max-width: 100%;
     height: auto;
     content-visibility: auto;
   }
 
-  /* Smooth scrolling for all scrollable containers */
-  * {
-    scroll-behavior: smooth;
-    -webkit-tap-highlight-color: transparent;
+  /* Touch optimization for interactive elements */
+  button, a, [role="button"], input, select, textarea {
+    touch-action: manipulation;
   }
 
   /* Optimize rendering for list containers */

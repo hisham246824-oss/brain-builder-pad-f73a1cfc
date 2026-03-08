@@ -128,7 +128,7 @@ export default function VocabularyPage() {
           </p>
         </motion.div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-2 contain-paint">
           <AnimatePresence mode="popLayout">
             {displayWords.map((word, index) => (
               <VocabularyCard key={word.id} word={word} index={index} onDelete={deleteWord} onEdit={editWord} />

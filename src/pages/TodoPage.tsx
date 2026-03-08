@@ -307,7 +307,7 @@ const TodoPage = () => {
           </Button>
         </motion.div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-3 contain-paint">
           <AnimatePresence>
             {activeTodos.map((todo, i) => (
               <TodoCard key={todo.id} todo={todo} onToggle={toggleComplete} onDelete={deleteTodo} index={i} />
