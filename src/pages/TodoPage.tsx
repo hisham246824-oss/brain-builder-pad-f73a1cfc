@@ -228,37 +228,37 @@ const TodoPage = () => {
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl gradient-primary">
+            <div className="flex h-12 w-12 items-center justify-center rounded-[1.5rem] gradient-primary">
               <ListTodo className="h-6 w-6 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-primary">To-Do List</h1>
-              <p className="text-sm text-muted-foreground">Stay organized and track your progress</p>
+              <h1 className="text-3xl font-bold text-primary">{t('toDoList')}</h1>
+              <p className="text-sm text-muted-foreground">{t('stayOrganized')}</p>
             </div>
           </div>
-          <Button onClick={() => setShowAdd(true)} className="rounded-2xl gap-2 shadow-glow px-5 py-5">
-            <Plus className="h-5 w-5" /> Add Task
+          <Button onClick={() => setShowAdd(true)} className="rounded-full gap-2 shadow-glow px-5 py-5">
+            <Plus className="h-5 w-5" /> {t('addTask')}
           </Button>
         </div>
       </motion.div>
 
       {/* 2. Stats bar */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="bg-card border border-border rounded-2xl p-3 text-center">
+        <div className="bg-card border border-border rounded-[1.5rem] p-3 text-center">
           <p className="text-2xl font-bold text-primary">{todos.length}</p>
-          <p className="text-[11px] text-muted-foreground">Total Tasks</p>
+          <p className="text-[11px] text-muted-foreground">{t('totalTasks')}</p>
         </div>
-        <div className="bg-card border border-border rounded-2xl p-3 text-center">
+        <div className="bg-card border border-border rounded-[1.5rem] p-3 text-center">
           <p className="text-2xl font-bold text-green-500">{completedTodos.length}</p>
-          <p className="text-[11px] text-muted-foreground">Completed</p>
+          <p className="text-[11px] text-muted-foreground">{t('completed')}</p>
         </div>
-        <div className="bg-card border border-border rounded-2xl p-3 text-center">
+        <div className="bg-card border border-border rounded-[1.5rem] p-3 text-center">
           <p className="text-2xl font-bold text-red-500">{urgentCount}</p>
-          <p className="text-[11px] text-muted-foreground">Urgent</p>
+          <p className="text-[11px] text-muted-foreground">{t('urgent')}</p>
         </div>
-        <div className="bg-card border border-border rounded-2xl p-3 text-center">
+        <div className="bg-card border border-border rounded-[1.5rem] p-3 text-center">
           <p className="text-2xl font-bold text-destructive">{overdueCount}</p>
-          <p className="text-[11px] text-muted-foreground">Overdue</p>
+          <p className="text-[11px] text-muted-foreground">{t('overdue')}</p>
         </div>
       </motion.div>
 
