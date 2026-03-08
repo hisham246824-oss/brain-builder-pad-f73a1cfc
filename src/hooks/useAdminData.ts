@@ -152,6 +152,7 @@ export function useAdminData() {
           blocked_until: block?.blocked_until || null,
           block_reason: block?.reason || null,
           country: (profile as any).country || null,
+          language: (userSetting as any)?.language || 'en',
         };
       });
       setUsers(usersWithRoles);
