@@ -19,7 +19,7 @@ import TableCreatorPage from "./pages/TableCreatorPage";
 import PomodoroPage from "./pages/PomodoroPage";
 import VocabularyPage from "./pages/VocabularyPage";
 import FlashcardsPage from "./pages/FlashcardsPage";
-import AIChatPage from "./pages/AIChatPage";
+
 import MessagesPage from "./pages/MessagesPage";
 import AdminDashboard from "./pages/AdminDashboard";
 import SettingsPage from "./pages/SettingsPage";
