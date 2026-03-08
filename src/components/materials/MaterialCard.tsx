@@ -28,10 +28,12 @@ export function MaterialCard({ material, index, onUpdateIcon }: MaterialCardProp
   return (
     <>
       <motion.div
-        initial={{ opacity: 0, y: 20, scale: 0.97 }}
+        layout="position"
+        initial={{ opacity: 0, y: 16, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ delay: index * 0.08, type: 'spring', stiffness: 350, damping: 25 }}
-        whileHover={{ y: -4, scale: 1.02, transition: { duration: 0.2 } }}
+        transition={{ delay: Math.min(index * 0.06, 0.4), type: 'spring', stiffness: 400, damping: 28, mass: 0.8 }}
+        whileHover={{ y: -3, scale: 1.015, transition: { duration: 0.166 } }}
+        className="composite-layer"
       >
         <Link to={`/materials/${material.id}`}>
           <div className="group relative overflow-hidden rounded-3xl bg-card p-6 shadow-card transition-all duration-300 hover:shadow-[0_8px_30px_hsl(var(--primary)/0.12)]">

@@ -9,9 +9,10 @@ interface HeaderProps {
 export function Header({ onMenuClick }: HeaderProps) {
   return (
     <motion.header
-      initial={{ y: -20, opacity: 0 }}
+      initial={{ y: -16, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur-md gpu-accelerated"
+      transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+      className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur-md composite-layer"
     >
       <div className="flex h-16 items-center justify-between px-4 md:px-6">
         <div className="flex items-center gap-4">

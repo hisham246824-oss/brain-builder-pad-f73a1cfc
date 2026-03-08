@@ -70,12 +70,12 @@ function TodoCard({ todo, onToggle, onDelete, index }: { todo: Todo; onToggle: (
 
   return (
     <motion.div
-      layout
-      initial={{ opacity: 0, y: 20, scale: 0.97 }}
+      layout="position"
+      initial={{ opacity: 0, y: 16, scale: 0.98 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, x: -100, scale: 0.95 }}
-      transition={{ delay: index * 0.05, type: 'spring', stiffness: 350, damping: 25 }}
-      whileHover={{ y: -2, scale: 1.005, transition: { duration: 0.2 } }}
+      exit={{ opacity: 0, x: -80, scale: 0.96 }}
+      transition={{ delay: Math.min(index * 0.04, 0.3), type: 'spring', stiffness: 400, damping: 28, mass: 0.8 }}
+      whileHover={{ y: -2, scale: 1.004, transition: { duration: 0.166 } }}
       className={`relative rounded-[1.25rem] border-2 overflow-hidden transition-all ${
         todo.completed
           ? 'border-border/20 bg-muted/20 opacity-50'
