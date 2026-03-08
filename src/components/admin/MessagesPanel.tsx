@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  MessageSquare, Send, Edit, Trash2, Plus, Calendar, Eye, Save, X,
-  Search, Pin, PinOff, Copy, Clock, Users, Heart, CheckCheck,
-  Filter, ArrowUpDown, AlertTriangle
+  MessageSquare, Send, Edit, Trash2, Plus, Calendar, Save, X,
+  Search, Pin, PinOff, Copy, Users, Heart, CheckCheck,
+  ArrowUpDown, AlertTriangle, Sparkles
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,9 +14,6 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -50,8 +47,6 @@ export function MessagesPanel({ messages, isLoading, onSendBroadcast, onUpdateMe
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
   const [pinnedMessages, setPinnedMessages] = useState<Set<string>>(new Set());
-  const [selectedMessages, setSelectedMessages] = useState<Set<string>>(new Set());
-  const [previewMessage, setPreviewMessage] = useState<AdminMessage | null>(null);
 
   // Fetch read counts for all messages
   useEffect(() => {
@@ -75,7 +70,12 @@ export function MessagesPanel({ messages, isLoading, onSendBroadcast, onUpdateMe
     if (!newContent.trim()) return;
     setIsSending(true);
     const success = await onSendBroadcast(newTitle, newContent);
-    if (success) { setNewTitle(''); setNewContent(''); setShowCompose(false); }
+    if (success) { 
+      setNewTitle(''); 
+      setNewContent(''); 
+      setShowCompose(false); 
+      toast.success('Broadcast sent to all users!', { icon: '📢' });
+    }
     setIsSending(false);
   };
 
@@ -93,7 +93,7 @@ export function MessagesPanel({ messages, isLoading, onSendBroadcast, onUpdateMe
 
   const handleCopyContent = (msg: AdminMessage) => {
     navigator.clipboard.writeText(msg.content);
-    toast.success('Message content copied');
+    toast.success('Message copied to clipboard');
   };
 
   const togglePin = (id: string) => {
@@ -102,14 +102,6 @@ export function MessagesPanel({ messages, isLoading, onSendBroadcast, onUpdateMe
       next.has(id) ? next.delete(id) : next.add(id);
       return next;
     });
-  };
-
-  const handleBulkDelete = async () => {
-    for (const id of selectedMessages) {
-      await onDeleteMessage(id);
-    }
-    setSelectedMessages(new Set());
-    toast.success(`${selectedMessages.size} messages deleted`);
   };
 
   let filteredMessages = messages.filter(m =>
@@ -128,58 +120,100 @@ export function MessagesPanel({ messages, isLoading, onSendBroadcast, onUpdateMe
   });
 
   if (isLoading) {
-    return <div className="space-y-3">{[...Array(3)].map((_, i) => <div key={i} className="h-28 animate-pulse rounded-xl bg-secondary" />)}</div>;
+    return (
+      <div className="space-y-4">
+        {[...Array(3)].map((_, i) => (
+          <div key={i} className="h-32 animate-pulse rounded-3xl bg-secondary" />
+        ))}
+      </div>
+    );
   }
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-foreground">Broadcast Messages</h2>
-          <p className="text-sm text-muted-foreground mt-0.5">{messages.length} total messages sent</p>
+          <h2 className="text-2xl font-bold text-foreground">Broadcast Center</h2>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            {messages.length} message{messages.length !== 1 ? 's' : ''} • Instant delivery to all users
+          </p>
         </div>
-        <div className="flex gap-2">
-          {selectedMessages.size > 0 && (
-            <Button variant="destructive" size="sm" onClick={handleBulkDelete} className="gap-1">
-              <Trash2 className="h-3.5 w-3.5" /> Delete ({selectedMessages.size})
-            </Button>
-          )}
-          <Button onClick={() => setShowCompose(!showCompose)} className="gap-2">
-            <Plus className="h-4 w-4" /> New Broadcast
-          </Button>
-        </div>
-      </div>
-
-      {/* Search & Sort */}
-      <div className="flex gap-3">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input placeholder="Search messages..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-9" />
-        </div>
-        <Button variant="outline" size="icon" onClick={() => setSortOrder(s => s === 'newest' ? 'oldest' : 'newest')}>
-          <ArrowUpDown className="h-4 w-4" />
+        <Button onClick={() => setShowCompose(!showCompose)} className="gap-2 rounded-2xl">
+          <Plus className="h-4 w-4" /> New Broadcast
         </Button>
       </div>
 
-      {/* Compose */}
+      {/* Search & Sort Bar */}
+      <div className="flex">
+        <div className="relative flex-1">
+          <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input 
+            placeholder="Search messages..." 
+            value={searchQuery} 
+            onChange={e => setSearchQuery(e.target.value)} 
+            className="pl-10 rounded-l-2xl rounded-r-none border-r-0" 
+          />
+        </div>
+        <Button 
+          variant="outline" 
+          onClick={() => setSortOrder(s => s === 'newest' ? 'oldest' : 'newest')}
+          className="rounded-l-none rounded-r-2xl border-l-0 gap-2"
+        >
+          <ArrowUpDown className="h-4 w-4" />
+          {sortOrder === 'newest' ? 'Newest' : 'Oldest'}
+        </Button>
+      </div>
+
+      {/* Compose Card */}
       <AnimatePresence>
         {showCompose && (
-          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
-            <Card className="border-primary/30">
-              <CardHeader><CardTitle className="flex items-center gap-2 text-base"><Send className="h-4 w-4 text-primary" />Compose Broadcast</CardTitle></CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex items-center gap-2 p-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-xs text-amber-700">
+          <motion.div 
+            initial={{ opacity: 0, y: -10, height: 0 }} 
+            animate={{ opacity: 1, y: 0, height: 'auto' }} 
+            exit={{ opacity: 0, y: -10, height: 0 }}
+          >
+            <Card className="rounded-3xl border-primary/30 overflow-hidden">
+              <div className="h-1 bg-gradient-to-r from-primary via-primary/60 to-primary" />
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <Sparkles className="h-4 w-4 text-primary" />
+                  Compose New Broadcast
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center gap-2 p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-700">
                   <AlertTriangle className="h-4 w-4 flex-shrink-0" />
-                  <span>This message will be sent to ALL users. For private messages, use the Accounts panel.</span>
+                  <span>This message will be instantly delivered to <strong>all users</strong>. For private messages, use the Accounts panel.</span>
                 </div>
-                <Input placeholder="Title (optional)" value={newTitle} onChange={e => setNewTitle(e.target.value)} />
-                <Textarea placeholder="Message content..." value={newContent} onChange={e => setNewContent(e.target.value)} rows={4} />
-                <p className="text-xs text-muted-foreground">{newContent.length} characters</p>
-                <div className="flex justify-end gap-2">
-                  <Button variant="outline" onClick={() => setShowCompose(false)}>Cancel</Button>
-                  <Button onClick={handleSend} disabled={!newContent.trim() || isSending} className="gap-2">
-                    <Send className="h-4 w-4" />{isSending ? 'Sending...' : 'Send to All Users'}
-                  </Button>
+                <Input 
+                  placeholder="Message title (optional)" 
+                  value={newTitle} 
+                  onChange={e => setNewTitle(e.target.value)} 
+                  className="rounded-2xl"
+                />
+                <Textarea 
+                  placeholder="Write your message here..." 
+                  value={newContent} 
+                  onChange={e => setNewContent(e.target.value)} 
+                  rows={4} 
+                  className="rounded-2xl resize-none"
+                />
+                <div className="flex items-center justify-between">
+                  <p className="text-xs text-muted-foreground">{newContent.length} characters</p>
+                  <div className="flex gap-2">
+                    <Button variant="outline" onClick={() => setShowCompose(false)} className="rounded-2xl">
+                      Cancel
+                    </Button>
+                    <Button 
+                      onClick={handleSend} 
+                      disabled={!newContent.trim() || isSending} 
+                      className="gap-2 rounded-2xl"
+                    >
+                      <Send className="h-4 w-4" />
+                      {isSending ? 'Sending...' : 'Send Now'}
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -187,72 +221,154 @@ export function MessagesPanel({ messages, isLoading, onSendBroadcast, onUpdateMe
         )}
       </AnimatePresence>
 
-      {/* Messages list */}
+      {/* Messages List */}
       {filteredMessages.length === 0 ? (
-        <div className="rounded-xl bg-secondary/50 p-12 text-center">
-          <MessageSquare className="mx-auto h-16 w-16 text-muted-foreground" />
-          <p className="mt-4 text-lg text-muted-foreground">No messages found</p>
+        <div className="rounded-3xl bg-secondary/50 p-16 text-center">
+          <div className="mx-auto h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+            <MessageSquare className="h-10 w-10 text-primary" />
+          </div>
+          <p className="text-lg font-medium text-foreground">No broadcasts yet</p>
+          <p className="text-sm text-muted-foreground mt-1">Create your first broadcast to reach all users instantly</p>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-4">
           {filteredMessages.map((msg, i) => {
             const stats = readCounts[msg.id];
             const readPct = stats && stats.total > 0 ? Math.round((stats.reads / stats.total) * 100) : 0;
             const isPinned = pinnedMessages.has(msg.id);
-            const isSelected = selectedMessages.has(msg.id);
 
             return (
-              <motion.div key={msg.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.02 }}>
-                <Card className={cn("overflow-hidden transition-all", isPinned && "border-primary/30 bg-primary/5", isSelected && "ring-2 ring-primary")}>
+              <motion.div 
+                key={msg.id} 
+                initial={{ opacity: 0, y: 10 }} 
+                animate={{ opacity: 1, y: 0 }} 
+                transition={{ delay: i * 0.02 }}
+              >
+                <Card className={cn(
+                  "rounded-3xl overflow-hidden transition-all hover:shadow-lg",
+                  isPinned && "border-primary/30 bg-gradient-to-br from-primary/5 to-transparent"
+                )}>
                   <CardContent className="p-0">
-                    <div className={cn("absolute left-0 top-0 h-full w-1", isPinned ? "bg-primary" : "bg-muted")} />
-                    <div className="p-4 pl-5">
+                    {/* Accent bar */}
+                    <div className={cn(
+                      "h-1 w-full",
+                      isPinned ? "bg-gradient-to-r from-primary to-primary/50" : "bg-gradient-to-r from-muted to-transparent"
+                    )} />
+                    
+                    <div className="p-5">
                       {editingId === msg.id ? (
                         <div className="space-y-3">
-                          <Input value={editTitle} onChange={e => setEditTitle(e.target.value)} placeholder="Title" />
-                          <Textarea value={editContent} onChange={e => setEditContent(e.target.value)} rows={3} />
+                          <Input 
+                            value={editTitle} 
+                            onChange={e => setEditTitle(e.target.value)} 
+                            placeholder="Title" 
+                            className="rounded-2xl"
+                          />
+                          <Textarea 
+                            value={editContent} 
+                            onChange={e => setEditContent(e.target.value)} 
+                            rows={3} 
+                            className="rounded-2xl resize-none"
+                          />
                           <div className="flex gap-2 justify-end">
-                            <Button variant="outline" size="sm" onClick={() => setEditingId(null)}><X className="h-4 w-4" /></Button>
-                            <Button size="sm" onClick={handleSaveEdit} className="gap-1.5"><Save className="h-4 w-4" />Save</Button>
+                            <Button variant="outline" size="sm" onClick={() => setEditingId(null)} className="rounded-xl">
+                              <X className="h-4 w-4" />
+                            </Button>
+                            <Button size="sm" onClick={handleSaveEdit} className="gap-1.5 rounded-xl">
+                              <Save className="h-4 w-4" /> Save Changes
+                            </Button>
                           </div>
                         </div>
                       ) : (
                         <>
-                          <div className="flex items-start justify-between gap-3">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2">
-                                {isPinned && <Pin className="h-3.5 w-3.5 text-primary" />}
-                                <h3 className="font-semibold text-foreground">{msg.title || 'Broadcast Message'}</h3>
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                {isPinned && (
+                                  <span className="flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                                    <Pin className="h-3 w-3" /> Pinned
+                                  </span>
+                                )}
+                                <h3 className="font-semibold text-foreground truncate">
+                                  {msg.title || 'Broadcast Message'}
+                                </h3>
                               </div>
-                              <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
+                              <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
                                 <Calendar className="h-3 w-3" />
-                                {new Date(msg.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                {new Date(msg.created_at).toLocaleDateString('en-US', { 
+                                  month: 'short', 
+                                  day: 'numeric',
+                                  year: 'numeric',
+                                  hour: '2-digit', 
+                                  minute: '2-digit' 
+                                })}
                               </div>
                             </div>
-                            <div className="flex gap-1">
-                              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => togglePin(msg.id)}>
-                                {isPinned ? <PinOff className="h-3.5 w-3.5 text-primary" /> : <Pin className="h-3.5 w-3.5 text-muted-foreground" />}
+                            <div className="flex gap-1 flex-shrink-0">
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-8 w-8 rounded-xl" 
+                                onClick={() => togglePin(msg.id)}
+                              >
+                                {isPinned ? (
+                                  <PinOff className="h-4 w-4 text-primary" />
+                                ) : (
+                                  <Pin className="h-4 w-4 text-muted-foreground" />
+                                )}
                               </Button>
-                              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleCopyContent(msg)}>
-                                <Copy className="h-3.5 w-3.5 text-muted-foreground" />
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-8 w-8 rounded-xl" 
+                                onClick={() => handleCopyContent(msg)}
+                              >
+                                <Copy className="h-4 w-4 text-muted-foreground" />
                               </Button>
-                              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => startEdit(msg)}>
-                                <Edit className="h-3.5 w-3.5 text-muted-foreground" />
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-8 w-8 rounded-xl" 
+                                onClick={() => startEdit(msg)}
+                              >
+                                <Edit className="h-4 w-4 text-muted-foreground" />
                               </Button>
-                              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setDeleteId(msg.id)}>
-                                <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-8 w-8 rounded-xl" 
+                                onClick={() => setDeleteId(msg.id)}
+                              >
+                                <Trash2 className="h-4 w-4 text-destructive" />
                               </Button>
                             </div>
                           </div>
-                          <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{msg.content}</p>
+
+                          {/* Message Content */}
+                          <div className="mt-4 p-4 rounded-2xl bg-secondary/50">
+                            <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">
+                              {msg.content}
+                            </p>
+                          </div>
+
+                          {/* Stats */}
                           {stats && (
-                            <div className="mt-3 space-y-2">
-                              <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                                <span className="flex items-center gap-1"><CheckCheck className="h-3 w-3" /> {stats.reads} reads</span>
-                                <span className="flex items-center gap-1"><Heart className="h-3 w-3" /> {stats.likes} likes</span>
-                                <span className="flex items-center gap-1"><Users className="h-3 w-3" /> {readPct}% reached</span>
+                            <div className="mt-4 space-y-2">
+                              <div className="flex items-center gap-4 text-xs">
+                                <span className="flex items-center gap-1.5 text-muted-foreground">
+                                  <CheckCheck className="h-3.5 w-3.5 text-green-500" /> 
+                                  <span className="font-medium text-foreground">{stats.reads}</span> reads
+                                </span>
+                                <span className="flex items-center gap-1.5 text-muted-foreground">
+                                  <Heart className="h-3.5 w-3.5 text-red-500" /> 
+                                  <span className="font-medium text-foreground">{stats.likes}</span> likes
+                                </span>
+                                <span className="flex items-center gap-1.5 text-muted-foreground ml-auto">
+                                  <Users className="h-3.5 w-3.5" /> 
+                                  <span className="font-medium text-foreground">{readPct}%</span> reached
+                                </span>
                               </div>
-                              <Progress value={readPct} className="h-1" />
+                              <Progress value={readPct} className="h-1.5 rounded-full" />
                             </div>
                           )}
                         </>
@@ -266,16 +382,23 @@ export function MessagesPanel({ messages, isLoading, onSendBroadcast, onUpdateMe
         </div>
       )}
 
-      {/* Delete Confirmation */}
+      {/* Delete Confirmation Dialog */}
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
-        <AlertDialogContent>
+        <AlertDialogContent className="rounded-3xl">
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Message</AlertDialogTitle>
-            <AlertDialogDescription>This message will be permanently deleted for all users.</AlertDialogDescription>
+            <AlertDialogTitle>Delete Broadcast</AlertDialogTitle>
+            <AlertDialogDescription>
+              This message will be permanently deleted and removed from all users' message history.
+            </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => { if (deleteId) onDeleteMessage(deleteId); setDeleteId(null); }} className="bg-destructive text-destructive-foreground">Delete</AlertDialogAction>
+            <AlertDialogCancel className="rounded-2xl">Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={() => { if (deleteId) onDeleteMessage(deleteId); setDeleteId(null); }} 
+              className="bg-destructive text-destructive-foreground rounded-2xl"
+            >
+              Delete
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
