@@ -424,6 +424,18 @@ export function useAdminData() {
   // Block user
   const blockUser = async (userId: string, durationHours: number, reason: string) => {
     if (!isAdmin || !user) return false;
+    
+    // Regular admins can only block regular users, not other admins
+    const targetUser = users.find(u => u.id === userId);
+    if (targetUser?.role === 'super_admin') {
+      toast.error('Cannot block the super admin');
+      return false;
+    }
+    if (!isSuperAdmin && targetUser?.role === 'admin') {
+      toast.error('Only super admin can block other admins');
+      return false;
+    }
+    
     try {
       const blockedUntil = new Date(Date.now() + durationHours * 60 * 60 * 1000).toISOString();
       // Remove existing block first

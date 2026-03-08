@@ -450,22 +450,25 @@ export function AccountsPanel({
                     <Mail className="h-4 w-4" /> Send Private Message
                   </Button>
 
-                  {/* Block/Unblock */}
+                  {/* Block/Unblock - super_admin can block admins & users; regular admin can only block users */}
                   {viewingProfile.role !== 'super_admin' && (
-                    viewingProfile.is_blocked ? (
-                      <Button variant="outline" className="w-full justify-start gap-2 text-green-600" onClick={() => onUnblockUser(viewingProfile.id)}>
-                        <Unlock className="h-4 w-4" /> Unblock User
-                      </Button>
-                    ) : (
-                      <Button variant="outline" className="w-full justify-start gap-2 text-amber-600" onClick={() => {
-                        setShowInlineBlock(true);
-                        setTimeout(() => blockFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
-                      }}>
-                        <Ban className="h-4 w-4" /> Block User
-                      </Button>
-                    )
+                    (isSuperAdmin || viewingProfile.role === 'user') ? (
+                      viewingProfile.is_blocked ? (
+                        <Button variant="outline" className="w-full justify-start gap-2 text-green-600" onClick={() => onUnblockUser(viewingProfile.id)}>
+                          <Unlock className="h-4 w-4" /> Unblock User
+                        </Button>
+                      ) : (
+                        <Button variant="outline" className="w-full justify-start gap-2 text-amber-600" onClick={() => {
+                          setShowInlineBlock(true);
+                          setTimeout(() => blockFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+                        }}>
+                          <Ban className="h-4 w-4" /> Block User
+                        </Button>
+                      )
+                    ) : null
                   )}
 
+                  {/* Role management & deletion - super_admin only */}
                   {isSuperAdmin && viewingProfile.role !== 'super_admin' && (
                     <>
                       {viewingProfile.role === 'admin' ? (
@@ -477,7 +480,7 @@ export function AccountsPanel({
                         </Button>
                       ) : (
                         <Button variant="outline" className="w-full justify-start gap-2 text-blue-600" onClick={() => setPromoteTarget(viewingProfile)}>
-                          <Shield className="h-4 w-4" /> Promote to Full Admin
+                          <Shield className="h-4 w-4" /> Promote to Admin
                         </Button>
                       )}
                       <Button variant="destructive" className="w-full justify-start gap-2" onClick={() => {
