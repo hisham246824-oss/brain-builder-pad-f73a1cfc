@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
-import { cacheVocabulary, getCachedVocabulary, addPendingAction, getPendingActions, removePendingAction } from '@/lib/offlineCache';
+import { cacheVocabulary, getCachedVocabulary, addPendingAction, getPendingActions, removePendingAction, setSyncStatus } from '@/lib/offlineCache';
 
 export interface VocabularyWord {
   id: string;
@@ -32,11 +32,14 @@ export function useVocabulary() {
     if (vocabActions.length === 0) return;
     
     hasSyncedPending.current = true;
+    setSyncStatus('syncing');
     
     for (const action of vocabActions) {
       try {
         if (action.type === 'add') {
           await supabase.from('vocabulary').insert(action.data);
+        } else if (action.type === 'update') {
+          await supabase.from('vocabulary').update(action.data.updates).eq('id', action.data.id);
         } else if (action.type === 'delete') {
           await supabase.from('vocabulary').delete().eq('id', action.data.id);
         }
@@ -46,7 +49,7 @@ export function useVocabulary() {
       }
     }
     
-    // Silent sync - no toast notification
+    setSyncStatus('synced');
   }, [user, isOnline]);
 
   useEffect(() => {
@@ -82,7 +85,6 @@ export function useVocabulary() {
 
     if (error) {
       console.error('Error fetching vocabulary:', error);
-      // Fallback to cache on error
       const cached = getCachedVocabulary();
       if (cached) {
         setWords(cached);
@@ -129,7 +131,6 @@ export function useVocabulary() {
             isLocalChange.current = false;
             return;
           }
-          // Silent sync - no toast notification
           fetchWords();
         }
       )
@@ -142,6 +143,35 @@ export function useVocabulary() {
 
   const addWord = useCallback(async (word: string, meanings: string, notes?: string) => {
     if (!user) return { error: new Error('Not authenticated') };
+
+    const optimisticWord: VocabularyWord = {
+      id: crypto.randomUUID(),
+      word: word.trim(),
+      meanings: meanings.trim(),
+      notes: notes?.trim() || null,
+      created_at: new Date().toISOString(),
+    };
+
+    // Optimistic update
+    setWords(prev => {
+      const updated = [optimisticWord, ...prev];
+      cacheVocabulary(updated);
+      return updated;
+    });
+
+    if (!isOnline) {
+      addPendingAction({
+        type: 'add',
+        table: 'vocabulary',
+        data: {
+          user_id: user.id,
+          word: word.trim(),
+          meanings: meanings.trim(),
+          notes: notes?.trim() || null,
+        },
+      });
+      return { data: optimisticWord };
+    }
 
     const { data, error } = await supabase
       .from('vocabulary')
@@ -156,19 +186,35 @@ export function useVocabulary() {
 
     if (error) {
       console.error('Error adding word:', error);
+      // Revert optimistic update
+      setWords(prev => prev.filter(w => w.id !== optimisticWord.id));
       return { error };
     }
 
-    // Optimistically update the local state immediately
-    setWords(prev => [data, ...prev]);
+    // Replace optimistic with real data
+    isLocalChange.current = true;
+    setWords(prev => {
+      const updated = prev.map(w => w.id === optimisticWord.id ? data : w);
+      cacheVocabulary(updated);
+      return updated;
+    });
     return { data };
-  }, [user]);
+  }, [user, isOnline]);
 
   const deleteWord = useCallback(async (id: string) => {
     if (!user) return { error: new Error('Not authenticated') };
 
     // Optimistically update
-    setWords(prev => prev.filter(w => w.id !== id));
+    setWords(prev => {
+      const updated = prev.filter(w => w.id !== id);
+      cacheVocabulary(updated);
+      return updated;
+    });
+
+    if (!isOnline) {
+      addPendingAction({ type: 'delete', table: 'vocabulary', data: { id } });
+      return { error: null };
+    }
 
     const { error } = await supabase
       .from('vocabulary')
@@ -183,7 +229,7 @@ export function useVocabulary() {
     }
 
     return { error: null };
-  }, [user, fetchWords]);
+  }, [user, isOnline, fetchWords]);
 
   const filteredWords = words.filter(word => {
     if (!searchQuery) return true;

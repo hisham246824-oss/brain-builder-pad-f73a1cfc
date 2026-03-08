@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { MaterialIcon } from '@/types/study';
 import { toast } from '@/hooks/use-toast';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
-import { cacheMaterials, getCachedMaterials, addPendingAction, getPendingActions, removePendingAction } from '@/lib/offlineCache';
+import { cacheMaterials, getCachedMaterials, addPendingAction, getPendingActions, removePendingAction, setSyncStatus } from '@/lib/offlineCache';
 
 export interface MaterialWithRelations {
   id: string;
@@ -40,13 +40,15 @@ export function useStudyDataSupabase() {
     if (!user || !isOnline || hasSyncedPending.current) return;
     
     const pendingActions = getPendingActions();
-    if (pendingActions.length === 0) return;
+    const relevantActions = pendingActions.filter(a => 
+      a.table === 'study_materials' || a.table === 'lessons'
+    );
+    if (relevantActions.length === 0) return;
     
     hasSyncedPending.current = true;
+    setSyncStatus('syncing');
     
-    for (const action of pendingActions) {
-      if (action.table !== 'study_materials' && action.table !== 'lessons') continue;
-      
+    for (const action of relevantActions) {
       try {
         if (action.type === 'add') {
           await supabase.from(action.table).insert(action.data);
@@ -61,7 +63,7 @@ export function useStudyDataSupabase() {
       }
     }
     
-    // Silent sync - no toast notification
+    setSyncStatus('synced');
   }, [user, isOnline]);
 
   useEffect(() => {
@@ -101,7 +103,6 @@ export function useStudyDataSupabase() {
 
     if (materialsError) {
       console.error('Error fetching materials:', materialsError);
-      // Fallback to cache on error
       const cached = getCachedMaterials();
       if (cached) {
         setMaterials(cached);
@@ -171,12 +172,11 @@ export function useStudyDataSupabase() {
   useEffect(() => {
     if (!user) return;
 
-    const handleRealtimeChange = (tableName: string) => {
+    const handleRealtimeChange = () => {
       if (isLocalChange.current) {
         isLocalChange.current = false;
         return;
       }
-      // Fetch without showing loading state for realtime updates - silent sync
       fetchMaterials(false);
     };
 
@@ -190,7 +190,7 @@ export function useStudyDataSupabase() {
           table: 'study_materials',
           filter: `user_id=eq.${user.id}`,
         },
-        () => handleRealtimeChange('materials')
+        () => handleRealtimeChange()
       )
       .subscribe();
 
@@ -204,7 +204,7 @@ export function useStudyDataSupabase() {
           table: 'lessons',
           filter: `user_id=eq.${user.id}`,
         },
-        () => handleRealtimeChange('lessons')
+        () => handleRealtimeChange()
       )
       .subscribe();
 
@@ -218,7 +218,7 @@ export function useStudyDataSupabase() {
           table: 'material_files',
           filter: `user_id=eq.${user.id}`,
         },
-        () => handleRealtimeChange('files')
+        () => handleRealtimeChange()
       )
       .subscribe();
 
@@ -231,6 +231,35 @@ export function useStudyDataSupabase() {
 
   const addMaterial = useCallback(async (title: string) => {
     if (!user) return null;
+
+    const optimisticMaterial: MaterialWithRelations = {
+      id: crypto.randomUUID(),
+      title,
+      icon: 'book' as MaterialIcon,
+      lessons: [],
+      files: [],
+    };
+
+    // Optimistic update
+    setMaterials(prev => {
+      const updated = [...prev, optimisticMaterial];
+      cacheMaterials(updated);
+      return updated;
+    });
+
+    if (!isOnline) {
+      addPendingAction({
+        type: 'add',
+        table: 'study_materials',
+        data: {
+          user_id: user.id,
+          title,
+          icon: 'book',
+          position: materials.length,
+        },
+      });
+      return optimisticMaterial;
+    }
 
     const { data, error } = await supabase
       .from('study_materials')
@@ -245,19 +274,39 @@ export function useStudyDataSupabase() {
 
     if (error) {
       console.error('Error adding material:', error);
+      setMaterials(prev => prev.filter(m => m.id !== optimisticMaterial.id));
       return null;
     }
 
-    // Optimistic update
-    setMaterials(prev => [...prev, { ...data, icon: data.icon as MaterialIcon, lessons: [], files: [] }]);
+    isLocalChange.current = true;
+    setMaterials(prev => {
+      const updated = prev.map(m => m.id === optimisticMaterial.id 
+        ? { ...data, icon: data.icon as MaterialIcon, lessons: [], files: [] } 
+        : m);
+      cacheMaterials(updated);
+      return updated;
+    });
     return data;
-  }, [user, materials.length]);
+  }, [user, materials.length, isOnline]);
 
   const updateMaterialIcon = useCallback(async (id: string, icon: MaterialIcon) => {
     if (!user) return;
 
     // Optimistic update
-    setMaterials(prev => prev.map(m => m.id === id ? { ...m, icon } : m));
+    setMaterials(prev => {
+      const updated = prev.map(m => m.id === id ? { ...m, icon } : m);
+      cacheMaterials(updated);
+      return updated;
+    });
+
+    if (!isOnline) {
+      addPendingAction({
+        type: 'update',
+        table: 'study_materials',
+        data: { id, updates: { icon } },
+      });
+      return;
+    }
 
     const { error } = await supabase
       .from('study_materials')
@@ -269,13 +318,26 @@ export function useStudyDataSupabase() {
       console.error('Error updating icon:', error);
       fetchMaterials();
     }
-  }, [user, fetchMaterials]);
+  }, [user, isOnline, fetchMaterials]);
 
   const deleteMaterial = useCallback(async (id: string) => {
     if (!user) return;
 
     // Optimistic update
-    setMaterials(prev => prev.filter(m => m.id !== id));
+    setMaterials(prev => {
+      const updated = prev.filter(m => m.id !== id);
+      cacheMaterials(updated);
+      return updated;
+    });
+
+    if (!isOnline) {
+      addPendingAction({
+        type: 'delete',
+        table: 'study_materials',
+        data: { id },
+      });
+      return;
+    }
 
     const { error } = await supabase
       .from('study_materials')
@@ -287,13 +349,47 @@ export function useStudyDataSupabase() {
       console.error('Error deleting material:', error);
       fetchMaterials();
     }
-  }, [user, fetchMaterials]);
+  }, [user, isOnline, fetchMaterials]);
 
   const addLesson = useCallback(async (materialId: string, title: string) => {
     if (!user) return null;
 
     const material = materials.find(m => m.id === materialId);
     const position = material?.lessons.length || 0;
+
+    const optimisticLesson = {
+      id: crypto.randomUUID(),
+      title,
+      completed: false,
+      position,
+      notes: null,
+    };
+
+    // Optimistic update
+    setMaterials(prev => {
+      const updated = prev.map(m => 
+        m.id === materialId 
+          ? { ...m, lessons: [...m.lessons, optimisticLesson] }
+          : m
+      );
+      cacheMaterials(updated);
+      return updated;
+    });
+
+    if (!isOnline) {
+      addPendingAction({
+        type: 'add',
+        table: 'lessons',
+        data: {
+          material_id: materialId,
+          user_id: user.id,
+          title,
+          completed: false,
+          position,
+        },
+      });
+      return optimisticLesson;
+    }
 
     const { data, error } = await supabase
       .from('lessons')
@@ -309,18 +405,28 @@ export function useStudyDataSupabase() {
 
     if (error) {
       console.error('Error adding lesson:', error);
+      // Revert
+      setMaterials(prev => prev.map(m => 
+        m.id === materialId 
+          ? { ...m, lessons: m.lessons.filter(l => l.id !== optimisticLesson.id) }
+          : m
+      ));
       return null;
     }
 
-    // Optimistic update
-    setMaterials(prev => prev.map(m => 
-      m.id === materialId 
-        ? { ...m, lessons: [...m.lessons, data] }
-        : m
-    ));
+    isLocalChange.current = true;
+    setMaterials(prev => {
+      const updated = prev.map(m => 
+        m.id === materialId 
+          ? { ...m, lessons: m.lessons.map(l => l.id === optimisticLesson.id ? data : l) }
+          : m
+      );
+      cacheMaterials(updated);
+      return updated;
+    });
 
     return data;
-  }, [user, materials]);
+  }, [user, materials, isOnline]);
 
   const toggleLesson = useCallback(async (materialId: string, lessonId: string) => {
     if (!user) return;
@@ -332,28 +438,40 @@ export function useStudyDataSupabase() {
     const newCompleted = !lesson.completed;
 
     // Optimistic update with reordering
-    setMaterials(prev => prev.map(m => {
-      if (m.id !== materialId) return m;
-      
-      const updatedLessons = m.lessons.map(l => 
-        l.id === lessonId ? { ...l, completed: newCompleted } : l
-      );
-      
-      // Sort: incomplete lessons first, then completed
-      const incompleteLessons = updatedLessons
-        .filter(l => !l.completed)
-        .sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
-      const completedLessons = updatedLessons
-        .filter(l => l.completed)
-        .sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
-      
-      const sortedLessons = [...incompleteLessons, ...completedLessons].map((l, idx) => ({
-        ...l,
-        position: idx,
-      }));
-      
-      return { ...m, lessons: sortedLessons };
-    }));
+    setMaterials(prev => {
+      const updated = prev.map(m => {
+        if (m.id !== materialId) return m;
+        
+        const updatedLessons = m.lessons.map(l => 
+          l.id === lessonId ? { ...l, completed: newCompleted } : l
+        );
+        
+        const incompleteLessons = updatedLessons
+          .filter(l => !l.completed)
+          .sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
+        const completedLessons = updatedLessons
+          .filter(l => l.completed)
+          .sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
+        
+        const sortedLessons = [...incompleteLessons, ...completedLessons].map((l, idx) => ({
+          ...l,
+          position: idx,
+        }));
+        
+        return { ...m, lessons: sortedLessons };
+      });
+      cacheMaterials(updated);
+      return updated;
+    });
+
+    if (!isOnline) {
+      addPendingAction({
+        type: 'update',
+        table: 'lessons',
+        data: { id: lessonId, updates: { completed: newCompleted } },
+      });
+      return;
+    }
 
     // Update completion status in database
     const { error } = await supabase
@@ -392,17 +510,30 @@ export function useStudyDataSupabase() {
         console.error('Error updating positions:', posError);
       }
     }
-  }, [user, materials, fetchMaterials]);
+  }, [user, materials, isOnline, fetchMaterials]);
 
   const deleteLesson = useCallback(async (materialId: string, lessonId: string) => {
     if (!user) return;
 
     // Optimistic update
-    setMaterials(prev => prev.map(m => 
-      m.id === materialId 
-        ? { ...m, lessons: m.lessons.filter(l => l.id !== lessonId) }
-        : m
-    ));
+    setMaterials(prev => {
+      const updated = prev.map(m => 
+        m.id === materialId 
+          ? { ...m, lessons: m.lessons.filter(l => l.id !== lessonId) }
+          : m
+      );
+      cacheMaterials(updated);
+      return updated;
+    });
+
+    if (!isOnline) {
+      addPendingAction({
+        type: 'delete',
+        table: 'lessons',
+        data: { id: lessonId },
+      });
+      return;
+    }
 
     const { error } = await supabase
       .from('lessons')
@@ -414,25 +545,28 @@ export function useStudyDataSupabase() {
       console.error('Error deleting lesson:', error);
       fetchMaterials();
     }
-  }, [user, fetchMaterials]);
+  }, [user, isOnline, fetchMaterials]);
 
   const updateLessonNotes = useCallback(async (materialId: string, lessonId: string, notes: string) => {
     if (!user) return;
 
     // Optimistic update
-    setMaterials(prev => prev.map(m => 
-      m.id === materialId 
-        ? { 
-            ...m, 
-            lessons: m.lessons.map(l => 
-              l.id === lessonId ? { ...l, notes } : l
-            ) 
-          }
-        : m
-    ));
+    setMaterials(prev => {
+      const updated = prev.map(m => 
+        m.id === materialId 
+          ? { 
+              ...m, 
+              lessons: m.lessons.map(l => 
+                l.id === lessonId ? { ...l, notes } : l
+              ) 
+            }
+          : m
+      );
+      cacheMaterials(updated);
+      return updated;
+    });
 
     if (!isOnline) {
-      // Queue for later sync
       addPendingAction({
         type: 'update',
         table: 'lessons',
@@ -457,19 +591,22 @@ export function useStudyDataSupabase() {
     if (!user) return;
 
     // Optimistic update
-    setMaterials(prev => prev.map(m => {
-      if (m.id !== materialId) return m;
-      
-      const reorderedLessons = lessonIds.map((id, index) => {
-        const lesson = m.lessons.find(l => l.id === id);
-        return lesson ? { ...lesson, position: index } : null;
-      }).filter(Boolean) as typeof m.lessons;
-      
-      return { ...m, lessons: reorderedLessons };
-    }));
+    setMaterials(prev => {
+      const updated = prev.map(m => {
+        if (m.id !== materialId) return m;
+        
+        const reorderedLessons = lessonIds.map((id, index) => {
+          const lesson = m.lessons.find(l => l.id === id);
+          return lesson ? { ...lesson, position: index } : null;
+        }).filter(Boolean) as typeof m.lessons;
+        
+        return { ...m, lessons: reorderedLessons };
+      });
+      cacheMaterials(updated);
+      return updated;
+    });
 
     if (!isOnline) {
-      // Queue for later sync
       lessonIds.forEach((id, index) => {
         addPendingAction({
           type: 'update',
