@@ -866,6 +866,7 @@ const translations: Record<Language, Translations> = {
     greatNoDifficult: 'बढ़िया! कोई कठिन शब्द नहीं',
     tryDifferentSearch: 'कोई और खोज शब्द आज़माएं', addFirstWord: 'अपना पहला शब्द जोड़ें',
     showingDifficult: 'कठिन शब्द दिखा रहे हैं',
+    searchingFor: 'खोज रहे हैं', result: 'परिणाम', results: 'परिणाम',
     signIn: 'साइन इन / खाता बनाएं', myProfile: 'मेरा प्रोफ़ाइल',
     signInBtn: 'साइन इन', createAccountBtn: 'खाता बनाएं',
     welcomeBack: 'वापसी पर स्वागत', createYourAccount: 'अपना खाता बनाएं',
