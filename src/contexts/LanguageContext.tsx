@@ -517,6 +517,9 @@ const translations: Record<Language, Translations> = {
     infoSuggestions: 'Partagez vos idées pour améliorer la plateforme. Soumettez des demandes et votez pour les suggestions.',
     infoTodos: 'Gérez vos tâches avec des priorités colorées. Définissez des échéances avec compte à rebours en direct.',
     infoSupport: 'Besoin d\'aide ? Créez des tickets de support, joignez des images et discutez avec l\'équipe.',
+    leaderboard: 'Classement',
+    leaderboardDesc: 'Meilleurs apprenants par temps passé',
+    noLeaderboardData: 'Pas encore de données',
   },
   zh: {
     home: '首页', studyMaterials: '学习资料', vocabulary: '词汇',
