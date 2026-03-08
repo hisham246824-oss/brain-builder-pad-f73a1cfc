@@ -62,11 +62,13 @@ interface UserActivity {
   lessons_count: number;
   vocabulary_count: number;
   suggestions_count: number;
-  todos_count: number;
   total_visits: number;
   total_duration: number;
   last_active: string | null;
   most_visited_page: string | null;
+  peak_hours: { hour: number; visits: number }[];
+  country: string | null;
+  language: string | null;
 }
 
 interface PrivateMessage {
@@ -301,7 +303,7 @@ export function AccountsPanel({
 
   // Full profile view
   if (viewingProfile) {
-    const totalContent = userActivity ? userActivity.materials_count + userActivity.vocabulary_count + userActivity.lessons_count + userActivity.todos_count : 0;
+    const totalContent = userActivity ? userActivity.materials_count + userActivity.vocabulary_count + userActivity.lessons_count : 0;
 
     return (
       <div className="space-y-6">
@@ -389,7 +391,7 @@ export function AccountsPanel({
               {[
                 { label: 'Materials', value: userActivity.materials_count, icon: BookOpen, color: 'text-blue-500' },
                 { label: 'Vocabulary', value: userActivity.vocabulary_count, icon: Languages, color: 'text-purple-500' },
-                { label: 'Tasks', value: userActivity.todos_count, icon: ListTodo, color: 'text-orange-500' },
+                { label: 'Lessons', value: userActivity.lessons_count, icon: FileText, color: 'text-orange-500' },
                 { label: 'Page Visits', value: userActivity.total_visits, icon: Globe, color: 'text-green-500' },
                 { label: 'Total Time', value: formatDuration(userActivity.total_duration), icon: Clock, color: 'text-teal-500' },
               ].map((stat, i) => (
@@ -422,7 +424,6 @@ export function AccountsPanel({
               <Card>
                 <CardHeader><CardTitle className="text-base flex items-center gap-2"><Activity className="h-4 w-4 text-primary" />Activity Summary</CardTitle></CardHeader>
                 <CardContent className="space-y-3 text-sm">
-                  <div className="flex justify-between"><span className="text-muted-foreground">Lessons Created</span><span className="font-semibold">{userActivity.lessons_count}</span></div>
                   <div className="flex justify-between"><span className="text-muted-foreground">Suggestions Sent</span><span className="font-semibold">{userActivity.suggestions_count}</span></div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Current Status</span>
@@ -432,6 +433,50 @@ export function AccountsPanel({
                   </div>
                   <div className="flex justify-between"><span className="text-muted-foreground">Last Activity</span><span className="font-semibold">{formatTimeAgo(userActivity.last_active)}</span></div>
                   <div className="flex justify-between"><span className="text-muted-foreground">Most Visited</span><span className="font-semibold">{pageNameMap[userActivity.most_visited_page || ''] || userActivity.most_visited_page || 'N/A'}</span></div>
+                  {userActivity.country && (
+                    <div className="flex justify-between"><span className="text-muted-foreground">Country</span><span className="font-semibold flex items-center gap-1"><MapPin className="h-3 w-3" />{userActivity.country}</span></div>
+                  )}
+                  {userActivity.language && LANGUAGE_INFO[userActivity.language] && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Language</span>
+                      <span className="font-semibold flex items-center gap-1">
+                        <span>{LANGUAGE_INFO[userActivity.language].flag}</span>
+                        {LANGUAGE_INFO[userActivity.language].name}
+                      </span>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Peak Activity Hours */}
+              <Card>
+                <CardHeader><CardTitle className="text-base flex items-center gap-2"><TrendingUp className="h-4 w-4 text-primary" />Peak Activity Hours</CardTitle></CardHeader>
+                <CardContent className="space-y-2 text-sm">
+                  {userActivity.peak_hours.length > 0 ? (
+                    userActivity.peak_hours.map((ph, i) => {
+                      const maxVisits = userActivity.peak_hours[0]?.visits || 1;
+                      const pct = Math.round((ph.visits / maxVisits) * 100);
+                      const hourLabel = `${ph.hour.toString().padStart(2, '0')}:00 - ${((ph.hour + 1) % 24).toString().padStart(2, '0')}:00`;
+                      return (
+                        <div key={ph.hour} className="space-y-1">
+                          <div className="flex justify-between text-xs">
+                            <span className="text-muted-foreground">{hourLabel}</span>
+                            <span className="font-semibold">{ph.visits} visits</span>
+                          </div>
+                          <div className="h-1.5 rounded-full bg-secondary overflow-hidden">
+                            <motion.div
+                              className="h-full rounded-full bg-primary"
+                              initial={{ width: 0 }}
+                              animate={{ width: `${pct}%` }}
+                              transition={{ delay: i * 0.1, duration: 0.4 }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <p className="text-muted-foreground text-center py-4">No activity data yet</p>
+                  )}
                 </CardContent>
               </Card>
 
