@@ -46,7 +46,9 @@ export function TableCell({ value, style, onChange, isSelected, onSelect, isHead
       value={localValue}
       onClick={onSelect}
       onChange={handleChange}
-      className={`min-h-[48px] w-full px-3 py-2 border border-border outline-none transition-all bg-card text-foreground ${
+      className={`min-h-[48px] w-full px-3 py-2 border border-border outline-none transition-all text-foreground ${
+        isHeader ? 'bg-muted font-semibold' : 'bg-card'
+      } ${
         isSelected ? 'ring-2 ring-primary ring-offset-1 ring-offset-background' : 'hover:bg-muted/50'
       }`}
       style={{
