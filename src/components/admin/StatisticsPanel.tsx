@@ -35,7 +35,7 @@ interface StatisticsPanelProps {
 const pageNameMap: Record<string, string> = {
   '/': 'Home', '/materials': 'Materials', '/vocabulary': 'Vocabulary',
   '/flashcards': 'Flashcards', '/pomodoro': 'Pomodoro',
-  '/table-creator': 'Tables', '/ai-chat': 'AI Chat', '/messages': 'Messages',
+  '/table-creator': 'Tables', '/messages': 'Messages',
   '/suggestions': 'Suggestions', '/settings': 'Settings', '/todos': 'To-Do List',
 };
 

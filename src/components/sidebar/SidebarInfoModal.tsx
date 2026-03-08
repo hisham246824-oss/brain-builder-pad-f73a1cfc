@@ -5,7 +5,6 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   home: Home,
   materials: BookOpen,
   vocabulary: BookA,
-  'ai-chat': Bot,
   'table-creator': Table2,
   pomodoro: Timer,
   messages: Mail,

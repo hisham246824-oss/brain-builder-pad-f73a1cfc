@@ -34,7 +34,7 @@ export function AppLayout() {
           </motion.div>
         </AnimatePresence>
       </main>
-      {!isAiChat && <CopyrightFooter />}
+      <CopyrightFooter />
     </div>
   );
 }

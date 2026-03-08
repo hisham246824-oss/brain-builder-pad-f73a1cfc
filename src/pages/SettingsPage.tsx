@@ -255,21 +255,6 @@ export default function SettingsPage() {
           </div>
         </motion.section>
 
-        {/* AI Section */}
-        <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-card rounded-2xl p-6 shadow-soft">
-          <div className="flex items-center gap-3 mb-6">
-            <Bot className="h-5 w-5 text-primary" />
-            <h2 className="text-lg font-semibold">{t('aiPreferences')}</h2>
-          </div>
-          <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">{t('customizeAi')}</p>
-            <Textarea value={aiPrompt} onChange={(e) => setAiPrompt(e.target.value)} placeholder={t('aiPlaceholder')} className="min-h-[80px] rounded-xl" />
-            <Button onClick={async () => { await updateSettings({ ai_custom_prompt: aiPrompt || null }); toast.success(t('aiPrefsUpdated')); }} className="rounded-xl">
-              {t('saveAiPrefs')}
-            </Button>
-          </div>
-        </motion.section>
-
         {/* Theme Section */}
         <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-card rounded-2xl p-6 shadow-soft">
           <div className="flex items-center gap-3 mb-6">

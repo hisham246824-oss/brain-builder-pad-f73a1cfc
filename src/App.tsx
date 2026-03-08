@@ -179,7 +179,7 @@ function AppRoutes() {
           <Route path="/pomodoro" element={<PomodoroPage />} />
           <Route path="/vocabulary" element={<VocabularyPage />} />
           <Route path="/flashcards" element={<FlashcardsPage />} />
-          <Route path="/ai-chat" element={<AIChatPage />} />
+          
           <Route path="/messages" element={<MessagesPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/suggestions" element={<SuggestionsPage />} />
