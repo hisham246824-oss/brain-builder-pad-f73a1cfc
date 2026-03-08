@@ -121,28 +121,17 @@
     font-family: 'DM Sans', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    /* Prevent layout shifts from scrollbar */
     overflow-y: scroll;
-    /* Enable smooth text rendering on high-DPI */
-    text-rendering: optimizeLegibility;
+    text-rendering: optimizeSpeed;
   }
 
-  /* Reduce layout shifts & lazy-load offscreen images */
   img, video {
     max-width: 100%;
     height: auto;
-    content-visibility: auto;
   }
 
-  /* Touch optimization for interactive elements */
   button, a, [role="button"], input, select, textarea {
     touch-action: manipulation;
-  }
-
-  /* Optimize rendering for list containers */
-  .contain-content {
-    content-visibility: auto;
-    contain-intrinsic-size: auto 500px;
   }
 }
 
@@ -167,65 +156,19 @@
     box-shadow: var(--shadow-glow);
   }
 
-  /* GPU-accelerated transitions for smooth sidebar/page animations */
-  .gpu-accelerated {
+  /* Single GPU layer class — lightweight, no will-change bloat */
+  .gpu {
     transform: translateZ(0);
     backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
-    -webkit-transform: translateZ(0);
   }
 
-  /* Optimized will-change for animated elements */
-  .will-change-transform {
-    will-change: transform;
-  }
-
-  .will-change-opacity {
-    will-change: opacity;
-  }
-
-  /* Contain paint for heavy sections to isolate repaints */
+  /* Paint isolation for scroll containers */
   .contain-paint {
     contain: paint;
   }
-
-  .contain-layout {
-    contain: layout;
-  }
-
-  .contain-strict {
-    contain: layout style paint;
-  }
-
-  /* Smooth transitions with hardware acceleration */
-  .transition-gpu {
-    transition-property: transform, opacity;
-    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
-    transition-duration: 166ms;
-    transform: translateZ(0);
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
-  }
-
-  /* 120Hz-optimized scroll container */
-  .scroll-optimized {
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior: contain;
-    scroll-behavior: smooth;
-    contain: paint layout;
-  }
-
-  /* Composite-only animations (transform + opacity only) */
-  .composite-layer {
-    transform: translateZ(0);
-    will-change: transform, opacity;
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
-    -webkit-transform: translateZ(0);
-  }
 }
 
-/* Pomodoro background orb animations - GPU-only transforms for 60fps */
+/* Pomodoro orb animations — GPU-only transforms */
 @keyframes orb-float-1 {
   0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
   50% { transform: translate3d(80px, -40px, 0) scale(1.15); }
