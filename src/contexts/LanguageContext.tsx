@@ -1021,6 +1021,7 @@ const translations: Record<Language, Translations> = {
     greatNoDifficult: '¡Genial! No hay palabras difíciles',
     tryDifferentSearch: 'Intenta otro término', addFirstWord: 'Agrega tu primera palabra',
     showingDifficult: 'Mostrando palabras difíciles',
+    searchingFor: 'Buscando', result: 'resultado', results: 'resultados',
     signIn: 'Iniciar sesión / Crear cuenta', myProfile: 'Mi perfil',
     signInBtn: 'Iniciar sesión', createAccountBtn: 'Crear cuenta',
     welcomeBack: 'Bienvenido de vuelta', createYourAccount: 'Crea tu cuenta',
