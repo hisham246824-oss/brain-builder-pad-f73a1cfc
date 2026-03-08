@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useFlashcards, TestCount, TestMode, TestFormat } from '@/hooks/useFlashcards';
 import { Flashcard } from '@/components/vocabulary/Flashcard';
 import { FlashcardControls } from '@/components/vocabulary/FlashcardControls';
@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/AuthContext';
 import {
   ArrowLeft, Sparkles, CheckCircle2, XCircle, ThumbsUp, AlertTriangle,
-  Shuffle, Target, Brain, Layers, ListChecks, Keyboard, Zap, Trophy, WifiOff,
+  Shuffle, Target, Brain, Layers, ListChecks, Keyboard, Zap, Trophy, WifiOff, CalendarDays,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -15,6 +15,7 @@ import { Progress } from '@/components/ui/progress';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import { cn } from '@/lib/utils';
+import { format } from 'date-fns';
 
 function TestSetup({ totalWords, onStart }: { totalWords: number; onStart: (count: TestCount, mode: TestMode, format: TestFormat) => void }) {
   const [count, setCount] = useState<TestCount>(10);
