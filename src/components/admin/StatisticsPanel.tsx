@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
-  Users, BookOpen, GraduationCap, Activity, TrendingUp, Clock,
-  Languages, MessageSquare, Lightbulb, BarChart, ListTodo, Globe,
-  Zap, Shield, Ban, Mail, Eye, FileText, CheckCircle2, UserCheck
+  Users, Activity, TrendingUp, Clock, UserCheck
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
