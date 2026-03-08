@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookOpen, Home, X, GraduationCap, Timer, BookA, Mail, Settings, Star, Heart, Zap, Crown, Flame, Rocket, Diamond, Lightbulb, ListTodo, Table2 } from 'lucide-react';
+import { BookOpen, Home, X, GraduationCap, Timer, BookA, Mail, Settings, Star, Heart, Zap, Crown, Flame, Rocket, Diamond, Lightbulb, ListTodo, Table2, Trophy } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdminMessages } from '@/hooks/useAdminMessages';
 import { useUserSettings } from '@/hooks/useUserSettings';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { LeaderboardModal } from '@/components/leaderboard/LeaderboardModal';
 import { cn } from '@/lib/utils';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -47,6 +48,7 @@ export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
   const { t, isRTL } = useLanguage();
   const { hasUnread, unreadCount } = useAdminMessages();
   const { settings } = useUserSettings();
+  const [leaderboardOpen, setLeaderboardOpen] = useState(false);
 
   const getSortedNavItems = () => {
     if (!settings?.sidebar_order || settings.sidebar_order.length === 0) return BASE_NAV_ITEMS;
@@ -129,6 +131,14 @@ export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
                     <span className="text-lg font-semibold text-sidebar-foreground">StudyHub</span>
                   </div>
                   <div className="flex items-center gap-1.5">
+                    {/* Leaderboard button */}
+                    <button
+                      onClick={() => setLeaderboardOpen(true)}
+                      className="flex h-9 w-9 items-center justify-center rounded-lg text-yellow-500 transition-colors hover:bg-sidebar-accent"
+                      title={t('leaderboard')}
+                    >
+                      <Trophy className="h-5 w-5" />
+                    </button>
                     {/* Messages button */}
                     {user && (
                       <button
@@ -216,6 +226,7 @@ export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
           </>
         )}
       </AnimatePresence>
+      <LeaderboardModal isOpen={leaderboardOpen} onClose={() => setLeaderboardOpen(false)} />
     </>
   );
 }

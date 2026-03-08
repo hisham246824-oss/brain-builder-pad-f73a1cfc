@@ -195,6 +195,9 @@ const translations: Record<Language, Translations> = {
     infoSuggestions: 'Share your ideas to improve the platform. Submit feature requests, vote on others\' suggestions, and help shape the experience.',
     infoTodos: 'Manage tasks with color-coded priorities (Urgent, Medium, Low). Set deadlines with live countdowns, track progress, and celebrate achievements.',
     infoSupport: 'Need help? Create support tickets, attach images, chat with the team, and track your issue until it\'s resolved.',
+    leaderboard: 'Leaderboard',
+    leaderboardDesc: 'Top performers by time spent',
+    noLeaderboardData: 'No data yet',
   },
   ar: {
     home: 'الرئيسية', studyMaterials: 'المواد الدراسية', vocabulary: 'المفردات',
@@ -356,6 +359,9 @@ const translations: Record<Language, Translations> = {
     infoSuggestions: 'شارك أفكارك لتحسين المنصة. أرسل طلبات ميزات وصوّت على اقتراحات الآخرين.',
     infoTodos: 'أدِر المهام بأولويات ملونة (عاجل، متوسط، منخفض). حدّد مواعيد نهائية مع عد تنازلي مباشر.',
     infoSupport: 'تحتاج مساعدة؟ أنشئ تذاكر دعم، أرفق صوراً، تحدث مع الفريق، وتتبع مشكلتك حتى حلها.',
+    leaderboard: 'المتصدرون',
+    leaderboardDesc: 'أفضل المتعلمين حسب الوقت',
+    noLeaderboardData: 'لا توجد بيانات بعد',
   },
   fr: {
     home: 'Accueil', studyMaterials: 'Matériel d\'étude', vocabulary: 'Vocabulaire',
@@ -511,6 +517,9 @@ const translations: Record<Language, Translations> = {
     infoSuggestions: 'Partagez vos idées pour améliorer la plateforme. Soumettez des demandes et votez pour les suggestions.',
     infoTodos: 'Gérez vos tâches avec des priorités colorées. Définissez des échéances avec compte à rebours en direct.',
     infoSupport: 'Besoin d\'aide ? Créez des tickets de support, joignez des images et discutez avec l\'équipe.',
+    leaderboard: 'Classement',
+    leaderboardDesc: 'Meilleurs apprenants par temps passé',
+    noLeaderboardData: 'Pas encore de données',
   },
   zh: {
     home: '首页', studyMaterials: '学习资料', vocabulary: '词汇',
@@ -661,6 +670,9 @@ const translations: Record<Language, Translations> = {
     infoSuggestions: '分享您的想法以改进平台。提交功能请求，为他人的建议投票。',
     infoTodos: '使用彩色优先级管理任务。设置带实时倒计时的截止日期。',
     infoSupport: '需要帮助？创建支持工单，附加图片，与团队聊天。',
+    leaderboard: '排行榜',
+    leaderboardDesc: '按学习时间排名',
+    noLeaderboardData: '暂无数据',
   },
   ja: {
     home: 'ホーム', studyMaterials: '学習資料', vocabulary: '語彙',
@@ -811,6 +823,9 @@ const translations: Record<Language, Translations> = {
     infoSuggestions: 'プラットフォーム改善のアイデアを共有。機能リクエストを送信し、他の提案に投票。',
     infoTodos: '色分け優先度でタスクを管理。リアルタイムカウントダウン付きの期限を設定。',
     infoSupport: 'お困りですか？サポートチケットを作成し、画像を添付してチームとチャット。',
+    leaderboard: 'ランキング',
+    leaderboardDesc: '学習時間によるトップ',
+    noLeaderboardData: 'データなし',
   },
   hi: {
     home: 'होम', studyMaterials: 'अध्ययन सामग्री', vocabulary: 'शब्दावली',
@@ -961,6 +976,9 @@ const translations: Record<Language, Translations> = {
     infoSuggestions: 'प्लेटफॉर्म को बेहतर बनाने के लिए अपने विचार साझा करें। सुविधा अनुरोध भेजें और दूसरों के सुझावों पर वोट करें।',
     infoTodos: 'रंग-कोडित प्राथमिकताओं के साथ कार्य प्रबंधित करें। लाइव काउंटडाउन के साथ समय सीमा निर्धारित करें।',
     infoSupport: 'मदद चाहिए? सहायता टिकट बनाएं, छवियां संलग्न करें और टीम से चैट करें।',
+    leaderboard: 'लीडरबोर्ड',
+    leaderboardDesc: 'समय के अनुसार शीर्ष शिक्षार्थी',
+    noLeaderboardData: 'अभी कोई डेटा नहीं',
   },
   es: {
     home: 'Inicio', studyMaterials: 'Material de estudio', vocabulary: 'Vocabulario',
@@ -1111,6 +1129,9 @@ const translations: Record<Language, Translations> = {
     infoSuggestions: 'Comparte tus ideas para mejorar la plataforma. Envía solicitudes y vota por las sugerencias.',
     infoTodos: 'Gestiona tareas con prioridades de colores. Establece plazos con cuenta regresiva en vivo.',
     infoSupport: '¿Necesitas ayuda? Crea tickets de soporte, adjunta imágenes y chatea con el equipo.',
+    leaderboard: 'Clasificación',
+    leaderboardDesc: 'Mejores por tiempo dedicado',
+    noLeaderboardData: 'Sin datos aún',
   },
   pt: {
     home: 'Início', studyMaterials: 'Material de estudo', vocabulary: 'Vocabulário',
@@ -1261,6 +1282,9 @@ const translations: Record<Language, Translations> = {
     infoSuggestions: 'Compartilhe suas ideias para melhorar a plataforma. Envie solicitações e vote nas sugestões.',
     infoTodos: 'Gerencie tarefas com prioridades coloridas. Defina prazos com contagem regressiva ao vivo.',
     infoSupport: 'Precisa de ajuda? Crie tickets de suporte, anexe imagens e converse com a equipe.',
+    leaderboard: 'Classificação',
+    leaderboardDesc: 'Melhores por tempo dedicado',
+    noLeaderboardData: 'Sem dados ainda',
   },
 };
 
