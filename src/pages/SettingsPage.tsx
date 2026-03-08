@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { 
   User, Palette, Moon, Sun, GripVertical, Check, 
   Star, Heart, Zap, Crown, Flame, Rocket, Diamond,
-  Lock, Eye, EyeOff, ArrowLeft, LogOut, Globe, Copy, Hash
+  Lock, Eye, EyeOff, ArrowLeft, LogOut, Globe, Copy, Hash, Headphones, ChevronRight
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -66,7 +66,6 @@ export default function SettingsPage() {
     home: t('home'), materials: t('studyMaterials'), vocabulary: t('vocabulary'),
     pomodoro: t('pomodoroTimer'),
     suggestions: t('suggestions'), messages: t('messages'), todos: t('todoList'),
-    support: t('technicalSupport'),
   };
 
   useEffect(() => {
@@ -289,6 +288,20 @@ export default function SettingsPage() {
             </SortableContext>
           </DndContext>
           <Button onClick={handleSaveSidebarOrder} className="w-full mt-4 rounded-xl">{t('saveSidebarOrder')}</Button>
+        </motion.section>
+
+        {/* Technical Support */}
+        <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="bg-card rounded-2xl p-6 shadow-soft">
+          <div className="flex items-center gap-3 mb-4">
+            <Headphones className="h-5 w-5 text-primary" />
+            <h2 className="text-lg font-semibold">{t('technicalSupport')}</h2>
+          </div>
+          <p className="text-sm text-muted-foreground mb-4">{t('supportDesc') || 'Need help? Create a support ticket and our team will assist you.'}</p>
+          <Button variant="outline" onClick={() => navigate('/support')} className="w-full rounded-xl gap-2">
+            <Headphones className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-1")} />
+            {t('technicalSupport')}
+            <ChevronRight className={cn("h-4 w-4 ml-auto", isRTL && "rotate-180")} />
+          </Button>
         </motion.section>
 
         {/* Logout */}
