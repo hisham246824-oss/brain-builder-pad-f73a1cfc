@@ -710,10 +710,15 @@ export function AccountsPanel({
                 <div className="flex items-center gap-3">
                   {/* Avatar */}
                   <div className="relative flex-shrink-0">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-full text-base font-bold text-white shadow-sm" style={{ backgroundColor: getAvatarColor(u.avatar_color) }}>
+                    <div className={cn(
+                      "flex h-11 w-11 items-center justify-center rounded-full text-base font-bold text-white shadow-sm ring-2",
+                      u.is_blocked ? "ring-destructive" : u.is_online ? "ring-green-500" : "ring-transparent"
+                    )} style={{ backgroundColor: getAvatarColor(u.avatar_color) }}>
                       {u.display_name?.charAt(0)?.toUpperCase() || '?'}
                     </div>
-                    <div className={cn("absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-card", u.is_online ? "bg-green-500" : "bg-muted-foreground/40")} />
+                    {u.is_online && !u.is_blocked && (
+                      <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-card bg-green-500 animate-pulse" />
+                    )}
                   </div>
 
                   {/* Name + Email */}
