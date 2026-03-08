@@ -30,6 +30,7 @@ export function AdminLayout({ children, activeTab, onTabChange, onRefresh }: Adm
     { id: 'messages' as const, label: 'Messages', icon: MessageSquare },
     { id: 'polls' as const, label: 'Polls', icon: BarChart },
     { id: 'suggestions' as const, label: 'Suggestions', icon: Lightbulb },
+    { id: 'support' as const, label: 'Support', icon: Headphones },
   ];
 
   const TabButton = ({ tab, mobile }: { tab: typeof tabs[0]; mobile?: boolean }) => (
