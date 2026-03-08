@@ -20,14 +20,6 @@ interface UserPoll {
   total_votes: number;
 }
 
-const POLL_COLORS = [
-  'from-primary to-primary/80',
-  'from-blue-500 to-cyan-500',
-  'from-purple-500 to-pink-500',
-  'from-amber-500 to-orange-500',
-  'from-green-500 to-teal-500',
-  'from-rose-500 to-red-500',
-];
 
 export default function MessagesPage() {
   const { messages, isLoading, toggleLike, markAllAsRead } = useAdminMessages();
