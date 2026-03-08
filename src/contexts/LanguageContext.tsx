@@ -359,6 +359,9 @@ const translations: Record<Language, Translations> = {
     infoSuggestions: 'شارك أفكارك لتحسين المنصة. أرسل طلبات ميزات وصوّت على اقتراحات الآخرين.',
     infoTodos: 'أدِر المهام بأولويات ملونة (عاجل، متوسط، منخفض). حدّد مواعيد نهائية مع عد تنازلي مباشر.',
     infoSupport: 'تحتاج مساعدة؟ أنشئ تذاكر دعم، أرفق صوراً، تحدث مع الفريق، وتتبع مشكلتك حتى حلها.',
+    leaderboard: 'المتصدرون',
+    leaderboardDesc: 'أفضل المتعلمين حسب الوقت',
+    noLeaderboardData: 'لا توجد بيانات بعد',
   },
   fr: {
     home: 'Accueil', studyMaterials: 'Matériel d\'étude', vocabulary: 'Vocabulaire',
