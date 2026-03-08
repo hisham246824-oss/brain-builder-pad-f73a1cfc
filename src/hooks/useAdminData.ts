@@ -109,13 +109,21 @@ export function useAdminData() {
   const fetchUsers = useCallback(async () => {
     if (!isAdmin) return;
     try {
-      const [profilesRes, rolesRes, settingsRes, blocksRes, activityRes] = await Promise.all([
+      const [profilesRes, rolesRes, settingsRes, blocksRes, activityRes, emailsRes] = await Promise.all([
         supabase.from('profiles').select('*').order('created_at', { ascending: false }),
         supabase.from('user_roles').select('*'),
         supabase.from('user_settings').select('user_id, display_name, avatar_color, avatar_icon'),
         supabase.from('user_blocks').select('*'),
         supabase.from('page_visits').select('user_id, visited_at').order('visited_at', { ascending: false }),
+        supabase.functions.invoke('admin-list-users'),
       ]);
+
+      const emailMap: Record<string, string> = {};
+      if (emailsRes.data?.users) {
+        emailsRes.data.users.forEach((u: { id: string; email: string }) => {
+          emailMap[u.id] = u.email;
+        });
+      }
 
       const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
       const recentVisits = activityRes.data || [];
@@ -129,7 +137,7 @@ export function useAdminData() {
 
         return {
           id: profile.user_id,
-          email: '',
+          email: emailMap[profile.user_id] || '',
           created_at: profile.created_at,
           last_sign_in_at: lastVisit?.visited_at || null,
           display_name: userSetting?.display_name || profile.display_name,
