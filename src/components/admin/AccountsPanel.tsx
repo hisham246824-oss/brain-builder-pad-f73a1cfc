@@ -603,6 +603,42 @@ export function AccountsPanel({
                 </motion.div>
               )}
             </AnimatePresence>
+
+            {/* Inline Delete Confirmation */}
+            <AnimatePresence>
+              {showInlineDelete && viewingProfile && (
+                <motion.div ref={deleteFormRef} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }}>
+                  <Card className="border-destructive/30 bg-destructive/5">
+                    <CardHeader>
+                      <CardTitle className="text-base flex items-center gap-2 text-destructive">
+                        <Trash2 className="h-4 w-4" /> Delete {viewingProfile.display_name || 'User'} Permanently
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <p className="text-sm text-muted-foreground">This will permanently delete the account and ALL data. This cannot be undone.</p>
+                      <Input
+                        type="password"
+                        placeholder="Enter your admin password to confirm"
+                        value={deletePassword}
+                        onChange={e => setDeletePassword(e.target.value)}
+                        onKeyDown={e => { if (e.key === 'Enter' && deletePassword) handleDeleteUser(); }}
+                      />
+                      <div className="flex gap-2">
+                        <Button
+                          variant="destructive"
+                          onClick={handleDeleteUser}
+                          disabled={!deletePassword || deleteLoading}
+                          className="flex-1 gap-2"
+                        >
+                          <Trash2 className="h-4 w-4" /> {deleteLoading ? 'Deleting...' : 'Confirm Delete'}
+                        </Button>
+                        <Button variant="outline" onClick={() => { setShowInlineDelete(false); setDeletePassword(''); }}>Cancel</Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </>
         ) : null}
       </div>
