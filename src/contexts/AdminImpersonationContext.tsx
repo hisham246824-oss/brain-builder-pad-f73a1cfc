@@ -54,15 +54,16 @@ export function AdminImpersonationProvider({ children }: { children: ReactNode }
       const { data: { session: adminSession } } = await supabase.auth.getSession();
       if (!adminSession) {
         toast.error('No active admin session');
+        setIsLoading(false);
         return;
       }
 
-      // 2. Call edge function to get a magic link token for the target user
+      // 2. Call edge function — it verifies the OTP server-side and returns session tokens
       const { data, error } = await supabase.functions.invoke('admin-impersonate', {
         body: { targetUserId: userId },
       });
 
-      if (error || !data?.token_hash) {
+      if (error || !data?.access_token || !data?.refresh_token) {
         toast.error(data?.error || error?.message || 'Failed to impersonate user');
         setIsLoading(false);
         return;
@@ -78,17 +79,15 @@ export function AdminImpersonationProvider({ children }: { children: ReactNode }
       };
       storeState(state);
 
-      // 4. Sign in as the target user using the magic link token
-      const { error: verifyError } = await supabase.auth.verifyOtp({
-        email: data.email,
-        token: data.token_hash,
-        type: 'magiclink',
+      // 4. Set the session directly using the tokens from the edge function
+      const { error: sessionError } = await supabase.auth.setSession({
+        access_token: data.access_token,
+        refresh_token: data.refresh_token,
       });
 
-      if (verifyError) {
-        toast.error('Failed to sign in as user: ' + verifyError.message);
+      if (sessionError) {
+        toast.error('Failed to sign in as user: ' + sessionError.message);
         clearStoredState();
-        // Restore admin session
         await supabase.auth.setSession({
           access_token: adminSession.access_token,
           refresh_token: adminSession.refresh_token,
@@ -128,7 +127,6 @@ export function AdminImpersonationProvider({ children }: { children: ReactNode }
       });
 
       if (error) {
-        // If the access token expired, try refreshing with the refresh token
         const { error: refreshError } = await supabase.auth.refreshSession({
           refresh_token: storedState.adminRefreshToken,
         });
