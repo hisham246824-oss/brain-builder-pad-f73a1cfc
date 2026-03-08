@@ -664,7 +664,7 @@ export function AccountsPanel({
       <div className="flex flex-col sm:flex-row">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input placeholder="Search by name, email, or ID..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-9 rounded-none rounded-tl-2xl rounded-tr-2xl sm:rounded-tr-none sm:rounded-bl-2xl border-r-0 sm:border-r-0 focus-visible:z-10" />
+          <Input placeholder="Search by name, email, or code..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-9 rounded-none rounded-tl-2xl rounded-tr-2xl sm:rounded-tr-none sm:rounded-bl-2xl border-r-0 sm:border-r-0 focus-visible:z-10" />
         </div>
         <Select value={filterRole} onValueChange={setFilterRole}>
           <SelectTrigger className="w-full sm:w-[130px] rounded-none border-t-0 sm:border-t sm:border-l-0 focus:z-10"><SelectValue placeholder="Role" /></SelectTrigger>
