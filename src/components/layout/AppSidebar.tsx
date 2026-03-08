@@ -75,24 +75,6 @@ export function AppSidebar({ isOpen, onClose }: AppSidebarProps) {
   const avatarLetter = settings?.display_name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || 'U';
   const avatarColorClass = COLOR_MAP[settings?.avatar_color || 'primary'] || 'bg-primary';
 
-  const handleConversationClick = (conv: any) => {
-    setCurrentConversation(conv);
-    navigate('/ai-chat');
-    onClose();
-  };
-
-  const handleStartRename = (id: string, title: string) => {
-    setEditingConvId(id);
-    setEditTitle(title);
-  };
-
-  const handleConfirmRename = async (id: string) => {
-    if (editTitle.trim()) {
-      await renameConversation(id, editTitle.trim());
-    }
-    setEditingConvId(null);
-  };
-
   const handleAuthClick = () => {
     navigate('/auth');
     onClose();
