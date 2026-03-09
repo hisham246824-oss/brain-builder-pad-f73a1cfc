@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
 import { VocabularyCard } from '@/components/vocabulary/VocabularyCard';
 import { AddWordDialog } from '@/components/vocabulary/AddWordDialog';
+import { BulkImportButton } from '@/components/vocabulary/BulkImportButton';
 import { VocabularySkeleton } from '@/components/skeletons/VocabularySkeleton';
 import { useVocabulary } from '@/hooks/useVocabulary';
 import { useAuth } from '@/contexts/AuthContext';
@@ -24,6 +25,12 @@ export default function VocabularyPage() {
 
   useEffect(() => {
     if (!user) return;
+    // Skip network call when offline — use allWords from cache
+    if (!navigator.onLine) {
+      setMasteredCount(0);
+      setDifficultWords([]);
+      return;
+    }
     const fetchStats = async () => {
       const { data } = await supabase
         .from('vocabulary')
@@ -85,11 +92,21 @@ export default function VocabularyPage() {
         <Input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder={t('search')} className="pl-12 rounded-2xl py-6" />
       </div>
 
+      {/* Search indicator */}
+      {searchQuery && displayWords.length > 0 && (
+        <div className="mb-3 flex items-center gap-2 text-sm text-muted-foreground px-1">
+          <Search className="h-3.5 w-3.5 animate-pulse" />
+          <span>{t('searchingFor')} "<strong className="text-foreground">{searchQuery}</strong>" — {displayWords.length} {displayWords.length === 1 ? t('result') : t('results')}</span>
+        </div>
+      )}
+
       {/* Add Word - full width */}
       <Button onClick={() => setIsDialogOpen(true)} className="w-full rounded-2xl py-6 text-lg font-medium shadow-soft hover:shadow-lg transition-shadow mb-3">
         <Plus className="mr-2 h-5 w-5" />
         {t('addWord')}
       </Button>
+
+      <BulkImportButton onComplete={refetch} existingWords={allWords.map(w => w.word)} />
 
       {/* Difficult + Practice - equal width row */}
       <div className="grid grid-cols-2 gap-3 mb-6">
