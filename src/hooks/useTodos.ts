@@ -21,11 +21,10 @@ export interface Todo {
 export function useTodos() {
   const { user } = useAuth();
   const { isOnline } = useNetworkStatus();
-  const cachedInit = !navigator.onLine ? getCachedTodos() : null;
-  const [todos, setTodos] = useState<Todo[]>((cachedInit as Todo[]) || []);
-  const [isLoading, setIsLoading] = useState(cachedInit ? false : true);
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const hasSyncedPending = useRef(false);
-  const hasLoadedOnce = useRef(cachedInit ? true : false);
+  const hasLoadedOnce = useRef(false);
 
   // Sync pending todo actions
   const syncPendingActions = useCallback(async () => {
