@@ -25,7 +25,7 @@ interface UserPoll {
 export default function MessagesPage() {
   const { messages, isLoading, toggleLike, markAllAsRead } = useAdminMessages();
   const { user } = useAuth();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [polls, setPolls] = useState<UserPoll[]>([]);
   const [pollsLoading, setPollsLoading] = useState(true);
 
@@ -72,6 +72,17 @@ export default function MessagesPage() {
     }
   };
 
+  // Helper to get localized message content
+  const getLocalizedTitle = (msg: any) => {
+    const translations = msg.title_translations as Record<string, string> | null;
+    return translations?.[language] || msg.title || t('adminMessage');
+  };
+
+  const getLocalizedContent = (msg: any) => {
+    const translations = msg.content_translations as Record<string, string> | null;
+    return translations?.[language] || msg.content || '';
+  };
+
   useEffect(() => {
     markAllAsRead();
     fetchPolls();
@@ -82,6 +93,14 @@ export default function MessagesPage() {
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [user]);
+
+  // Sort messages: pinned first
+  const sortedMessages = [...messages].sort((a, b) => {
+    const aPinned = (a as any).is_pinned ? 1 : 0;
+    const bPinned = (b as any).is_pinned ? 1 : 0;
+    if (aPinned !== bPinned) return bPinned - aPinned;
+    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+  });
 
   if (isLoading && pollsLoading) {
     return <MessagesSkeleton />;
@@ -145,7 +164,7 @@ export default function MessagesPage() {
       )}
 
       {/* Messages */}
-      {messages.length === 0 && polls.length === 0 ? (
+      {sortedMessages.length === 0 && polls.length === 0 ? (
         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
           <Card className="rounded-[2rem] border-none shadow-sm">
             <CardContent className="p-16 text-center">
@@ -157,7 +176,7 @@ export default function MessagesPage() {
             </CardContent>
           </Card>
         </motion.div>
-      ) : messages.length > 0 && (
+      ) : sortedMessages.length > 0 && (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="space-y-4">
           <div className="flex items-center gap-2.5">
             <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10">
@@ -166,42 +185,62 @@ export default function MessagesPage() {
             <h2 className="text-lg font-semibold text-foreground">{t('messagesSection')}</h2>
           </div>
           <AnimatePresence mode="popLayout">
-            {messages.map((message, index) => (
-              <motion.div key={message.id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 + index * 0.04 }} layout>
-                <div className="flex items-stretch gap-3">
-                  {/* Like button on the left */}
-                  <div className="flex items-center">
-                    <motion.button
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                      onClick={() => toggleLike(message.id)}
-                      className={cn(
-                        "flex h-12 w-12 items-center justify-center rounded-2xl border-2 transition-all duration-300",
-                        message.isLiked
-                          ? "border-primary bg-primary/10 shadow-md shadow-primary/15"
-                          : "border-border/50 bg-card hover:border-primary/30"
-                      )}
-                    >
-                      <Heart className={cn('h-5 w-5 transition-all', message.isLiked ? 'fill-primary text-primary scale-110' : 'text-muted-foreground')} />
-                    </motion.button>
+            {sortedMessages.map((message, index) => {
+              const isPinned = (message as any).is_pinned;
+              return (
+                <motion.div key={message.id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 + index * 0.04 }} layout>
+                  <div className="flex items-stretch gap-3">
+                    {/* Like button on the left */}
+                    <div className="flex items-center">
+                      <motion.button
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() => toggleLike(message.id)}
+                        className={cn(
+                          "flex h-12 w-12 items-center justify-center rounded-2xl border-2 transition-all duration-300",
+                          message.isLiked
+                            ? "border-primary bg-primary/10 shadow-md shadow-primary/15"
+                            : "border-border/50 bg-card hover:border-primary/30"
+                        )}
+                      >
+                        <Heart className={cn('h-5 w-5 transition-all', message.isLiked ? 'fill-primary text-primary scale-110' : 'text-muted-foreground')} />
+                      </motion.button>
+                    </div>
+                    {/* Message card */}
+                    <Card className={cn(
+                      "flex-1 rounded-[2rem] overflow-hidden border-none shadow-md hover:shadow-xl transition-all duration-300",
+                      isPinned && "ring-1 ring-primary/20"
+                    )}>
+                      <div className={cn(
+                        "h-1 w-full",
+                        isPinned ? "bg-gradient-to-r from-primary via-primary/60 to-primary/30" : "bg-gradient-to-r from-primary via-primary/60 to-transparent"
+                      )} />
+                      <CardContent className="p-6">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          {isPinned && (
+                            <span className="flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                              📌 {t('pinned') || 'Pinned'}
+                            </span>
+                          )}
+                          <h3 className="text-lg font-bold text-foreground tracking-tight">
+                            {getLocalizedTitle(message)}
+                          </h3>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
+                          <Calendar className="h-3 w-3" />
+                          {new Date(message.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                        </div>
+                        <div className="mt-4 rounded-[1.5rem] bg-gradient-to-br from-secondary/50 to-secondary/20 p-5 border border-border/30">
+                          <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">
+                            {getLocalizedContent(message)}
+                          </p>
+                        </div>
+                      </CardContent>
+                    </Card>
                   </div>
-                  {/* Message card */}
-                  <Card className="flex-1 rounded-[2rem] overflow-hidden border-none shadow-md hover:shadow-xl transition-all duration-300">
-                    <div className="h-1 w-full bg-gradient-to-r from-primary via-primary/60 to-transparent" />
-                    <CardContent className="p-6">
-                      <h3 className="text-lg font-bold text-foreground tracking-tight">{message.title || t('adminMessage')}</h3>
-                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
-                        <Calendar className="h-3 w-3" />
-                        {new Date(message.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                      </div>
-                      <div className="mt-4 rounded-[1.5rem] bg-gradient-to-br from-secondary/50 to-secondary/20 p-5 border border-border/30">
-                        <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">{message.content}</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </motion.div>
-            ))}
+                </motion.div>
+              );
+            })}
           </AnimatePresence>
         </motion.div>
       )}
