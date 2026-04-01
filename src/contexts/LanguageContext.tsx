@@ -204,6 +204,8 @@ const translations: Record<Language, Translations> = {
     leaderboard: 'Leaderboard',
     leaderboardDesc: 'Top performers by time spent',
     noLeaderboardData: 'No data yet',
+    goToMessage: 'Go to Message',
+    pinned: 'Pinned',
   },
   ar: {
     home: 'الرئيسية', studyMaterials: 'المواد الدراسية', vocabulary: 'المفردات',
