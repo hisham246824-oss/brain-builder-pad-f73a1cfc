@@ -376,6 +376,8 @@ const translations: Record<Language, Translations> = {
     leaderboard: 'المتصدرون',
     leaderboardDesc: 'أفضل المتعلمين حسب الوقت',
     noLeaderboardData: 'لا توجد بيانات بعد',
+    goToMessage: 'اذهب إلى الرسالة',
+    pinned: 'مثبّتة',
   },
   fr: {
     home: 'Accueil', studyMaterials: 'Matériel d\'étude', vocabulary: 'Vocabulaire',
