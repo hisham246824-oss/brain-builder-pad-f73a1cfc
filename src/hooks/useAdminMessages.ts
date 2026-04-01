@@ -63,6 +63,10 @@ export function useAdminMessages() {
           created_at: msg.created_at,
           isRead: !!readStatus,
           isLiked: readStatus?.liked || false,
+          is_pinned: (msg as any).is_pinned || false,
+          is_important: (msg as any).is_important || false,
+          title_translations: (msg as any).title_translations || null,
+          content_translations: (msg as any).content_translations || null,
         };
       });
 
