@@ -204,6 +204,8 @@ const translations: Record<Language, Translations> = {
     leaderboard: 'Leaderboard',
     leaderboardDesc: 'Top performers by time spent',
     noLeaderboardData: 'No data yet',
+    goToMessage: 'Go to Message',
+    pinned: 'Pinned',
   },
   ar: {
     home: 'الرئيسية', studyMaterials: 'المواد الدراسية', vocabulary: 'المفردات',
@@ -374,6 +376,8 @@ const translations: Record<Language, Translations> = {
     leaderboard: 'المتصدرون',
     leaderboardDesc: 'أفضل المتعلمين حسب الوقت',
     noLeaderboardData: 'لا توجد بيانات بعد',
+    goToMessage: 'اذهب إلى الرسالة',
+    pinned: 'مثبّتة',
   },
   fr: {
     home: 'Accueil', studyMaterials: 'Matériel d\'étude', vocabulary: 'Vocabulaire',

@@ -17,24 +17,36 @@ export type Database = {
       admin_messages: {
         Row: {
           content: string
+          content_translations: Json | null
           created_at: string
           id: string
+          is_important: boolean
+          is_pinned: boolean
           sender_id: string | null
           title: string | null
+          title_translations: Json | null
         }
         Insert: {
           content: string
+          content_translations?: Json | null
           created_at?: string
           id?: string
+          is_important?: boolean
+          is_pinned?: boolean
           sender_id?: string | null
           title?: string | null
+          title_translations?: Json | null
         }
         Update: {
           content?: string
+          content_translations?: Json | null
           created_at?: string
           id?: string
+          is_important?: boolean
+          is_pinned?: boolean
           sender_id?: string | null
           title?: string | null
+          title_translations?: Json | null
         }
         Relationships: []
       }

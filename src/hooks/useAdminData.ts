@@ -486,10 +486,14 @@ export function useAdminData() {
   };
 
   // Message CRUD
-  const sendBroadcastMessage = async (title: string, content: string) => {
+  const sendBroadcastMessage = async (title: string, content: string, extra?: { is_pinned?: boolean; is_important?: boolean; title_translations?: Record<string, string>; content_translations?: Record<string, string> }) => {
     if (!isAdmin || !user) return false;
     try {
-      const { error } = await supabase.from('admin_messages').insert({ sender_id: user.id, title, content });
+      const { error } = await supabase.from('admin_messages').insert({
+        sender_id: user.id, title, content,
+        ...(extra?.title_translations ? { title_translations: extra.title_translations } : {}),
+        ...(extra?.content_translations ? { content_translations: extra.content_translations } : {}),
+      } as any);
       if (error) throw error;
       toast.success('Broadcast sent successfully');
       fetchMessages();
@@ -501,10 +505,12 @@ export function useAdminData() {
     }
   };
 
-  const updateMessage = async (messageId: string, title: string, content: string) => {
+  const updateMessage = async (messageId: string, title: string, content: string, extra?: Record<string, any>) => {
     if (!isAdmin) return false;
     try {
-      const { error } = await supabase.from('admin_messages').update({ title, content }).eq('id', messageId);
+      const updateData: any = { title, content };
+      if (extra) Object.assign(updateData, extra);
+      const { error } = await supabase.from('admin_messages').update(updateData).eq('id', messageId);
       if (error) throw error;
       toast.success('Message updated');
       fetchMessages();
