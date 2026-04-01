@@ -9,6 +9,10 @@ interface AdminMessage {
   created_at: string;
   isRead: boolean;
   isLiked: boolean;
+  is_pinned?: boolean;
+  is_important?: boolean;
+  title_translations?: Record<string, string> | null;
+  content_translations?: Record<string, string> | null;
 }
 
 export function useAdminMessages() {
