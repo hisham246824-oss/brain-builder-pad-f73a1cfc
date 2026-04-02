@@ -1,0 +1,6 @@
+
+ALTER TABLE public.page_visits
+  ADD COLUMN IF NOT EXISTS device_type text DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS os text DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS browser text DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS is_impersonation boolean NOT NULL DEFAULT false;

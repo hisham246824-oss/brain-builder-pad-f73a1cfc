@@ -172,7 +172,7 @@ function RootRedirect() {
 function AppRoutes() {
   return (
     <>
-      <AdminImpersonationBar />
+      {/* AdminImpersonationBar integrated into Header */}
       <Suspense fallback={<RouteFallback />}>
         <Routes>
           <Route path="/auth" element={<AuthPage />} />

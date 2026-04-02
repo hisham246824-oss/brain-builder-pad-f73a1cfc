@@ -166,7 +166,7 @@ export function ExpandedLessonEditor({
   const [activeHighlight, setActiveHighlight] = useState<string | null>(null);
   const [activeColor, setActiveColor] = useState<string>('inherit');
   const contentRef = useRef<HTMLDivElement>(null);
-  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const currentPage = pages[currentPageIndex] || { id: '1', content: '' };
 
