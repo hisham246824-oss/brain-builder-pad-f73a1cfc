@@ -87,6 +87,9 @@ interface UserActivity {
   peak_hours: { hour: number; visits: number }[];
   country: string | null;
   language: string | null;
+  device_type: string | null;
+  os: string | null;
+  browser: string | null;
 }
 
 interface AdminPoll {
