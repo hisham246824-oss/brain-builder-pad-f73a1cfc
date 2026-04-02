@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useAdminImpersonation } from '@/contexts/AdminImpersonationContext';
 
 const PENDING_VISITS_KEY = 'offline_pending_visits';
 
@@ -9,6 +10,37 @@ interface PendingVisit {
   user_id: string;
   page_path: string;
   duration_seconds: number;
+  device_type?: string;
+  os?: string;
+  browser?: string;
+  is_impersonation?: boolean;
+}
+
+function getDeviceInfo() {
+  const ua = navigator.userAgent;
+  
+  // Device type
+  let device_type = 'computer';
+  if (/Mobi|Android.*Mobile|iPhone|iPod/.test(ua)) device_type = 'phone';
+  else if (/iPad|Android(?!.*Mobile)|Tablet/.test(ua)) device_type = 'tablet';
+  
+  // OS
+  let os = 'Unknown';
+  if (/Windows/.test(ua)) os = 'Windows';
+  else if (/Mac OS X/.test(ua)) os = /iPhone|iPad|iPod/.test(ua) ? 'iOS' : 'macOS';
+  else if (/Android/.test(ua)) os = 'Android';
+  else if (/Linux/.test(ua)) os = 'Linux';
+  else if (/CrOS/.test(ua)) os = 'Chrome OS';
+  
+  // Browser
+  let browser = 'Unknown';
+  if (/Edg\//.test(ua)) browser = 'Edge';
+  else if (/OPR\/|Opera/.test(ua)) browser = 'Opera';
+  else if (/Chrome\//.test(ua)) browser = 'Chrome';
+  else if (/Safari\//.test(ua) && !/Chrome/.test(ua)) browser = 'Safari';
+  else if (/Firefox\//.test(ua)) browser = 'Firefox';
+  
+  return { device_type, os, browser };
 }
 
 function queueVisit(visit: PendingVisit) {
@@ -35,6 +67,7 @@ async function syncPendingVisits() {
 
 export function usePageVisitTracking() {
   const { user } = useAuth();
+  const { isImpersonating } = useAdminImpersonation();
   const location = useLocation();
   const startTimeRef = useRef<number>(Date.now());
   const lastPathRef = useRef<string>(location.pathname);
@@ -44,7 +77,6 @@ export function usePageVisitTracking() {
     const handleOnline = () => syncPendingVisits();
     window.addEventListener('online', handleOnline);
     
-    // Also try syncing on mount if online
     if (navigator.onLine) syncPendingVisits();
     
     return () => window.removeEventListener('online', handleOnline);
@@ -52,12 +84,18 @@ export function usePageVisitTracking() {
 
   useEffect(() => {
     if (!user) return;
+    // Skip tracking entirely during admin impersonation
+    if (isImpersonating) return;
+
+    const deviceInfo = getDeviceInfo();
 
     const recordVisit = async (path: string, duration: number) => {
-      const visit = {
+      const visit: PendingVisit = {
         user_id: user.id,
         page_path: path,
         duration_seconds: Math.round(duration / 1000),
+        ...deviceInfo,
+        is_impersonation: false,
       };
 
       if (!navigator.onLine) {
@@ -68,7 +106,6 @@ export function usePageVisitTracking() {
       try {
         await supabase.from('page_visits').insert(visit);
       } catch (err) {
-        // If insert fails, queue it
         queueVisit(visit);
       }
     };
@@ -78,7 +115,6 @@ export function usePageVisitTracking() {
       const duration = Date.now() - startTimeRef.current;
       recordVisit(lastPathRef.current, duration);
       
-      // Reset for new page
       startTimeRef.current = Date.now();
       lastPathRef.current = location.pathname;
     }
@@ -86,19 +122,19 @@ export function usePageVisitTracking() {
     // Record visit when user leaves the page
     const handleBeforeUnload = () => {
       const duration = Date.now() - startTimeRef.current;
-      const visit = {
+      const visit: PendingVisit = {
         user_id: user.id,
         page_path: location.pathname,
         duration_seconds: Math.round(duration / 1000),
+        ...deviceInfo,
+        is_impersonation: false,
       };
 
       if (!navigator.onLine) {
-        // Queue synchronously for offline
         queueVisit(visit);
         return;
       }
 
-      // Use sendBeacon for reliability on page unload
       const data = JSON.stringify(visit);
       navigator.sendBeacon(
         `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/page_visits`,
@@ -111,5 +147,5 @@ export function usePageVisitTracking() {
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
-  }, [user, location.pathname]);
+  }, [user, location.pathname, isImpersonating]);
 }
