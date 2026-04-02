@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { MessagesSkeleton } from '@/components/skeletons/MessagesSkeleton';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mail, Heart, Check, Calendar, BarChart, MessageSquareDashed } from 'lucide-react';
+import { Mail, Heart, Check, Calendar, BarChart, MessageSquareDashed, Lock, User } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { useAdminMessages } from '@/hooks/useAdminMessages';
 import { useAuth } from '@/contexts/AuthContext';
@@ -21,6 +21,14 @@ interface UserPoll {
   total_votes: number;
 }
 
+interface PrivateMsg {
+  id: string;
+  title: string | null;
+  content: string;
+  created_at: string;
+  is_read: boolean;
+  sender_id: string;
+}
 
 export default function MessagesPage() {
   const { messages, isLoading, toggleLike, markAllAsRead } = useAdminMessages();
@@ -28,6 +36,8 @@ export default function MessagesPage() {
   const { t, language } = useLanguage();
   const [polls, setPolls] = useState<UserPoll[]>([]);
   const [pollsLoading, setPollsLoading] = useState(true);
+  const [privateMessages, setPrivateMessages] = useState<PrivateMsg[]>([]);
+  const [pmLoading, setPmLoading] = useState(true);
 
   const fetchPolls = async () => {
     if (!user) return;
@@ -54,6 +64,31 @@ export default function MessagesPage() {
     setPollsLoading(false);
   };
 
+  const fetchPrivateMessages = async () => {
+    if (!user) return;
+    try {
+      const { data, error } = await supabase
+        .from('private_messages')
+        .select('*')
+        .eq('recipient_id', user.id)
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      setPrivateMessages((data || []) as PrivateMsg[]);
+      
+      // Mark unread private messages as read
+      const unread = (data || []).filter((m: any) => !m.is_read);
+      if (unread.length > 0) {
+        await supabase.from('private_messages')
+          .update({ is_read: true })
+          .eq('recipient_id', user.id)
+          .eq('is_read', false);
+      }
+    } catch (err) {
+      console.error('Error fetching private messages:', err);
+    }
+    setPmLoading(false);
+  };
+
   const handleVote = async (pollId: string, optionIndex: number) => {
     if (!user) return;
     const poll = polls.find(p => p.id === pollId);
@@ -72,7 +107,6 @@ export default function MessagesPage() {
     }
   };
 
-  // Helper to get localized message content
   const getLocalizedTitle = (msg: any) => {
     const translations = msg.title_translations as Record<string, string> | null;
     return translations?.[language] || msg.title || t('adminMessage');
@@ -86,10 +120,12 @@ export default function MessagesPage() {
   useEffect(() => {
     markAllAsRead();
     fetchPolls();
+    fetchPrivateMessages();
 
     const channel = supabase
       .channel('poll_votes_user')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'poll_votes' }, () => fetchPolls())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'private_messages' }, () => fetchPrivateMessages())
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [user]);
@@ -102,7 +138,7 @@ export default function MessagesPage() {
     return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
   });
 
-  if (isLoading && pollsLoading) {
+  if (isLoading && pollsLoading && pmLoading) {
     return <MessagesSkeleton />;
   }
 
@@ -115,9 +151,49 @@ export default function MessagesPage() {
         </div>
         <div>
           <h1 className="text-2xl font-bold text-foreground tracking-tight">{t('messagesTitle')}</h1>
-          <p className="text-sm text-muted-foreground">{messages.length} {t('messages')} • {polls.length} {t('activePolls')}</p>
+          <p className="text-sm text-muted-foreground">
+            {messages.length} {t('messages')} • {privateMessages.length} private • {polls.length} {t('activePolls')}
+          </p>
         </div>
       </motion.div>
+
+      {/* Private Messages */}
+      {privateMessages.length > 0 && (
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="space-y-4">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-500/10">
+              <Lock className="h-4 w-4 text-blue-500" />
+            </div>
+            <h2 className="text-lg font-semibold text-foreground">Private Messages</h2>
+          </div>
+          {privateMessages.map((pm, index) => (
+            <motion.div key={pm.id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 + index * 0.04 }}>
+              <Card className="rounded-[2rem] overflow-hidden border-none shadow-md">
+                <div className="h-1 w-full bg-gradient-to-r from-blue-500 via-blue-400 to-blue-300" />
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600">
+                      <User className="h-3 w-3" /> From Admin
+                    </span>
+                    <h3 className="text-lg font-bold text-foreground tracking-tight">
+                      {pm.title || 'Private Message'}
+                    </h3>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
+                    <Calendar className="h-3 w-3" />
+                    {new Date(pm.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                  </div>
+                  <div className="mt-4 rounded-[1.5rem] bg-gradient-to-br from-blue-50/50 to-blue-100/20 dark:from-blue-500/5 dark:to-blue-500/10 p-5 border border-blue-200/30 dark:border-blue-500/20">
+                    <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">
+                      {pm.content}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))}
+        </motion.div>
+      )}
 
       {/* Active Polls */}
       {polls.length > 0 && (
@@ -163,8 +239,8 @@ export default function MessagesPage() {
         </motion.div>
       )}
 
-      {/* Messages */}
-      {sortedMessages.length === 0 && polls.length === 0 ? (
+      {/* Broadcast Messages */}
+      {sortedMessages.length === 0 && polls.length === 0 && privateMessages.length === 0 ? (
         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
           <Card className="rounded-[2rem] border-none shadow-sm">
             <CardContent className="p-16 text-center">
@@ -190,7 +266,6 @@ export default function MessagesPage() {
               return (
                 <motion.div key={message.id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 + index * 0.04 }} layout>
                   <div className="flex items-stretch gap-3">
-                    {/* Like button on the left */}
                     <div className="flex items-center">
                       <motion.button
                         whileHover={{ scale: 1.1 }}
@@ -206,7 +281,6 @@ export default function MessagesPage() {
                         <Heart className={cn('h-5 w-5 transition-all', message.isLiked ? 'fill-primary text-primary scale-110' : 'text-muted-foreground')} />
                       </motion.button>
                     </div>
-                    {/* Message card */}
                     <Card className={cn(
                       "flex-1 rounded-[2rem] overflow-hidden border-none shadow-md hover:shadow-xl transition-all duration-300",
                       isPinned && "ring-1 ring-primary/20"
