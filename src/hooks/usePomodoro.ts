@@ -85,7 +85,7 @@ export function usePomodoro(alarmSound: string = 'chime') {
   const seconds = remainingSeconds % 60;
 
   useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
+    let interval: ReturnType<typeof setInterval> | null = null;
 
     if (isRunning && remainingSeconds > 0) {
       interval = setInterval(() => {

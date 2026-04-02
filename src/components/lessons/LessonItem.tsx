@@ -25,7 +25,7 @@ export function LessonItem({ lesson, materialColor, onToggle, onDelete, onUpdate
   const [isExpanded, setIsExpanded] = useState(false);
   const [notes, setNotes] = useState(lesson.notes || '');
   const [isSaving, setIsSaving] = useState(false);
-  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   
   // Update local notes when lesson.notes changes (e.g., from sync)
   useEffect(() => {
