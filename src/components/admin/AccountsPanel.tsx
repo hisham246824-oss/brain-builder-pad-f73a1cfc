@@ -6,7 +6,8 @@ import {
   Clock, Eye, Globe, ArrowLeft, Ban, Unlock, ChevronDown, ChevronUp,
   Edit, X, Save, Mail, CheckCircle2, XCircle, Timer, ListTodo,
   UserCheck, UserX, Fingerprint, CalendarDays, MapPin, BarChart3,
-  FileText, Zap, TrendingUp, Hash
+  FileText, Zap, TrendingUp, Hash, Monitor, Smartphone, Tablet,
+  Chrome, AppWindow, Cpu
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -69,6 +70,9 @@ interface UserActivity {
   peak_hours: { hour: number; visits: number }[];
   country: string | null;
   language: string | null;
+  device_type: string | null;
+  os: string | null;
+  browser: string | null;
 }
 
 interface PrivateMessage {
@@ -155,6 +159,22 @@ function BlockTimer({ blockedUntil }: { blockedUntil: string }) {
   return <span className="font-mono text-destructive text-sm">{remaining}</span>;
 }
 
+function getDeviceIcon(deviceType: string | null) {
+  switch (deviceType) {
+    case 'phone': return <Smartphone className="h-4 w-4 text-blue-500" />;
+    case 'tablet': return <Tablet className="h-4 w-4 text-purple-500" />;
+    default: return <Monitor className="h-4 w-4 text-teal-500" />;
+  }
+}
+
+function getDeviceLabel(deviceType: string | null) {
+  switch (deviceType) {
+    case 'phone': return 'Phone';
+    case 'tablet': return 'Tablet';
+    default: return 'Computer';
+  }
+}
+
 export function AccountsPanel({
   users, isLoading, onDeleteUser, onPromoteToAdmin, onDemoteFromAdmin,
   onSendBroadcast, fetchUserActivity, onBlockUser, onUnblockUser,
@@ -172,7 +192,6 @@ export function AccountsPanel({
   const [activityLoading, setActivityLoading] = useState(false);
   
   // Delete
-  const [deleteTarget, setDeleteTarget] = useState<User | null>(null);
   const [showInlineDelete, setShowInlineDelete] = useState(false);
   const [deletePassword, setDeletePassword] = useState('');
   const [deleteLoading, setDeleteLoading] = useState(false);
@@ -183,7 +202,6 @@ export function AccountsPanel({
   const [adminPassword, setAdminPassword] = useState('');
   
   // Block
-  const [blockTarget, setBlockTarget] = useState<User | null>(null);
   const [showInlineBlock, setShowInlineBlock] = useState(false);
   const [blockHours, setBlockHours] = useState('24');
   const [blockReason, setBlockReason] = useState('');
@@ -215,7 +233,6 @@ export function AccountsPanel({
     return matchesSearch && matchesRole && matchesStatus;
   });
 
-  // Sort
   filteredUsers = [...filteredUsers].sort((a, b) => {
     if (sortBy === 'newest') return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     if (sortBy === 'oldest') return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
@@ -241,7 +258,6 @@ export function AccountsPanel({
     if (success) {
       setPmTitle('');
       setPmContent('');
-      // Refresh history
       const msgs = await onGetPrivateMessages(pmTarget.id);
       setPmHistory(msgs);
     }
@@ -272,14 +288,6 @@ export function AccountsPanel({
     if (success) { setPromoteTarget(null); setAdminPassword(''); }
   };
 
-  const handleBlockUser = async () => {
-    if (!blockTarget) return;
-    await onBlockUser(blockTarget.id, parseInt(blockHours), blockReason);
-    setBlockTarget(null);
-    setBlockHours('24');
-    setBlockReason('');
-  };
-
   const getAvatarColor = (color: string | null) => AVATAR_COLORS[color || 'primary'] || AVATAR_COLORS.primary;
 
   const getRoleIcon = (role: string) => {
@@ -298,13 +306,11 @@ export function AccountsPanel({
   const blockedCount = users.filter(u => u.is_blocked).length;
 
   if (isLoading) {
-    return <div className="space-y-3">{[...Array(5)].map((_, i) => <div key={i} className="h-24 animate-pulse rounded-2xl bg-secondary" />)}</div>;
+    return <div className="space-y-3">{[...Array(5)].map((_, i) => <div key={i} className="h-24 animate-pulse rounded-[2rem] bg-secondary" />)}</div>;
   }
 
   // Full profile view
   if (viewingProfile) {
-    const totalContent = userActivity ? userActivity.materials_count + userActivity.vocabulary_count + userActivity.lessons_count : 0;
-
     return (
       <div className="space-y-6">
         <div className="flex items-center gap-3">
@@ -314,65 +320,85 @@ export function AccountsPanel({
           <h2 className="text-2xl font-bold text-foreground">User Profile</h2>
           <div className="ml-auto flex gap-2">
             {viewingProfile.is_online ? (
-              <span className="flex items-center gap-1.5 text-xs font-medium text-green-600"><span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />Active Now</span>
+              <span className="flex items-center gap-1.5 text-xs font-medium text-green-600"><span className="h-2.5 w-2.5 rounded-full bg-green-500 animate-pulse" />Active Now</span>
             ) : (
               <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><span className="h-2 w-2 rounded-full bg-muted-foreground" />Last seen {formatTimeAgo(viewingProfile.last_sign_in_at)}</span>
             )}
           </div>
         </div>
 
-        {/* User header card */}
-        <Card className="overflow-hidden">
+        {/* User header card - enhanced with more info and rounded edges */}
+        <Card className="overflow-hidden rounded-[2rem] border-none shadow-lg">
           <div className="h-2" style={{ background: `linear-gradient(90deg, ${getAvatarColor(viewingProfile.avatar_color)}, ${getAvatarColor(viewingProfile.avatar_color)}88)` }} />
           <CardContent className="p-6">
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <div className="flex h-16 w-16 items-center justify-center rounded-2xl text-2xl font-bold text-white" style={{ backgroundColor: getAvatarColor(viewingProfile.avatar_color) }}>
-                  {viewingProfile.display_name?.charAt(0)?.toUpperCase() || '?'}
-                </div>
-                <div className={cn("absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-2 border-card", viewingProfile.is_online ? "bg-green-500" : "bg-muted-foreground")} />
+            <div className="flex items-start gap-4">
+              <div className="relative flex-shrink-0">
+                {viewingProfile.avatar_url ? (
+                  <img src={viewingProfile.avatar_url} alt="" className="h-18 w-18 rounded-[1.25rem] object-cover shadow-md" style={{ width: 72, height: 72 }} />
+                ) : (
+                  <div className="flex items-center justify-center rounded-[1.25rem] text-2xl font-bold text-white shadow-md" style={{ backgroundColor: getAvatarColor(viewingProfile.avatar_color), width: 72, height: 72 }}>
+                    {viewingProfile.display_name?.charAt(0)?.toUpperCase() || '?'}
+                  </div>
+                )}
+                <div className={cn("absolute -bottom-1 -right-1 h-4.5 w-4.5 rounded-full border-2 border-card", viewingProfile.is_online ? "bg-green-500 animate-pulse" : "bg-muted-foreground")} style={{ width: 18, height: 18 }} />
               </div>
-              <div className="flex-1">
+              <div className="flex-1 min-w-0">
                 <h3 className="text-xl font-bold text-foreground">{viewingProfile.display_name || 'User'}</h3>
-                <p className="text-xs text-muted-foreground font-mono">{viewingProfile.id.slice(0, 8)}...</p>
-                <div className="mt-1 flex items-center gap-2">
+                <p className="text-sm text-muted-foreground flex items-center gap-1.5 mt-0.5">
+                  <Mail className="h-3.5 w-3.5" /> {viewingProfile.email || 'No email'}
+                </p>
+                {viewingProfile.country && (
+                  <p className="text-sm text-muted-foreground flex items-center gap-1.5 mt-0.5">
+                    <MapPin className="h-3.5 w-3.5 text-red-400" /> {viewingProfile.country}
+                  </p>
+                )}
+                <div className="mt-2 flex items-center gap-2 flex-wrap">
                   {getRoleBadge(viewingProfile.role)}
                   {viewingProfile.is_blocked && (
                     <span className="inline-flex items-center gap-1 rounded-full bg-destructive/10 px-2 py-0.5 text-[10px] font-semibold text-destructive border border-destructive/20">
                       <Ban className="h-3 w-3" /> Blocked
                     </span>
                   )}
+                  {viewingProfile.is_online ? (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-green-500/10 px-2 py-0.5 text-[10px] font-semibold text-green-600 border border-green-500/20">
+                      <span className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" /> Online
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
+                      Offline
+                    </span>
+                  )}
                 </div>
               </div>
-              <div className="text-right text-xs text-muted-foreground space-y-1">
-                <p className="flex items-center gap-1 justify-end"><CalendarDays className="h-3 w-3" /> Joined {new Date(viewingProfile.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</p>
-                {viewingProfile.country && (
-                  <p className="flex items-center gap-1 justify-end"><MapPin className="h-3 w-3" /> {viewingProfile.country}</p>
-                )}
-                {viewingProfile.avatar_color && (
-                  <p className="flex items-center gap-1 justify-end">
-                    <span className="h-3 w-3 rounded-full inline-block" style={{ backgroundColor: getAvatarColor(viewingProfile.avatar_color) }} />
-                    Profile: {viewingProfile.avatar_color}
-                  </p>
-                )}
+              <div className="text-right text-xs text-muted-foreground space-y-1.5 flex-shrink-0">
+                <p className="flex items-center gap-1.5 justify-end">
+                  <CalendarDays className="h-3.5 w-3.5 text-blue-400" />
+                  Joined {new Date(viewingProfile.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                </p>
                 {viewingProfile.language && LANGUAGE_INFO[viewingProfile.language] && (
-                  <p className="flex items-center gap-1 justify-end">
+                  <p className="flex items-center gap-1.5 justify-end">
                     <span className="text-base">{LANGUAGE_INFO[viewingProfile.language].flag}</span>
                     {LANGUAGE_INFO[viewingProfile.language].name}
+                  </p>
+                )}
+                {viewingProfile.avatar_color && (
+                  <p className="flex items-center gap-1.5 justify-end">
+                    <span className="h-3 w-3 rounded-full inline-block" style={{ backgroundColor: getAvatarColor(viewingProfile.avatar_color) }} />
+                    Profile: {viewingProfile.avatar_color}
                   </p>
                 )}
               </div>
             </div>
 
             {viewingProfile.is_blocked && viewingProfile.blocked_until && (
-              <div className="mt-4 flex items-center gap-3 rounded-xl bg-destructive/5 border border-destructive/20 p-3">
+              <div className="mt-4 flex items-center gap-3 rounded-[1.25rem] bg-destructive/5 border border-destructive/20 p-3">
                 <Timer className="h-5 w-5 text-destructive" />
                 <div>
                   <p className="text-sm font-medium text-destructive">Account Blocked</p>
                   <p className="text-xs text-muted-foreground">{viewingProfile.block_reason || 'No reason provided'}</p>
                 </div>
                 <div className="ml-auto"><BlockTimer blockedUntil={viewingProfile.blocked_until} /></div>
-                <Button variant="outline" size="sm" onClick={() => onUnblockUser(viewingProfile.id)} className="text-green-600">
+                <Button variant="outline" size="sm" onClick={() => onUnblockUser(viewingProfile.id)} className="text-green-600 rounded-[1.25rem]">
                   <Unlock className="h-3.5 w-3.5 mr-1" /> Unblock
                 </Button>
               </div>
@@ -382,23 +408,23 @@ export function AccountsPanel({
 
         {/* Activity Stats */}
         {activityLoading ? (
-          <div className="grid gap-3 grid-cols-2 lg:grid-cols-5">
-            {[...Array(5)].map((_, i) => <div key={i} className="h-24 animate-pulse rounded-xl bg-secondary" />)}
+          <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
+            {[...Array(4)].map((_, i) => <div key={i} className="h-24 animate-pulse rounded-[2rem] bg-secondary" />)}
           </div>
         ) : userActivity ? (
           <>
-            <div className="grid gap-3 grid-cols-2 lg:grid-cols-5">
+            {/* Compact stat cards */}
+            <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
               {[
-                { label: 'Materials', value: userActivity.materials_count, icon: BookOpen, color: 'text-blue-500' },
-                { label: 'Vocabulary', value: userActivity.vocabulary_count, icon: Languages, color: 'text-purple-500' },
-                { label: 'Lessons', value: userActivity.lessons_count, icon: FileText, color: 'text-orange-500' },
-                { label: 'Page Visits', value: userActivity.total_visits, icon: Globe, color: 'text-green-500' },
-                { label: 'Total Time', value: formatDuration(userActivity.total_duration), icon: Clock, color: 'text-teal-500' },
+                { label: 'Materials', value: userActivity.materials_count, icon: BookOpen, color: 'text-blue-500', bg: 'bg-blue-500/10' },
+                { label: 'Vocabulary', value: userActivity.vocabulary_count, icon: Languages, color: 'text-purple-500', bg: 'bg-purple-500/10' },
+                { label: 'Lessons', value: userActivity.lessons_count, icon: FileText, color: 'text-orange-500', bg: 'bg-orange-500/10' },
+                { label: 'Total Time', value: formatDuration(userActivity.total_duration), icon: Clock, color: 'text-teal-500', bg: 'bg-teal-500/10' },
               ].map((stat, i) => (
                 <motion.div key={stat.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
-                  <Card>
+                  <Card className="rounded-[2rem] border-none shadow-sm">
                     <CardContent className="p-4 flex items-center gap-3">
-                      <div className="rounded-xl bg-secondary p-2.5"><stat.icon className={cn('h-5 w-5', stat.color)} /></div>
+                      <div className={cn('rounded-[1.25rem] p-2.5', stat.bg)}><stat.icon className={cn('h-5 w-5', stat.color)} /></div>
                       <div>
                         <p className="text-2xl font-bold text-foreground">{stat.value}</p>
                         <p className="text-xs text-muted-foreground">{stat.label}</p>
@@ -409,101 +435,94 @@ export function AccountsPanel({
               ))}
             </div>
 
-            {/* Engagement bar */}
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-foreground">Content Engagement</span>
-                  <span className="text-xs text-muted-foreground">{totalContent} items created</span>
-                </div>
-                <Progress value={Math.min(totalContent * 5, 100)} className="h-2" />
-              </CardContent>
-            </Card>
-
             <div className="grid gap-4 lg:grid-cols-2">
-              <Card>
-                <CardHeader><CardTitle className="text-base flex items-center gap-2"><Activity className="h-4 w-4 text-primary" />Activity Summary</CardTitle></CardHeader>
+              {/* Activity Summary - simplified: last seen + device + most visited */}
+              <Card className="rounded-[2rem] border-none shadow-sm">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Activity className="h-4.5 w-4.5 text-primary" />Activity Summary
+                  </CardTitle>
+                </CardHeader>
                 <CardContent className="space-y-3 text-sm">
-                  <div className="flex justify-between"><span className="text-muted-foreground">Suggestions Sent</span><span className="font-semibold">{userActivity.suggestions_count}</span></div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Current Status</span>
+                  {/* Last Seen */}
+                  <div className="flex items-center justify-between p-2.5 rounded-[1.25rem] bg-secondary/40">
+                    <span className="text-muted-foreground flex items-center gap-2">
+                      <Clock className="h-4 w-4 text-sky-500" /> Last Seen
+                    </span>
                     <span className={cn("font-semibold", viewingProfile.is_online ? "text-green-600" : "text-muted-foreground")}>
-                      {viewingProfile.is_online ? '🟢 Active' : '⚫ Inactive'}
+                      {viewingProfile.is_online ? '🟢 Active Now' : formatTimeAgo(userActivity.last_active)}
                     </span>
                   </div>
-                  <div className="flex justify-between"><span className="text-muted-foreground">Last Activity</span><span className="font-semibold">{formatTimeAgo(userActivity.last_active)}</span></div>
-                  <div className="flex justify-between"><span className="text-muted-foreground">Most Visited</span><span className="font-semibold">{pageNameMap[userActivity.most_visited_page || ''] || userActivity.most_visited_page || 'N/A'}</span></div>
+
+                  {/* Device Type */}
+                  <div className="flex items-center justify-between p-2.5 rounded-[1.25rem] bg-secondary/40">
+                    <span className="text-muted-foreground flex items-center gap-2">
+                      {getDeviceIcon(userActivity.device_type)} Device
+                    </span>
+                    <span className="font-semibold">{getDeviceLabel(userActivity.device_type)}</span>
+                  </div>
+
+                  {/* OS */}
+                  <div className="flex items-center justify-between p-2.5 rounded-[1.25rem] bg-secondary/40">
+                    <span className="text-muted-foreground flex items-center gap-2">
+                      <Cpu className="h-4 w-4 text-orange-500" /> Operating System
+                    </span>
+                    <span className="font-semibold">{userActivity.os || 'Unknown'}</span>
+                  </div>
+
+                  {/* Browser */}
+                  <div className="flex items-center justify-between p-2.5 rounded-[1.25rem] bg-secondary/40">
+                    <span className="text-muted-foreground flex items-center gap-2">
+                      <Globe className="h-4 w-4 text-green-500" /> Browser
+                    </span>
+                    <span className="font-semibold">{userActivity.browser || 'Unknown'}</span>
+                  </div>
+
+                  {/* Most Visited Page (excl homepage) */}
+                  <div className="flex items-center justify-between p-2.5 rounded-[1.25rem] bg-secondary/40">
+                    <span className="text-muted-foreground flex items-center gap-2">
+                      <TrendingUp className="h-4 w-4 text-purple-500" /> Most Visited
+                    </span>
+                    <span className="font-semibold">{pageNameMap[userActivity.most_visited_page || ''] || userActivity.most_visited_page || 'N/A'}</span>
+                  </div>
+
+                  {/* Country */}
                   {userActivity.country && (
-                    <div className="flex justify-between"><span className="text-muted-foreground">Country</span><span className="font-semibold flex items-center gap-1"><MapPin className="h-3 w-3" />{userActivity.country}</span></div>
-                  )}
-                  {userActivity.language && LANGUAGE_INFO[userActivity.language] && (
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Language</span>
-                      <span className="font-semibold flex items-center gap-1">
-                        <span>{LANGUAGE_INFO[userActivity.language].flag}</span>
-                        {LANGUAGE_INFO[userActivity.language].name}
+                    <div className="flex items-center justify-between p-2.5 rounded-[1.25rem] bg-secondary/40">
+                      <span className="text-muted-foreground flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-red-400" /> Country
                       </span>
+                      <span className="font-semibold">{userActivity.country}</span>
                     </div>
                   )}
                 </CardContent>
               </Card>
 
-              {/* Peak Activity Hours */}
-              <Card>
-                <CardHeader><CardTitle className="text-base flex items-center gap-2"><TrendingUp className="h-4 w-4 text-primary" />Peak Activity Hours</CardTitle></CardHeader>
-                <CardContent className="space-y-2 text-sm">
-                  {userActivity.peak_hours.length > 0 ? (
-                    userActivity.peak_hours.map((ph, i) => {
-                      const maxVisits = userActivity.peak_hours[0]?.visits || 1;
-                      const pct = Math.round((ph.visits / maxVisits) * 100);
-                      const hourLabel = `${ph.hour.toString().padStart(2, '0')}:00 - ${((ph.hour + 1) % 24).toString().padStart(2, '0')}:00`;
-                      return (
-                        <div key={ph.hour} className="space-y-1">
-                          <div className="flex justify-between text-xs">
-                            <span className="text-muted-foreground">{hourLabel}</span>
-                            <span className="font-semibold">{ph.visits} visits</span>
-                          </div>
-                          <div className="h-1.5 rounded-full bg-secondary overflow-hidden">
-                            <motion.div
-                              className="h-full rounded-full bg-primary"
-                              initial={{ width: 0 }}
-                              animate={{ width: `${pct}%` }}
-                              transition={{ delay: i * 0.1, duration: 0.4 }}
-                            />
-                          </div>
-                        </div>
-                      );
-                    })
-                  ) : (
-                    <p className="text-muted-foreground text-center py-4">No activity data yet</p>
-                  )}
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader><CardTitle className="text-base">Quick Actions</CardTitle></CardHeader>
+              {/* Quick Actions */}
+              <Card className="rounded-[2rem] border-none shadow-sm">
+                <CardHeader className="pb-3"><CardTitle className="text-base flex items-center gap-2"><Zap className="h-4 w-4 text-yellow-500" /> Quick Actions</CardTitle></CardHeader>
                 <CardContent className="space-y-2">
                   {/* Impersonate */}
                   {onImpersonateUser && viewingProfile.role !== 'super_admin' && (
-                    <Button variant="outline" className="w-full justify-start gap-2 text-primary" onClick={() => onImpersonateUser(viewingProfile.id)}>
+                    <Button variant="outline" className="w-full justify-start gap-2 text-primary rounded-[1.25rem]" onClick={() => onImpersonateUser(viewingProfile.id)}>
                       <Fingerprint className="h-4 w-4" /> Register as User
                     </Button>
                   )}
                   
-                  {/* Private Message */}
-                  <Button variant="outline" className="w-full justify-start gap-2" onClick={() => { setPmTarget(viewingProfile); setShowPmHistory(false); }}>
+                  {/* Private Message - BLUE */}
+                  <Button variant="outline" className="w-full justify-start gap-2 rounded-[1.25rem] text-blue-600 border-blue-200 hover:bg-blue-50 dark:hover:bg-blue-500/10" onClick={() => { setPmTarget(viewingProfile); setShowPmHistory(false); }}>
                     <Mail className="h-4 w-4" /> Send Private Message
                   </Button>
 
-                  {/* Block/Unblock - super_admin can block admins & users; regular admin can only block users */}
+                  {/* Block/Unblock */}
                   {viewingProfile.role !== 'super_admin' && (
                     (isSuperAdmin || viewingProfile.role === 'user') ? (
                       viewingProfile.is_blocked ? (
-                        <Button variant="outline" className="w-full justify-start gap-2 text-green-600" onClick={() => onUnblockUser(viewingProfile.id)}>
+                        <Button variant="outline" className="w-full justify-start gap-2 text-green-600 rounded-[1.25rem]" onClick={() => onUnblockUser(viewingProfile.id)}>
                           <Unlock className="h-4 w-4" /> Unblock User
                         </Button>
                       ) : (
-                        <Button variant="outline" className="w-full justify-start gap-2 text-amber-600" onClick={() => {
+                        <Button variant="outline" className="w-full justify-start gap-2 text-amber-600 rounded-[1.25rem]" onClick={() => {
                           setShowInlineBlock(true);
                           setTimeout(() => blockFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
                         }}>
@@ -517,18 +536,18 @@ export function AccountsPanel({
                   {isSuperAdmin && viewingProfile.role !== 'super_admin' && (
                     <>
                       {viewingProfile.role === 'admin' ? (
-                        <Button variant="outline" className="w-full justify-start gap-2 text-orange-600" onClick={async () => {
+                        <Button variant="outline" className="w-full justify-start gap-2 text-orange-600 rounded-[1.25rem]" onClick={async () => {
                           const success = await onDemoteFromAdmin(viewingProfile.id);
                           if (success) setViewingProfile(null);
                         }}>
                           <ShieldAlert className="h-4 w-4" /> Revoke Admin Privileges
                         </Button>
                       ) : (
-                        <Button variant="outline" className="w-full justify-start gap-2 text-blue-600" onClick={() => setPromoteTarget(viewingProfile)}>
+                        <Button variant="outline" className="w-full justify-start gap-2 text-blue-600 rounded-[1.25rem]" onClick={() => setPromoteTarget(viewingProfile)}>
                           <Shield className="h-4 w-4" /> Promote to Admin
                         </Button>
                       )}
-                      <Button variant="destructive" className="w-full justify-start gap-2" onClick={() => {
+                      <Button variant="destructive" className="w-full justify-start gap-2 rounded-[1.25rem]" onClick={() => {
                         setShowInlineDelete(true);
                         setTimeout(() => deleteFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
                       }}>
@@ -542,25 +561,24 @@ export function AccountsPanel({
 
             {/* Private Message Section */}
             {pmTarget && pmTarget.id === viewingProfile.id && (
-              <Card className="border-primary/30">
+              <Card className="border-blue-300/30 rounded-[2rem] shadow-sm">
                 <CardHeader>
                   <CardTitle className="text-base flex items-center gap-2">
-                    <Mail className="h-4 w-4 text-primary" /> Private Message to {pmTarget.display_name || 'User'}
+                    <Mail className="h-4 w-4 text-blue-500" /> Private Message to {pmTarget.display_name || 'User'}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <Input placeholder="Title (optional)" value={pmTitle} onChange={e => setPmTitle(e.target.value)} />
-                  <Textarea placeholder="Write your private message..." value={pmContent} onChange={e => setPmContent(e.target.value)} className="min-h-[80px]" />
+                  <Input placeholder="Title (optional)" value={pmTitle} onChange={e => setPmTitle(e.target.value)} className="rounded-[1.25rem]" />
+                  <Textarea placeholder="Write your private message..." value={pmContent} onChange={e => setPmContent(e.target.value)} className="min-h-[80px] rounded-[1.25rem]" />
                   <div className="flex gap-2">
-                    <Button onClick={handleSendPM} disabled={!pmContent.trim() || pmSending} className="gap-2 flex-1">
+                    <Button onClick={handleSendPM} disabled={!pmContent.trim() || pmSending} className="gap-2 flex-1 rounded-[1.25rem] bg-blue-600 hover:bg-blue-700">
                       <Send className="h-4 w-4" />{pmSending ? 'Sending...' : 'Send Private Message'}
                     </Button>
-                    <Button variant="outline" onClick={() => loadPmHistory(pmTarget.id)} className="gap-2">
+                    <Button variant="outline" onClick={() => loadPmHistory(pmTarget.id)} className="gap-2 rounded-[1.25rem]">
                       <ChevronDown className="h-4 w-4" /> History
                     </Button>
                   </div>
 
-                  {/* Message History */}
                   <AnimatePresence>
                     {showPmHistory && (
                       <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="space-y-2 pt-3 border-t border-border">
@@ -571,11 +589,11 @@ export function AccountsPanel({
                         {pmHistory.length === 0 ? (
                           <p className="text-sm text-muted-foreground text-center py-4">No messages sent to this user yet</p>
                         ) : pmHistory.map(msg => (
-                          <motion.div key={msg.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="rounded-xl bg-secondary/50 p-3">
+                          <motion.div key={msg.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="rounded-[1.25rem] bg-secondary/50 p-3">
                             {editingPm === msg.id ? (
                               <div className="space-y-2">
-                                <Input value={editPmTitle} onChange={e => setEditPmTitle(e.target.value)} placeholder="Title" />
-                                <Textarea value={editPmContent} onChange={e => setEditPmContent(e.target.value)} rows={2} />
+                                <Input value={editPmTitle} onChange={e => setEditPmTitle(e.target.value)} placeholder="Title" className="rounded-[1.25rem]" />
+                                <Textarea value={editPmContent} onChange={e => setEditPmContent(e.target.value)} rows={2} className="rounded-[1.25rem]" />
                                 <div className="flex gap-1 justify-end">
                                   <Button variant="ghost" size="sm" onClick={() => setEditingPm(null)}><X className="h-3.5 w-3.5" /></Button>
                                   <Button size="sm" onClick={async () => {
@@ -623,7 +641,7 @@ export function AccountsPanel({
             <AnimatePresence>
               {showInlineBlock && viewingProfile && !viewingProfile.is_blocked && (
                 <motion.div ref={blockFormRef} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }}>
-                  <Card className="border-amber-500/30 bg-amber-500/5">
+                  <Card className="border-amber-500/30 bg-amber-500/5 rounded-[2rem]">
                     <CardHeader>
                       <CardTitle className="text-base flex items-center gap-2 text-amber-600">
                         <Ban className="h-4 w-4" /> Block {viewingProfile.display_name || 'User'}
@@ -632,8 +650,8 @@ export function AccountsPanel({
                     <CardContent className="space-y-4">
                       <p className="text-sm text-muted-foreground">Select a duration and optionally provide a reason. The user will see a block screen with the countdown.</p>
                       <Select value={blockHours} onValueChange={setBlockHours}>
-                        <SelectTrigger><SelectValue /></SelectTrigger>
-                        <SelectContent>
+                        <SelectTrigger className="rounded-[1.25rem]"><SelectValue /></SelectTrigger>
+                        <SelectContent className="rounded-[1.25rem]">
                           <SelectItem value="1">1 Hour</SelectItem>
                           <SelectItem value="6">6 Hours</SelectItem>
                           <SelectItem value="12">12 Hours</SelectItem>
@@ -643,7 +661,7 @@ export function AccountsPanel({
                           <SelectItem value="720">1 Month</SelectItem>
                         </SelectContent>
                       </Select>
-                      <Textarea placeholder="Reason for blocking (optional)..." value={blockReason} onChange={e => setBlockReason(e.target.value)} rows={2} />
+                      <Textarea placeholder="Reason for blocking (optional)..." value={blockReason} onChange={e => setBlockReason(e.target.value)} rows={2} className="rounded-[1.25rem]" />
                       <div className="flex gap-2">
                         <Button onClick={async () => {
                           await onBlockUser(viewingProfile.id, parseInt(blockHours), blockReason);
@@ -651,10 +669,10 @@ export function AccountsPanel({
                           setBlockHours('24');
                           setBlockReason('');
                           setViewingProfile(null);
-                        }} className="flex-1 gap-2 bg-amber-600 hover:bg-amber-700 text-white">
+                        }} className="flex-1 gap-2 bg-amber-600 hover:bg-amber-700 text-white rounded-[1.25rem]">
                           <Ban className="h-4 w-4" /> Confirm Block
                         </Button>
-                        <Button variant="outline" onClick={() => setShowInlineBlock(false)}>Cancel</Button>
+                        <Button variant="outline" onClick={() => setShowInlineBlock(false)} className="rounded-[1.25rem]">Cancel</Button>
                       </div>
                     </CardContent>
                   </Card>
@@ -666,7 +684,7 @@ export function AccountsPanel({
             <AnimatePresence>
               {showInlineDelete && viewingProfile && (
                 <motion.div ref={deleteFormRef} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }}>
-                  <Card className="border-destructive/30 bg-destructive/5">
+                  <Card className="border-destructive/30 bg-destructive/5 rounded-[2rem]">
                     <CardHeader>
                       <CardTitle className="text-base flex items-center gap-2 text-destructive">
                         <Trash2 className="h-4 w-4" /> Delete {viewingProfile.display_name || 'User'} Permanently
@@ -680,17 +698,18 @@ export function AccountsPanel({
                         value={deletePassword}
                         onChange={e => setDeletePassword(e.target.value)}
                         onKeyDown={e => { if (e.key === 'Enter' && deletePassword) handleDeleteUser(); }}
+                        className="rounded-[1.25rem]"
                       />
                       <div className="flex gap-2">
                         <Button
                           variant="destructive"
                           onClick={handleDeleteUser}
                           disabled={!deletePassword || deleteLoading}
-                          className="flex-1 gap-2"
+                          className="flex-1 gap-2 rounded-[1.25rem]"
                         >
                           <Trash2 className="h-4 w-4" /> {deleteLoading ? 'Deleting...' : 'Confirm Delete'}
                         </Button>
-                        <Button variant="outline" onClick={() => { setShowInlineDelete(false); setDeletePassword(''); }}>Cancel</Button>
+                        <Button variant="outline" onClick={() => { setShowInlineDelete(false); setDeletePassword(''); }} className="rounded-[1.25rem]">Cancel</Button>
                       </div>
                     </CardContent>
                   </Card>
@@ -716,15 +735,15 @@ export function AccountsPanel({
       </div>
 
       {/* Filters */}
-      <Card className="rounded-3xl overflow-hidden border-none shadow-sm">
+      <Card className="rounded-[2rem] overflow-hidden border-none shadow-sm">
         <CardContent className="p-3 flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input placeholder="Search by name, email, or code..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-9 rounded-2xl border-none bg-secondary/50" />
+            <Input placeholder="Search by name, email, or code..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-9 rounded-[1.25rem] border-none bg-secondary/50" />
           </div>
           <Select value={filterRole} onValueChange={setFilterRole}>
-            <SelectTrigger className="w-full sm:w-[130px] rounded-2xl border-none bg-secondary/50"><SelectValue placeholder="Role" /></SelectTrigger>
-            <SelectContent className="rounded-2xl">
+            <SelectTrigger className="w-full sm:w-[130px] rounded-[1.25rem] border-none bg-secondary/50"><SelectValue placeholder="Role" /></SelectTrigger>
+            <SelectContent className="rounded-[1.25rem]">
               <SelectItem value="all">All Roles</SelectItem>
               <SelectItem value="super_admin">Super Admin</SelectItem>
               <SelectItem value="admin">Admin</SelectItem>
@@ -732,8 +751,8 @@ export function AccountsPanel({
             </SelectContent>
           </Select>
           <Select value={filterStatus} onValueChange={setFilterStatus}>
-            <SelectTrigger className="w-full sm:w-[130px] rounded-2xl border-none bg-secondary/50"><SelectValue placeholder="Status" /></SelectTrigger>
-            <SelectContent className="rounded-2xl">
+            <SelectTrigger className="w-full sm:w-[130px] rounded-[1.25rem] border-none bg-secondary/50"><SelectValue placeholder="Status" /></SelectTrigger>
+            <SelectContent className="rounded-[1.25rem]">
               <SelectItem value="all">All Status</SelectItem>
               <SelectItem value="online">Online</SelectItem>
               <SelectItem value="offline">Offline</SelectItem>
@@ -741,8 +760,8 @@ export function AccountsPanel({
             </SelectContent>
           </Select>
           <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger className="w-full sm:w-[130px] rounded-2xl border-none bg-secondary/50"><SelectValue placeholder="Sort" /></SelectTrigger>
-            <SelectContent className="rounded-2xl">
+            <SelectTrigger className="w-full sm:w-[130px] rounded-[1.25rem] border-none bg-secondary/50"><SelectValue placeholder="Sort" /></SelectTrigger>
+            <SelectContent className="rounded-[1.25rem]">
               <SelectItem value="newest">Newest</SelectItem>
               <SelectItem value="oldest">Oldest</SelectItem>
               <SelectItem value="name">Name</SelectItem>
@@ -752,14 +771,14 @@ export function AccountsPanel({
         </CardContent>
       </Card>
 
-      {/* Users Grid */}
+      {/* Users Grid - more curved */}
       <div className="space-y-3">
         {filteredUsers.map((u, index) => (
           <motion.div key={u.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.02 }}>
             <Card 
               className={cn(
-                "cursor-pointer transition-all hover:shadow-lg hover:border-primary/20 rounded-3xl overflow-hidden",
-                u.is_blocked && "border-destructive/30 bg-destructive/5"
+                "cursor-pointer transition-all hover:shadow-lg hover:border-primary/20 rounded-[2rem] overflow-hidden border-none shadow-sm",
+                u.is_blocked && "border border-destructive/30 bg-destructive/5"
               )}
               onClick={() => handleViewActivity(u)}
             >
@@ -767,12 +786,16 @@ export function AccountsPanel({
                 <div className="flex items-center gap-3">
                   {/* Avatar */}
                   <div className="relative flex-shrink-0">
-                    <div className={cn(
-                      "flex h-11 w-11 items-center justify-center rounded-full text-base font-bold text-white shadow-sm ring-2",
-                      u.is_blocked ? "ring-destructive" : u.is_online ? "ring-green-500" : "ring-transparent"
-                    )} style={{ backgroundColor: getAvatarColor(u.avatar_color) }}>
-                      {u.display_name?.charAt(0)?.toUpperCase() || '?'}
-                    </div>
+                    {u.avatar_url ? (
+                      <img src={u.avatar_url} alt="" className="h-11 w-11 rounded-full object-cover shadow-sm ring-2" style={{ borderColor: u.is_blocked ? 'hsl(0, 70%, 55%)' : u.is_online ? 'hsl(145, 60%, 40%)' : 'transparent' }} />
+                    ) : (
+                      <div className={cn(
+                        "flex h-11 w-11 items-center justify-center rounded-full text-base font-bold text-white shadow-sm ring-2",
+                        u.is_blocked ? "ring-destructive" : u.is_online ? "ring-green-500" : "ring-transparent"
+                      )} style={{ backgroundColor: getAvatarColor(u.avatar_color) }}>
+                        {u.display_name?.charAt(0)?.toUpperCase() || '?'}
+                      </div>
+                    )}
                     {u.is_online && !u.is_blocked && (
                       <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-card bg-green-500 animate-pulse" />
                     )}
@@ -792,7 +815,7 @@ export function AccountsPanel({
                     <p className="text-xs text-muted-foreground truncate mt-0.5">{u.email || 'No email'}</p>
                   </div>
 
-                  {/* Right side: language & country */}
+                  {/* Right side */}
                   <div className="flex items-center gap-3 text-xs text-muted-foreground flex-shrink-0">
                     {u.country && (
                       <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{u.country}</span>
@@ -811,7 +834,7 @@ export function AccountsPanel({
           </motion.div>
         ))}
         {filteredUsers.length === 0 && (
-          <div className="rounded-xl bg-secondary/50 p-8 text-center">
+          <div className="rounded-[2rem] bg-secondary/50 p-8 text-center">
             <UserCircle className="mx-auto h-12 w-12 text-muted-foreground" />
             <p className="mt-2 text-muted-foreground">No users match your filters</p>
           </div>
@@ -820,46 +843,18 @@ export function AccountsPanel({
 
       {/* Promote Dialog */}
       <AlertDialog open={!!promoteTarget} onOpenChange={() => { setPromoteTarget(null); setAdminPassword(''); }}>
-        <AlertDialogContent>
+        <AlertDialogContent className="rounded-[2rem]">
           <AlertDialogHeader>
             <AlertDialogTitle>Promote to Admin</AlertDialogTitle>
             <AlertDialogDescription>Enter your password to confirm promoting "{promoteTarget?.display_name || 'User'}".</AlertDialogDescription>
           </AlertDialogHeader>
-          <Input type="password" placeholder="Your password" value={adminPassword} onChange={e => setAdminPassword(e.target.value)} className="mt-2" />
+          <Input type="password" placeholder="Your password" value={adminPassword} onChange={e => setAdminPassword(e.target.value)} className="mt-2 rounded-[1.25rem]" />
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handlePromoteUser} disabled={!adminPassword}>Confirm</AlertDialogAction>
+            <AlertDialogCancel className="rounded-[1.25rem]">Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handlePromoteUser} disabled={!adminPassword} className="rounded-[1.25rem]">Confirm</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      {/* Block Dialog */}
-      <Dialog open={!!blockTarget} onOpenChange={() => setBlockTarget(null)}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-amber-600"><Ban className="h-5 w-5" />Block User</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 mt-2">
-            <p className="text-sm text-muted-foreground">Block <strong>{blockTarget?.display_name}</strong> for a specified duration.</p>
-            <Select value={blockHours} onValueChange={setBlockHours}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="1">1 Hour</SelectItem>
-                <SelectItem value="6">6 Hours</SelectItem>
-                <SelectItem value="12">12 Hours</SelectItem>
-                <SelectItem value="24">24 Hours</SelectItem>
-                <SelectItem value="48">2 Days</SelectItem>
-                <SelectItem value="168">1 Week</SelectItem>
-                <SelectItem value="720">1 Month</SelectItem>
-              </SelectContent>
-            </Select>
-            <Textarea placeholder="Reason for blocking (optional)..." value={blockReason} onChange={e => setBlockReason(e.target.value)} rows={2} />
-            <Button onClick={handleBlockUser} className="w-full gap-2 bg-amber-600 hover:bg-amber-700">
-              <Ban className="h-4 w-4" /> Block User
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
