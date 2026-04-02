@@ -182,7 +182,7 @@ export function useAdminData() {
       supabase.from('lessons').select('*', { count: 'exact', head: true }).eq('user_id', userId),
       supabase.from('vocabulary').select('*', { count: 'exact', head: true }).eq('user_id', userId),
       supabase.from('suggestions').select('*', { count: 'exact', head: true }).eq('user_id', userId),
-      supabase.from('page_visits').select('page_path, duration_seconds, visited_at').eq('user_id', userId).order('visited_at', { ascending: false }),
+      supabase.from('page_visits').select('page_path, duration_seconds, visited_at, device_type, os, browser').eq('user_id', userId).eq('is_impersonation', false).order('visited_at', { ascending: false }),
       supabase.from('user_settings').select('language').eq('user_id', userId).maybeSingle(),
       supabase.from('profiles').select('country').eq('user_id', userId).maybeSingle(),
     ]);
@@ -190,16 +190,28 @@ export function useAdminData() {
     const pageStats: Record<string, number> = {};
     const hourStats: Record<number, number> = {};
     let totalDuration = 0;
-    visits.data?.forEach(v => {
+    let latestDevice: string | null = null;
+    let latestOs: string | null = null;
+    let latestBrowser: string | null = null;
+    
+    visits.data?.forEach((v: any, i: number) => {
       pageStats[v.page_path] = (pageStats[v.page_path] || 0) + 1;
       totalDuration += v.duration_seconds || 0;
       if (v.visited_at) {
         const hour = new Date(v.visited_at).getHours();
         hourStats[hour] = (hourStats[hour] || 0) + 1;
       }
+      // Get latest device info
+      if (i === 0) {
+        latestDevice = v.device_type || null;
+        latestOs = v.os || null;
+        latestBrowser = v.browser || null;
+      }
     });
 
-    const mostVisited = Object.entries(pageStats).sort((a, b) => b[1] - a[1])[0];
+    // Most visited page excluding homepage
+    const nonHomePages = Object.entries(pageStats).filter(([p]) => p !== '/');
+    const mostVisited = nonHomePages.sort((a, b) => b[1] - a[1])[0];
     const peakHours = Object.entries(hourStats)
       .map(([hour, count]) => ({ hour: Number(hour), visits: count }))
       .sort((a, b) => b.visits - a.visits)
@@ -217,6 +229,9 @@ export function useAdminData() {
       peak_hours: peakHours,
       country: profileRes.data?.country || null,
       language: settingsRes.data?.language || null,
+      device_type: latestDevice,
+      os: latestOs,
+      browser: latestBrowser,
     };
   }, []);
 
