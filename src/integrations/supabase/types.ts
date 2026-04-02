@@ -279,22 +279,34 @@ export type Database = {
       }
       page_visits: {
         Row: {
+          browser: string | null
+          device_type: string | null
           duration_seconds: number | null
           id: string
+          is_impersonation: boolean
+          os: string | null
           page_path: string
           user_id: string | null
           visited_at: string
         }
         Insert: {
+          browser?: string | null
+          device_type?: string | null
           duration_seconds?: number | null
           id?: string
+          is_impersonation?: boolean
+          os?: string | null
           page_path: string
           user_id?: string | null
           visited_at?: string
         }
         Update: {
+          browser?: string | null
+          device_type?: string | null
           duration_seconds?: number | null
           id?: string
+          is_impersonation?: boolean
+          os?: string | null
           page_path?: string
           user_id?: string | null
           visited_at?: string
