@@ -24,6 +24,7 @@ const TableCreatorPage = lazy(() => import("./pages/TableCreatorPage"));
 const PomodoroPage = lazy(() => import("./pages/PomodoroPage"));
 const VocabularyPage = lazy(() => import("./pages/VocabularyPage"));
 const FlashcardsPage = lazy(() => import("./pages/FlashcardsPage"));
+const LeaderboardPage = lazy(() => import("./pages/LeaderboardPage"));
 const MessagesPage = lazy(() => import("./pages/MessagesPage"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const SettingsPage = lazy(() => import("./pages/SettingsPage"));
