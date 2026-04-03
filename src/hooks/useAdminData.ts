@@ -239,88 +239,90 @@ export function useAdminData() {
     if (!isAdmin) return;
     try {
       const today = new Date().toISOString().split('T')[0];
-      const [totalUsers, activeToday, totalMaterials, totalLessons, totalVocabulary, totalSuggestions, totalMessages, totalPolls, totalTodos, pageVisits, userProfiles, totalPrivateMessages, blockedUsers] = await Promise.all([
+      const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+      const [totalUsers, recentVisits, pageVisits, userProfiles, settingsAll, profilesAll] = await Promise.all([
         supabase.from('profiles').select('*', { count: 'exact', head: true }),
-        supabase.from('page_visits').select('user_id').gte('visited_at', today + 'T00:00:00'),
-        supabase.from('study_materials').select('*', { count: 'exact', head: true }),
-        supabase.from('lessons').select('*', { count: 'exact', head: true }),
-        supabase.from('vocabulary').select('*', { count: 'exact', head: true }),
-        supabase.from('suggestions').select('*', { count: 'exact', head: true }),
-        supabase.from('admin_messages').select('*', { count: 'exact', head: true }),
-        supabase.from('admin_polls').select('*', { count: 'exact', head: true }),
-        supabase.from('todos').select('*', { count: 'exact', head: true }),
-        supabase.from('page_visits').select('page_path, duration_seconds, visited_at'),
-        supabase.from('profiles').select('created_at').order('created_at', { ascending: true }),
-        supabase.from('private_messages').select('*', { count: 'exact', head: true }),
-        supabase.from('user_blocks').select('*', { count: 'exact', head: true }),
+        supabase.from('page_visits').select('user_id, visited_at').gte('visited_at', fiveMinAgo),
+        supabase.from('page_visits').select('page_path, duration_seconds, visited_at, device_type, user_id').eq('is_impersonation', false),
+        supabase.from('profiles').select('created_at, country').order('created_at', { ascending: true }),
+        supabase.from('user_settings').select('user_id, language, display_name'),
+        supabase.from('profiles').select('user_id, created_at'),
       ]);
 
-      // Count unique active users today
-      const uniqueActiveUsers = new Set(activeToday.data?.map(v => v.user_id)).size;
+      // Online now = unique users with visits in last 5 min
+      const onlineNow = new Set(recentVisits.data?.map(v => v.user_id)).size;
 
-      const pageStatsMap: Record<string, { visits: number; duration: number }> = {};
-      let totalDurationAll = 0;
-      let totalVisitCount = 0;
-      pageVisits.data?.forEach(visit => {
-        if (!pageStatsMap[visit.page_path]) pageStatsMap[visit.page_path] = { visits: 0, duration: 0 };
-        pageStatsMap[visit.page_path].visits++;
-        pageStatsMap[visit.page_path].duration += visit.duration_seconds || 0;
-        totalDurationAll += visit.duration_seconds || 0;
-        totalVisitCount++;
+      // New users today
+      const newUsersToday = profilesAll.data?.filter(p => p.created_at?.startsWith(today)).length || 0;
+
+      // Most used language
+      const langCounts: Record<string, number> = {};
+      settingsAll.data?.forEach((s: any) => { const l = s.language || 'en'; langCounts[l] = (langCounts[l] || 0) + 1; });
+      const mostUsedLanguage = Object.entries(langCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || 'en';
+
+      // Most visited pages (excluding home)
+      const pageStatsMap: Record<string, number> = {};
+      const deviceCounts: Record<string, number> = {};
+      const countryCounts: Record<string, number> = {};
+      const userDurations: Record<string, { total: number; name: string }> = {};
+
+      pageVisits.data?.forEach((visit: any) => {
+        if (visit.page_path !== '/') {
+          pageStatsMap[visit.page_path] = (pageStatsMap[visit.page_path] || 0) + 1;
+        }
+        if (visit.device_type) {
+          deviceCounts[visit.device_type] = (deviceCounts[visit.device_type] || 0) + 1;
+        }
+        if (visit.user_id && visit.duration_seconds) {
+          if (!userDurations[visit.user_id]) userDurations[visit.user_id] = { total: 0, name: '' };
+          userDurations[visit.user_id].total += visit.duration_seconds;
+        }
+      });
+
+      userProfiles.data?.forEach((p: any) => {
+        if (p.country) countryCounts[p.country] = (countryCounts[p.country] || 0) + 1;
+      });
+
+      // Map display names to user durations
+      settingsAll.data?.forEach((s: any) => {
+        if (userDurations[s.user_id]) userDurations[s.user_id].name = s.display_name || 'User';
       });
 
       const mostVisitedPages = Object.entries(pageStatsMap)
-        .map(([page, data]) => ({ page, visits: data.visits }))
+        .map(([page, visits]) => ({ page, visits }))
         .sort((a, b) => b.visits - a.visits).slice(0, 5);
 
-      const longestDurationPages = Object.entries(pageStatsMap)
-        .map(([page, data]) => ({ page, duration: data.duration }))
-        .sort((a, b) => b.duration - a.duration).slice(0, 5);
+      const topCountries = Object.entries(countryCounts)
+        .map(([country, count]) => ({ country, count }))
+        .sort((a, b) => b.count - a.count).slice(0, 5);
 
-      // User growth by month
-      const growthMap: Record<string, number> = {};
-      userProfiles.data?.forEach(p => {
-        const month = p.created_at.substring(0, 7);
-        growthMap[month] = (growthMap[month] || 0) + 1;
-      });
-      const userGrowth = Object.entries(growthMap).map(([date, count]) => ({ date, count }));
+      const deviceStats = Object.entries(deviceCounts)
+        .map(([type, count]) => ({ type, count }))
+        .sort((a, b) => b.count - a.count);
 
-      // Daily active users (last 7 days)
-      const dailyActiveUsers: { date: string; count: number }[] = [];
-      for (let i = 6; i >= 0; i--) {
-        const d = new Date();
-        d.setDate(d.getDate() - i);
-        const dateStr = d.toISOString().split('T')[0];
-        const dayVisits = pageVisits.data?.filter(v => v.visited_at?.startsWith(dateStr)) || [];
-        const uniqueUsers = new Set(dayVisits.map(() => 'u')).size; // simplified
-        dailyActiveUsers.push({ date: dateStr, count: dayVisits.length > 0 ? new Set(dayVisits).size : 0 });
-      }
-
-      // Content created today
-      const todayMaterials = await supabase.from('study_materials').select('*', { count: 'exact', head: true }).gte('created_at', today + 'T00:00:00');
-      const todayVocab = await supabase.from('vocabulary').select('*', { count: 'exact', head: true }).gte('created_at', today + 'T00:00:00');
+      const topActiveUsers = Object.entries(userDurations)
+        .map(([user_id, data]) => ({ user_id, display_name: data.name, total_seconds: data.total }))
+        .sort((a, b) => b.total_seconds - a.total_seconds).slice(0, 10);
 
       setStats({
         totalUsers: totalUsers.count || 0,
-        activeToday: uniqueActiveUsers,
-        totalMaterials: totalMaterials.count || 0,
-        totalLessons: totalLessons.count || 0,
-        totalVocabulary: totalVocabulary.count || 0,
-        totalSuggestions: totalSuggestions.count || 0,
-        totalMessages: totalMessages.count || 0,
-        totalPolls: totalPolls.count || 0,
-        totalTodos: totalTodos.count || 0,
-        totalPageVisits: totalVisitCount,
-        totalPrivateMessages: totalPrivateMessages.count || 0,
-        blockedUsers: blockedUsers.count || 0,
+        activeToday: onlineNow,
+        totalMaterials: 0, totalLessons: 0, totalVocabulary: 0, totalSuggestions: 0,
+        totalMessages: 0, totalPolls: 0, totalTodos: 0, totalPageVisits: 0,
+        totalPrivateMessages: 0, blockedUsers: 0,
         mostVisitedPages,
-        longestDurationPages,
+        longestDurationPages: [],
         recentActivity: [],
-        userGrowth,
-        dailyActiveUsers,
-        contentCreatedToday: (todayMaterials.count || 0) + (todayVocab.count || 0),
-        averageSessionDuration: totalVisitCount > 0 ? Math.round(totalDurationAll / totalVisitCount) : 0,
-      });
+        userGrowth: [],
+        dailyActiveUsers: [],
+        contentCreatedToday: 0,
+        averageSessionDuration: 0,
+        newUsersToday,
+        mostUsedLanguage,
+        topCountries,
+        deviceStats,
+        topActiveUsers,
+      } as any);
     } catch (err) {
       console.error('Error fetching stats:', err);
     }
