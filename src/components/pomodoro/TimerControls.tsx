@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Play, Pause, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface TimerControlsProps {
   isRunning: boolean;
@@ -10,6 +11,8 @@ interface TimerControlsProps {
 }
 
 export function TimerControls({ isRunning, onStart, onPause, onReset }: TimerControlsProps) {
+  const { t } = useLanguage();
+  
   return (
     <div className="flex items-center justify-center gap-4">
       <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
@@ -32,12 +35,12 @@ export function TimerControls({ isRunning, onStart, onPause, onReset }: TimerCon
           {isRunning ? (
             <>
               <Pause className="mr-2 h-6 w-6" />
-              Pause
+              {t('pause')}
             </>
           ) : (
             <>
               <Play className="mr-2 h-6 w-6" />
-              Start
+              {t('start')}
             </>
           )}
         </Button>

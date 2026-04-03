@@ -23,12 +23,20 @@ const COLOR_OPTIONS = [
   { id: 'cyan', color: 'hsl(185, 80%, 45%)', name: 'Cyan' },
 ];
 
+const ALARM_KEYS: Record<string, string> = {
+  chime: 'alarmChime',
+  bell: 'alarmBell',
+  digital: 'alarmDigital',
+  gentle: 'alarmGentle',
+  nature: 'alarmNature',
+};
+
 const ALARM_OPTIONS = [
-  { id: 'chime', name: 'Chime', icon: '🔔' },
-  { id: 'bell', name: 'Bell', icon: '🛎️' },
-  { id: 'digital', name: 'Digital', icon: '📟' },
-  { id: 'gentle', name: 'Gentle', icon: '🌸' },
-  { id: 'nature', name: 'Nature', icon: '🌿' },
+  { id: 'chime', icon: '🔔' },
+  { id: 'bell', icon: '🛎️' },
+  { id: 'digital', icon: '📟' },
+  { id: 'gentle', icon: '🌸' },
+  { id: 'nature', icon: '🌿' },
 ];
 
 export function getColorValue(colorId: string): string {
@@ -78,7 +86,7 @@ export function PomodoroSettings({ settings, onUpdateSettings, currentMode }: Po
       <div>
         <div className="flex items-center gap-2 mb-3">
           <Bell className="w-4 h-4 text-muted-foreground" />
-          <span className="text-sm font-medium text-foreground">🔔</span>
+          <span className="text-sm font-medium text-foreground">{t('alarmSound')}</span>
         </div>
         <div className="flex flex-wrap gap-2">
           {ALARM_OPTIONS.map((alarm) => (
@@ -95,7 +103,7 @@ export function PomodoroSettings({ settings, onUpdateSettings, currentMode }: Po
               )}
             >
               <span>{alarm.icon}</span>
-              <span className="text-sm">{alarm.name}</span>
+              <span className="text-sm">{t(ALARM_KEYS[alarm.id] || alarm.id)}</span>
             </motion.button>
           ))}
         </div>
