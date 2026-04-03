@@ -24,6 +24,7 @@ const TableCreatorPage = lazy(() => import("./pages/TableCreatorPage"));
 const PomodoroPage = lazy(() => import("./pages/PomodoroPage"));
 const VocabularyPage = lazy(() => import("./pages/VocabularyPage"));
 const FlashcardsPage = lazy(() => import("./pages/FlashcardsPage"));
+const LeaderboardPage = lazy(() => import("./pages/LeaderboardPage"));
 const MessagesPage = lazy(() => import("./pages/MessagesPage"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const SettingsPage = lazy(() => import("./pages/SettingsPage"));
@@ -192,6 +193,7 @@ function AppRoutes() {
             <Route path="/pomodoro" element={<PomodoroPage />} />
             <Route path="/vocabulary" element={<VocabularyPage />} />
             <Route path="/flashcards" element={<FlashcardsPage />} />
+            <Route path="/leaderboard" element={<LeaderboardPage />} />
             <Route path="/messages" element={<MessagesPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/suggestions" element={<SuggestionsPage />} />
