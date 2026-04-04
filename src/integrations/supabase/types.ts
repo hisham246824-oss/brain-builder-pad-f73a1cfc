@@ -55,24 +55,36 @@ export type Database = {
           created_at: string
           id: string
           is_active: boolean
+          is_important: boolean
+          is_pinned: boolean
           options: Json
+          options_translations: Json | null
           question: string
+          question_translations: Json | null
           sender_id: string
         }
         Insert: {
           created_at?: string
           id?: string
           is_active?: boolean
+          is_important?: boolean
+          is_pinned?: boolean
           options?: Json
+          options_translations?: Json | null
           question: string
+          question_translations?: Json | null
           sender_id: string
         }
         Update: {
           created_at?: string
           id?: string
           is_active?: boolean
+          is_important?: boolean
+          is_pinned?: boolean
           options?: Json
+          options_translations?: Json | null
           question?: string
+          question_translations?: Json | null
           sender_id?: string
         }
         Relationships: []
@@ -505,6 +517,7 @@ export type Database = {
           created_at: string
           description: string
           id: string
+          is_pinned: boolean
           status: string
           title: string
           updated_at: string
@@ -514,6 +527,7 @@ export type Database = {
           created_at?: string
           description: string
           id?: string
+          is_pinned?: boolean
           status?: string
           title: string
           updated_at?: string
@@ -523,6 +537,7 @@ export type Database = {
           created_at?: string
           description?: string
           id?: string
+          is_pinned?: boolean
           status?: string
           title?: string
           updated_at?: string
@@ -723,6 +738,7 @@ export type Database = {
           theme: string | null
           updated_at: string
           user_id: string
+          xp_points: number
         }
         Insert: {
           ai_custom_prompt?: string | null
@@ -737,6 +753,7 @@ export type Database = {
           theme?: string | null
           updated_at?: string
           user_id: string
+          xp_points?: number
         }
         Update: {
           ai_custom_prompt?: string | null
@@ -751,6 +768,7 @@ export type Database = {
           theme?: string | null
           updated_at?: string
           user_id?: string
+          xp_points?: number
         }
         Relationships: []
       }
@@ -906,6 +924,39 @@ export type Database = {
           updated_at?: string
           user_id?: string
           word?: string
+        }
+        Relationships: []
+      }
+      xp_gifts: {
+        Row: {
+          claimed: boolean
+          created_at: string
+          gifted_by: string
+          id: string
+          message: string | null
+          points: number
+          title: string
+          user_id: string
+        }
+        Insert: {
+          claimed?: boolean
+          created_at?: string
+          gifted_by: string
+          id?: string
+          message?: string | null
+          points?: number
+          title: string
+          user_id: string
+        }
+        Update: {
+          claimed?: boolean
+          created_at?: string
+          gifted_by?: string
+          id?: string
+          message?: string | null
+          points?: number
+          title?: string
+          user_id?: string
         }
         Relationships: []
       }

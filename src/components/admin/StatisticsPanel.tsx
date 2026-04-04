@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Users, UserCheck, UserPlus, Globe, TrendingUp, Monitor, Smartphone, Tablet, Laptop, Crown, Clock, BarChart3 } from 'lucide-react';
+import { Users, UserCheck, UserPlus, Globe, TrendingUp, Monitor, Smartphone, Tablet, Laptop, Crown, Clock, BarChart3, BookOpen, MessageSquare, Lightbulb, CheckSquare, Headphones, FileText, Settings, Trophy, MapPin } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
@@ -14,18 +14,18 @@ interface StatisticsPanelProps {
   isLoading: boolean;
 }
 
-const pageNameMap: Record<string, { name: string; icon: string; color: string }> = {
-  '/materials': { name: 'Materials', icon: '📚', color: 'hsl(199, 89%, 50%)' },
-  '/vocabulary': { name: 'Vocabulary', icon: '📖', color: 'hsl(142, 71%, 45%)' },
-  '/flashcards': { name: 'Flashcards', icon: '🃏', color: 'hsl(270, 70%, 55%)' },
-  '/pomodoro': { name: 'Pomodoro', icon: '⏱️', color: 'hsl(0, 70%, 55%)' },
-  '/table-creator': { name: 'Tables', icon: '📊', color: 'hsl(45, 93%, 50%)' },
-  '/messages': { name: 'Messages', icon: '✉️', color: 'hsl(199, 89%, 50%)' },
-  '/suggestions': { name: 'Suggestions', icon: '💡', color: 'hsl(25, 95%, 55%)' },
-  '/settings': { name: 'Settings', icon: '⚙️', color: 'hsl(230, 70%, 55%)' },
-  '/todos': { name: 'To-Do', icon: '✅', color: 'hsl(142, 71%, 45%)' },
-  '/support': { name: 'Support', icon: '🛟', color: 'hsl(330, 80%, 60%)' },
-  '/leaderboard': { name: 'Leaderboard', icon: '🏆', color: 'hsl(45, 93%, 50%)' },
+const pageNameMap: Record<string, { name: string; icon: typeof BookOpen; color: string }> = {
+  '/materials': { name: 'Materials', icon: BookOpen, color: 'hsl(199, 89%, 50%)' },
+  '/vocabulary': { name: 'Vocabulary', icon: FileText, color: 'hsl(142, 71%, 45%)' },
+  '/flashcards': { name: 'Flashcards', icon: Lightbulb, color: 'hsl(270, 70%, 55%)' },
+  '/pomodoro': { name: 'Pomodoro', icon: Clock, color: 'hsl(0, 70%, 55%)' },
+  '/table-creator': { name: 'Tables', icon: BarChart3, color: 'hsl(45, 93%, 50%)' },
+  '/messages': { name: 'Messages', icon: MessageSquare, color: 'hsl(199, 89%, 50%)' },
+  '/suggestions': { name: 'Suggestions', icon: Lightbulb, color: 'hsl(25, 95%, 55%)' },
+  '/settings': { name: 'Settings', icon: Settings, color: 'hsl(230, 70%, 55%)' },
+  '/todos': { name: 'To-Do', icon: CheckSquare, color: 'hsl(142, 71%, 45%)' },
+  '/support': { name: 'Support', icon: Headphones, color: 'hsl(330, 80%, 60%)' },
+  '/leaderboard': { name: 'Leaderboard', icon: Trophy, color: 'hsl(45, 93%, 50%)' },
 };
 
 function LiveCounter({ value }: { value: number }) {
@@ -54,9 +54,7 @@ export function StatisticsPanel({ stats, isLoading }: StatisticsPanelProps) {
   if (isLoading) {
     return (
       <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
-        {[...Array(4)].map((_, i) => (
-          <div key={i} className="h-28 animate-pulse rounded-[2rem] bg-secondary" />
-        ))}
+        {[...Array(4)].map((_, i) => <div key={i} className="h-28 animate-pulse rounded-[2rem] bg-secondary" />)}
       </div>
     );
   }
@@ -74,53 +72,43 @@ export function StatisticsPanel({ stats, isLoading }: StatisticsPanelProps) {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-foreground">Dashboard Overview</h2>
-        <div className="text-xs text-muted-foreground font-mono">Live • {currentTime.toLocaleTimeString()}</div>
+        <div className="flex items-center gap-3">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500 to-blue-500">
+            <BarChart3 className="h-6 w-6 text-white" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold text-foreground">Dashboard Overview</h2>
+            <p className="text-xs text-muted-foreground font-mono">Live • {currentTime.toLocaleTimeString()}</p>
+          </div>
+        </div>
       </div>
 
       {/* 4 Stat Cards */}
       <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
-        <Card className="rounded-[2rem] bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
-          <CardContent className="p-5">
-            <div className="flex items-center gap-2">
-              <Users className="h-5 w-5 text-primary" />
-              <span className="text-sm font-medium text-muted-foreground">Total Users</span>
-            </div>
-            <p className="mt-2 text-3xl font-bold text-foreground"><LiveCounter value={stats?.totalUsers || 0} /></p>
-          </CardContent>
-        </Card>
-        <Card className="rounded-[2rem] bg-gradient-to-br from-green-500/10 to-green-500/5 border-green-500/20">
-          <CardContent className="p-5">
-            <div className="flex items-center gap-2">
-              <UserCheck className="h-5 w-5 text-green-500" />
-              <span className="text-sm font-medium text-muted-foreground">Online Now</span>
-            </div>
-            <p className="mt-2 text-3xl font-bold text-foreground"><LiveCounter value={stats?.activeToday || 0} /></p>
-          </CardContent>
-        </Card>
-        <Card className="rounded-[2rem] bg-gradient-to-br from-sky-500/10 to-sky-500/5 border-sky-500/20">
-          <CardContent className="p-5">
-            <div className="flex items-center gap-2">
-              <UserPlus className="h-5 w-5 text-sky-500" />
-              <span className="text-sm font-medium text-muted-foreground">New Today</span>
-            </div>
-            <p className="mt-2 text-3xl font-bold text-foreground"><LiveCounter value={newUsersToday} /></p>
-          </CardContent>
-        </Card>
-        <Card className="rounded-[2rem] bg-gradient-to-br from-purple-500/10 to-purple-500/5 border-purple-500/20">
-          <CardContent className="p-5">
-            <div className="flex items-center gap-2">
-              <Globe className="h-5 w-5 text-purple-500" />
-              <span className="text-sm font-medium text-muted-foreground">Top Language</span>
-            </div>
-            <p className="mt-2 text-2xl font-bold text-foreground uppercase">{mostUsedLanguage}</p>
-          </CardContent>
-        </Card>
+        {[
+          { label: 'Total Users', value: stats?.totalUsers || 0, icon: Users, color: 'text-primary', bg: 'from-primary/10 to-primary/5 border-primary/20' },
+          { label: 'Online Now', value: stats?.activeToday || 0, icon: UserCheck, color: 'text-green-500', bg: 'from-green-500/10 to-green-500/5 border-green-500/20' },
+          { label: 'New Today', value: newUsersToday, icon: UserPlus, color: 'text-sky-500', bg: 'from-sky-500/10 to-sky-500/5 border-sky-500/20' },
+          { label: 'Top Language', value: mostUsedLanguage, icon: Globe, color: 'text-purple-500', bg: 'from-purple-500/10 to-purple-500/5 border-purple-500/20', isText: true },
+        ].map(s => (
+          <Card key={s.label} className={cn("rounded-[2rem] bg-gradient-to-br", s.bg)}>
+            <CardContent className="p-5">
+              <div className="flex items-center gap-2">
+                <s.icon className={cn("h-5 w-5", s.color)} />
+                <span className="text-sm font-medium text-muted-foreground">{s.label}</span>
+              </div>
+              {(s as any).isText ? (
+                <p className="mt-2 text-2xl font-bold text-foreground uppercase">{s.value as string}</p>
+              ) : (
+                <p className="mt-2 text-3xl font-bold text-foreground"><LiveCounter value={s.value as number} /></p>
+              )}
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
-      {/* 2 Bar Charts side by side */}
+      {/* 2 Bar Charts */}
       <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
-        {/* Top 5 Pages */}
         <Card className="rounded-[2rem]">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
@@ -131,20 +119,16 @@ export function StatisticsPanel({ stats, isLoading }: StatisticsPanelProps) {
             {topPages.length > 0 ? (
               <div className="space-y-3">
                 {topPages.map((page: any, index: number) => {
-                  const info = pageNameMap[page.page] || { name: page.page, icon: '📄', color: 'hsl(var(--primary))' };
+                  const info = pageNameMap[page.page];
+                  const PageIcon = info?.icon || FileText;
+                  const color = info?.color || 'hsl(var(--primary))';
                   return (
                     <div key={page.page} className="flex items-center gap-3">
-                      <span className="text-lg">{info.icon}</span>
+                      <PageIcon className="h-5 w-5 shrink-0" style={{ color }} />
                       <div className="flex-1">
-                        <p className="text-sm font-medium text-foreground">{info.name}</p>
+                        <p className="text-sm font-medium text-foreground">{info?.name || page.page}</p>
                         <div className="mt-1 h-2 overflow-hidden rounded-full bg-secondary">
-                          <motion.div
-                            initial={{ width: 0 }}
-                            animate={{ width: `${(page.visits / (topPages[0]?.visits || 1)) * 100}%` }}
-                            transition={{ duration: 0.5, delay: index * 0.1 }}
-                            className="h-full rounded-full"
-                            style={{ backgroundColor: info.color }}
-                          />
+                          <motion.div initial={{ width: 0 }} animate={{ width: `${(page.visits / (topPages[0]?.visits || 1)) * 100}%` }} transition={{ duration: 0.5, delay: index * 0.1 }} className="h-full rounded-full" style={{ backgroundColor: color }} />
                         </div>
                       </div>
                       <span className="text-xs font-bold text-foreground">{page.visits}</span>
@@ -156,11 +140,10 @@ export function StatisticsPanel({ stats, isLoading }: StatisticsPanelProps) {
           </CardContent>
         </Card>
 
-        {/* Top 5 Countries */}
         <Card className="rounded-[2rem]">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
-              <Globe className="h-5 w-5 text-green-500" /> Top 5 Countries
+              <MapPin className="h-5 w-5 text-green-500" /> Top 5 Countries
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -170,17 +153,11 @@ export function StatisticsPanel({ stats, isLoading }: StatisticsPanelProps) {
                   const colors = ['hsl(199, 89%, 50%)', 'hsl(142, 71%, 45%)', 'hsl(25, 95%, 55%)', 'hsl(270, 70%, 55%)', 'hsl(330, 80%, 60%)'];
                   return (
                     <div key={c.country} className="flex items-center gap-3">
-                      <span className="text-lg">🌍</span>
+                      <Globe className="h-5 w-5 shrink-0" style={{ color: colors[index % colors.length] }} />
                       <div className="flex-1">
                         <p className="text-sm font-medium text-foreground">{c.country}</p>
                         <div className="mt-1 h-2 overflow-hidden rounded-full bg-secondary">
-                          <motion.div
-                            initial={{ width: 0 }}
-                            animate={{ width: `${(c.count / (topCountries[0]?.count || 1)) * 100}%` }}
-                            transition={{ duration: 0.5, delay: index * 0.1 }}
-                            className="h-full rounded-full"
-                            style={{ backgroundColor: colors[index % colors.length] }}
-                          />
+                          <motion.div initial={{ width: 0 }} animate={{ width: `${(c.count / (topCountries[0]?.count || 1)) * 100}%` }} transition={{ duration: 0.5, delay: index * 0.1 }} className="h-full rounded-full" style={{ backgroundColor: colors[index % colors.length] }} />
                         </div>
                       </div>
                       <span className="text-xs font-bold text-foreground">{c.count}</span>
@@ -195,7 +172,6 @@ export function StatisticsPanel({ stats, isLoading }: StatisticsPanelProps) {
 
       {/* Donut + Top Active Users */}
       <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
-        {/* Device Donut Chart */}
         <Card className="rounded-[2rem]">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
@@ -205,7 +181,6 @@ export function StatisticsPanel({ stats, isLoading }: StatisticsPanelProps) {
           <CardContent>
             {deviceStats.length > 0 ? (
               <div className="flex flex-col items-center gap-4">
-                {/* Simple donut visualization */}
                 <div className="relative w-40 h-40">
                   <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
                     {(() => {
@@ -214,15 +189,7 @@ export function StatisticsPanel({ stats, isLoading }: StatisticsPanelProps) {
                         const pct = totalDeviceCount > 0 ? (d.count / totalDeviceCount) * 100 : 0;
                         const dash = `${pct} ${100 - pct}`;
                         const el = (
-                          <circle
-                            key={d.type}
-                            cx="18" cy="18" r="15.9155"
-                            fill="none"
-                            stroke={DEVICE_COLORS[i % DEVICE_COLORS.length]}
-                            strokeWidth="3"
-                            strokeDasharray={dash}
-                            strokeDashoffset={-offset}
-                          />
+                          <circle key={d.type} cx="18" cy="18" r="15.9155" fill="none" stroke={DEVICE_COLORS[i % DEVICE_COLORS.length]} strokeWidth="3" strokeDasharray={dash} strokeDashoffset={-offset} />
                         );
                         offset += pct;
                         return el;
@@ -253,7 +220,6 @@ export function StatisticsPanel({ stats, isLoading }: StatisticsPanelProps) {
           </CardContent>
         </Card>
 
-        {/* Top 10 Active Users */}
         <Card className="rounded-[2rem]">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
@@ -264,25 +230,17 @@ export function StatisticsPanel({ stats, isLoading }: StatisticsPanelProps) {
             {topActiveUsers.length > 0 ? (
               <div className="space-y-2 max-h-[400px] overflow-y-auto">
                 {topActiveUsers.slice(0, 10).map((u: any, i: number) => (
-                  <motion.div
-                    key={u.user_id}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.05 }}
-                    className="flex items-center gap-3 rounded-[1.25rem] border border-border/50 bg-card/50 px-4 py-3"
-                  >
-                    <div className={cn(
-                      "flex h-8 w-8 items-center justify-center rounded-full text-white text-xs font-bold shrink-0",
-                      i === 0 ? 'bg-yellow-500' : i === 1 ? 'bg-gray-400' : i === 2 ? 'bg-amber-700' : 'bg-muted text-muted-foreground'
-                    )}>
+                  <motion.div key={u.user_id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }}
+                    className="flex items-center gap-3 rounded-[1.25rem] border border-border/50 bg-card/50 px-4 py-3">
+                    <div className={cn("flex h-8 w-8 items-center justify-center rounded-full text-white text-xs font-bold shrink-0",
+                      i === 0 ? 'bg-yellow-500' : i === 1 ? 'bg-gray-400' : i === 2 ? 'bg-amber-700' : 'bg-muted text-muted-foreground')}>
                       {i === 0 ? <Crown className="h-4 w-4" /> : i + 1}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium truncate text-foreground">{u.display_name || 'User'}</p>
                     </div>
                     <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <Clock className="h-3 w-3" />
-                      {Math.round(u.total_seconds / 3600)}h
+                      <Clock className="h-3 w-3" />{Math.round(u.total_seconds / 3600)}h
                     </div>
                   </motion.div>
                 ))}
