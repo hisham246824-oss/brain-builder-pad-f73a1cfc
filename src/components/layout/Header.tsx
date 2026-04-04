@@ -26,11 +26,11 @@ export function Header({ onMenuClick }: HeaderProps) {
   const [xpPoints, setXpPoints] = useState<number | null>(null);
 
   // Load XP
-  useState(() => {
+  useEffect(() => {
     if (!user) return;
     supabase.from('user_settings').select('xp_points').eq('user_id', user.id).maybeSingle()
       .then(({ data }) => setXpPoints((data as any)?.xp_points || 0));
-  });
+  }, [user]);
 
   const handleGoToMessage = () => {
     dismissMsg();
