@@ -218,6 +218,7 @@ const App = () => (
             <Sonner />
             <BrowserRouter>
               <BlockCheck>
+                <XpGiftCelebration />
                 <AppRoutes />
               </BlockCheck>
             </BrowserRouter>
