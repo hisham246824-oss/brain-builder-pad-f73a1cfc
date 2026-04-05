@@ -7,7 +7,7 @@ import {
   Edit, X, Save, Mail, CheckCircle2, XCircle, Timer, ListTodo,
   UserCheck, UserX, Fingerprint, CalendarDays, MapPin, BarChart3,
   FileText, Zap, TrendingUp, Hash, Monitor, Smartphone, Tablet,
-  Chrome, AppWindow, Cpu
+  Chrome, AppWindow, Cpu, Gift, Star, ShieldCheck
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
