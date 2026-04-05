@@ -591,7 +591,6 @@ const translations: Record<Language, Translations> = {
      typeMeaning: 'Tapez le sens', typeYourAnswer: 'Tapez votre réponse...',
      checkAnswer: 'Vérifier la réponse', correct: '✓ Correct !', incorrect: '✗ Incorrect',
      offlineMode: 'Mode hors ligne — vocabulaire en cache', offline: 'Hors ligne',
-     byDate: 'Par date', byDateDesc: 'Quiz des mots ajoutés un jour spécifique', selectDate: 'Choisir une date', noDatesAvailable: 'Aucune date disponible',
    },
    zh: {
     home: '首页', studyMaterials: '学习资料', vocabulary: '词汇',
