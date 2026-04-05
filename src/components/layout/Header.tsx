@@ -6,7 +6,7 @@ import { useAdminImpersonation } from '@/contexts/AdminImpersonationContext';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 

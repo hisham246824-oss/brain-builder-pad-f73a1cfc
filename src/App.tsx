@@ -12,6 +12,7 @@ import { BlockedScreen } from "@/components/BlockedScreen";
 import { AppLayout } from "./components/layout/AppLayout";
 import { lazy, Suspense, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { XpGiftCelebration } from "@/components/XpGiftCelebration";
 
 // Critical path - loaded eagerly
 import Index from "./pages/Index";
@@ -217,6 +218,7 @@ const App = () => (
             <Sonner />
             <BrowserRouter>
               <BlockCheck>
+                <XpGiftCelebration />
                 <AppRoutes />
               </BlockCheck>
             </BrowserRouter>

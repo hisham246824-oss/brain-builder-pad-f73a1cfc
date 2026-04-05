@@ -7,7 +7,7 @@ import {
   Edit, X, Save, Mail, CheckCircle2, XCircle, Timer, ListTodo,
   UserCheck, UserX, Fingerprint, CalendarDays, MapPin, BarChart3,
   FileText, Zap, TrendingUp, Hash, Monitor, Smartphone, Tablet,
-  Chrome, AppWindow, Cpu
+  Chrome, AppWindow, Cpu, Gift, Star, ShieldCheck
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -218,6 +218,22 @@ export function AccountsPanel({
   const [editPmTitle, setEditPmTitle] = useState('');
   const [editPmContent, setEditPmContent] = useState('');
 
+  // XP Gift
+  const [showGiftForm, setShowGiftForm] = useState(false);
+  const [giftTitle, setGiftTitle] = useState('');
+  const [giftPoints, setGiftPoints] = useState('');
+  const [giftMessage, setGiftMessage] = useState('');
+  const [giftSending, setGiftSending] = useState(false);
+  const giftFormRef = useRef<HTMLDivElement>(null);
+
+  // Role Upgrade
+  const [showRoleUpgrade, setShowRoleUpgrade] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<string | null>(null);
+  const [upgradePassword, setUpgradePassword] = useState('');
+  const [upgradeLoading, setUpgradeLoading] = useState(false);
+  const roleFormRef = useRef<HTMLDivElement>(null);
+  const roleConfirmRef = useRef<HTMLDivElement>(null);
+
   let filteredUsers = users.filter(u => {
     const query = searchQuery.toLowerCase();
     const userCode = u.id.slice(0, 8).toLowerCase();
@@ -286,6 +302,42 @@ export function AccountsPanel({
     if (!promoteTarget || !adminPassword) return;
     const success = await onPromoteToAdmin(promoteTarget.id, adminPassword);
     if (success) { setPromoteTarget(null); setAdminPassword(''); }
+  };
+
+  const handleSendGift = async () => {
+    if (!viewingProfile || !giftTitle.trim() || !giftPoints || !authUser) return;
+    setGiftSending(true);
+    try {
+      const { error } = await (await import('@/integrations/supabase/client')).supabase
+        .from('xp_gifts')
+        .insert({ user_id: viewingProfile.id, gifted_by: authUser.id, title: giftTitle.trim(), points: parseInt(giftPoints), message: giftMessage.trim() || null });
+      if (!error) {
+        toast.success('XP Gift sent successfully!');
+        setGiftTitle(''); setGiftPoints(''); setGiftMessage(''); setShowGiftForm(false);
+      } else { toast.error('Failed to send gift'); }
+    } catch { toast.error('Failed to send gift'); }
+    setGiftSending(false);
+  };
+
+  const handleRoleUpgrade = async () => {
+    if (!viewingProfile || !selectedRole || !upgradePassword) return;
+    setUpgradeLoading(true);
+    // Verify password by re-signing in
+    const { error: authErr } = await (await import('@/integrations/supabase/client')).supabase.auth.signInWithPassword({
+      email: authUser?.email || '',
+      password: upgradePassword,
+    });
+    if (authErr) { toast.error('Invalid password'); setUpgradeLoading(false); return; }
+    // Update role
+    const { error } = await (await import('@/integrations/supabase/client')).supabase
+      .from('user_roles')
+      .update({ role: selectedRole as any })
+      .eq('user_id', viewingProfile.id);
+    if (!error) {
+      toast.success(`User upgraded to ${selectedRole.replace('_', ' ')}`);
+      setShowRoleUpgrade(false); setSelectedRole(null); setUpgradePassword('');
+    } else { toast.error('Failed to upgrade role'); }
+    setUpgradeLoading(false);
   };
 
   const getAvatarColor = (color: string | null) => AVATAR_COLORS[color || 'primary'] || AVATAR_COLORS.primary;
@@ -514,6 +566,14 @@ export function AccountsPanel({
                     <Mail className="h-4 w-4" /> Send Private Message
                   </Button>
 
+                  {/* XP Gift */}
+                  <Button variant="outline" className="w-full justify-start gap-2 rounded-[1.25rem] text-amber-600 border-amber-200 hover:bg-amber-50 dark:hover:bg-amber-500/10" onClick={() => {
+                    setShowGiftForm(true);
+                    setTimeout(() => giftFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+                  }}>
+                    <Gift className="h-4 w-4" /> Gift XP Points
+                  </Button>
+
                   {/* Block/Unblock */}
                   {viewingProfile.role !== 'super_admin' && (
                     (isSuperAdmin || viewingProfile.role === 'user') ? (
@@ -532,10 +592,10 @@ export function AccountsPanel({
                     ) : null
                   )}
 
-                  {/* Role management & deletion - super_admin only */}
+                  {/* Role management */}
                   {isSuperAdmin && viewingProfile.role !== 'super_admin' && (
                     <>
-                      {viewingProfile.role === 'admin' ? (
+                      {(viewingProfile.role === 'admin' || viewingProfile.role === 'analyst' || viewingProfile.role === 'executive_admin') ? (
                         <Button variant="outline" className="w-full justify-start gap-2 text-orange-600 rounded-[1.25rem]" onClick={async () => {
                           const success = await onDemoteFromAdmin(viewingProfile.id);
                           if (success) setViewingProfile(null);
@@ -543,8 +603,11 @@ export function AccountsPanel({
                           <ShieldAlert className="h-4 w-4" /> Revoke Admin Privileges
                         </Button>
                       ) : (
-                        <Button variant="outline" className="w-full justify-start gap-2 text-blue-600 rounded-[1.25rem]" onClick={() => setPromoteTarget(viewingProfile)}>
-                          <Shield className="h-4 w-4" /> Promote to Admin
+                        <Button variant="outline" className="w-full justify-start gap-2 text-purple-600 rounded-[1.25rem]" onClick={() => {
+                          setShowRoleUpgrade(true);
+                          setTimeout(() => roleFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+                        }}>
+                          <ShieldCheck className="h-4 w-4" /> Upgrade to Admin
                         </Button>
                       )}
                       <Button variant="destructive" className="w-full justify-start gap-2 rounded-[1.25rem]" onClick={() => {
@@ -636,6 +699,79 @@ export function AccountsPanel({
                 </CardContent>
               </Card>
             )}
+
+            {/* XP Gift Form */}
+            <AnimatePresence>
+              {showGiftForm && viewingProfile && (
+                <motion.div ref={giftFormRef} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }}>
+                  <Card className="border-amber-300/30 bg-amber-500/5 rounded-[2rem]">
+                    <CardHeader>
+                      <CardTitle className="text-base flex items-center gap-2 text-amber-600">
+                        <Gift className="h-4 w-4" /> Gift XP to {viewingProfile.display_name || 'User'}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <Input placeholder="Gift title (e.g. Top Performer Award)" value={giftTitle} onChange={e => setGiftTitle(e.target.value)} className="rounded-[1.25rem]" />
+                      <Input type="number" placeholder="Points to gift" value={giftPoints} onChange={e => setGiftPoints(e.target.value)} className="rounded-[1.25rem]" />
+                      <Textarea placeholder="Message (optional)" value={giftMessage} onChange={e => setGiftMessage(e.target.value)} rows={2} className="rounded-[1.25rem]" />
+                      <div className="flex gap-2">
+                        <Button onClick={handleSendGift} disabled={!giftTitle.trim() || !giftPoints || giftSending} className="flex-1 gap-2 rounded-[1.25rem] bg-amber-600 hover:bg-amber-700 text-white">
+                          <Gift className="h-4 w-4" /> {giftSending ? 'Sending...' : 'Send Gift'}
+                        </Button>
+                        <Button variant="outline" onClick={() => setShowGiftForm(false)} className="rounded-[1.25rem]">Cancel</Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Role Upgrade Form */}
+            <AnimatePresence>
+              {showRoleUpgrade && viewingProfile && (
+                <motion.div ref={roleFormRef} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }}>
+                  <Card className="border-purple-300/30 bg-purple-500/5 rounded-[2rem]">
+                    <CardHeader>
+                      <CardTitle className="text-base flex items-center gap-2 text-purple-600">
+                        <ShieldCheck className="h-4 w-4" /> Upgrade {viewingProfile.display_name || 'User'} to Admin
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <p className="text-sm text-muted-foreground">Select a rank for this user:</p>
+                      <div className="grid gap-3 sm:grid-cols-3">
+                        {[
+                          { role: 'analyst', label: 'Analyst', desc: 'Read-only dashboard access', icon: BarChart3, color: 'border-sky-400 bg-sky-500/10 text-sky-700' },
+                          { role: 'executive_admin', label: 'Executive Admin', desc: 'Limited actions, requires approval', icon: ShieldCheck, color: 'border-orange-400 bg-orange-500/10 text-orange-700' },
+                          { role: 'super_admin', label: 'Super Admin', desc: 'Full access except delete/block', icon: Crown, color: 'border-yellow-400 bg-yellow-500/10 text-yellow-700' },
+                        ].map(r => (
+                          <button key={r.role} onClick={() => { setSelectedRole(r.role); setTimeout(() => roleConfirmRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100); }}
+                            className={cn('p-4 rounded-[1.5rem] border-2 text-left transition-all hover:shadow-md', selectedRole === r.role ? r.color + ' ring-2 ring-offset-2' : 'border-border bg-secondary/30')}>
+                            <r.icon className={cn('h-6 w-6 mb-2', selectedRole === r.role ? '' : 'text-muted-foreground')} />
+                            <p className="font-semibold text-sm">{r.label}</p>
+                            <p className="text-xs text-muted-foreground mt-1">{r.desc}</p>
+                          </button>
+                        ))}
+                      </div>
+
+                      <AnimatePresence>
+                        {selectedRole && (
+                          <motion.div ref={roleConfirmRef} initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="space-y-3 pt-3 border-t border-border">
+                            <p className="text-sm text-muted-foreground">Enter your admin password to confirm:</p>
+                            <Input type="password" placeholder="Your password" value={upgradePassword} onChange={e => setUpgradePassword(e.target.value)} className="rounded-[1.25rem]" />
+                            <div className="flex gap-2">
+                              <Button onClick={handleRoleUpgrade} disabled={!upgradePassword || upgradeLoading} className="flex-1 gap-2 rounded-[1.25rem] bg-purple-600 hover:bg-purple-700 text-white">
+                                <ShieldCheck className="h-4 w-4" /> {upgradeLoading ? 'Upgrading...' : 'Confirm Upgrade'}
+                              </Button>
+                              <Button variant="outline" onClick={() => { setShowRoleUpgrade(false); setSelectedRole(null); setUpgradePassword(''); }} className="rounded-[1.25rem]">Cancel</Button>
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Inline Block Form */}
             <AnimatePresence>
