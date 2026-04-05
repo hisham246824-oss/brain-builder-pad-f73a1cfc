@@ -304,6 +304,42 @@ export function AccountsPanel({
     if (success) { setPromoteTarget(null); setAdminPassword(''); }
   };
 
+  const handleSendGift = async () => {
+    if (!viewingProfile || !giftTitle.trim() || !giftPoints || !authUser) return;
+    setGiftSending(true);
+    try {
+      const { error } = await (await import('@/integrations/supabase/client')).supabase
+        .from('xp_gifts')
+        .insert({ user_id: viewingProfile.id, gifted_by: authUser.id, title: giftTitle.trim(), points: parseInt(giftPoints), message: giftMessage.trim() || null });
+      if (!error) {
+        toast.success('XP Gift sent successfully!');
+        setGiftTitle(''); setGiftPoints(''); setGiftMessage(''); setShowGiftForm(false);
+      } else { toast.error('Failed to send gift'); }
+    } catch { toast.error('Failed to send gift'); }
+    setGiftSending(false);
+  };
+
+  const handleRoleUpgrade = async () => {
+    if (!viewingProfile || !selectedRole || !upgradePassword) return;
+    setUpgradeLoading(true);
+    // Verify password by re-signing in
+    const { error: authErr } = await (await import('@/integrations/supabase/client')).supabase.auth.signInWithPassword({
+      email: authUser?.email || '',
+      password: upgradePassword,
+    });
+    if (authErr) { toast.error('Invalid password'); setUpgradeLoading(false); return; }
+    // Update role
+    const { error } = await (await import('@/integrations/supabase/client')).supabase
+      .from('user_roles')
+      .update({ role: selectedRole as any })
+      .eq('user_id', viewingProfile.id);
+    if (!error) {
+      toast.success(`User upgraded to ${selectedRole.replace('_', ' ')}`);
+      setShowRoleUpgrade(false); setSelectedRole(null); setUpgradePassword('');
+    } else { toast.error('Failed to upgrade role'); }
+    setUpgradeLoading(false);
+  };
+
   const getAvatarColor = (color: string | null) => AVATAR_COLORS[color || 'primary'] || AVATAR_COLORS.primary;
 
   const getRoleIcon = (role: string) => {
