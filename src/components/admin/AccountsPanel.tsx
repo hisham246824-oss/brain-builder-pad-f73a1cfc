@@ -700,6 +700,79 @@ export function AccountsPanel({
               </Card>
             )}
 
+            {/* XP Gift Form */}
+            <AnimatePresence>
+              {showGiftForm && viewingProfile && (
+                <motion.div ref={giftFormRef} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }}>
+                  <Card className="border-amber-300/30 bg-amber-500/5 rounded-[2rem]">
+                    <CardHeader>
+                      <CardTitle className="text-base flex items-center gap-2 text-amber-600">
+                        <Gift className="h-4 w-4" /> Gift XP to {viewingProfile.display_name || 'User'}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <Input placeholder="Gift title (e.g. Top Performer Award)" value={giftTitle} onChange={e => setGiftTitle(e.target.value)} className="rounded-[1.25rem]" />
+                      <Input type="number" placeholder="Points to gift" value={giftPoints} onChange={e => setGiftPoints(e.target.value)} className="rounded-[1.25rem]" />
+                      <Textarea placeholder="Message (optional)" value={giftMessage} onChange={e => setGiftMessage(e.target.value)} rows={2} className="rounded-[1.25rem]" />
+                      <div className="flex gap-2">
+                        <Button onClick={handleSendGift} disabled={!giftTitle.trim() || !giftPoints || giftSending} className="flex-1 gap-2 rounded-[1.25rem] bg-amber-600 hover:bg-amber-700 text-white">
+                          <Gift className="h-4 w-4" /> {giftSending ? 'Sending...' : 'Send Gift'}
+                        </Button>
+                        <Button variant="outline" onClick={() => setShowGiftForm(false)} className="rounded-[1.25rem]">Cancel</Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Role Upgrade Form */}
+            <AnimatePresence>
+              {showRoleUpgrade && viewingProfile && (
+                <motion.div ref={roleFormRef} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }}>
+                  <Card className="border-purple-300/30 bg-purple-500/5 rounded-[2rem]">
+                    <CardHeader>
+                      <CardTitle className="text-base flex items-center gap-2 text-purple-600">
+                        <ShieldCheck className="h-4 w-4" /> Upgrade {viewingProfile.display_name || 'User'} to Admin
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <p className="text-sm text-muted-foreground">Select a rank for this user:</p>
+                      <div className="grid gap-3 sm:grid-cols-3">
+                        {[
+                          { role: 'analyst', label: 'Analyst', desc: 'Read-only dashboard access', icon: BarChart3, color: 'border-sky-400 bg-sky-500/10 text-sky-700' },
+                          { role: 'executive_admin', label: 'Executive Admin', desc: 'Limited actions, requires approval', icon: ShieldCheck, color: 'border-orange-400 bg-orange-500/10 text-orange-700' },
+                          { role: 'super_admin', label: 'Super Admin', desc: 'Full access except delete/block', icon: Crown, color: 'border-yellow-400 bg-yellow-500/10 text-yellow-700' },
+                        ].map(r => (
+                          <button key={r.role} onClick={() => { setSelectedRole(r.role); setTimeout(() => roleConfirmRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100); }}
+                            className={cn('p-4 rounded-[1.5rem] border-2 text-left transition-all hover:shadow-md', selectedRole === r.role ? r.color + ' ring-2 ring-offset-2' : 'border-border bg-secondary/30')}>
+                            <r.icon className={cn('h-6 w-6 mb-2', selectedRole === r.role ? '' : 'text-muted-foreground')} />
+                            <p className="font-semibold text-sm">{r.label}</p>
+                            <p className="text-xs text-muted-foreground mt-1">{r.desc}</p>
+                          </button>
+                        ))}
+                      </div>
+
+                      <AnimatePresence>
+                        {selectedRole && (
+                          <motion.div ref={roleConfirmRef} initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="space-y-3 pt-3 border-t border-border">
+                            <p className="text-sm text-muted-foreground">Enter your admin password to confirm:</p>
+                            <Input type="password" placeholder="Your password" value={upgradePassword} onChange={e => setUpgradePassword(e.target.value)} className="rounded-[1.25rem]" />
+                            <div className="flex gap-2">
+                              <Button onClick={handleRoleUpgrade} disabled={!upgradePassword || upgradeLoading} className="flex-1 gap-2 rounded-[1.25rem] bg-purple-600 hover:bg-purple-700 text-white">
+                                <ShieldCheck className="h-4 w-4" /> {upgradeLoading ? 'Upgrading...' : 'Confirm Upgrade'}
+                              </Button>
+                              <Button variant="outline" onClick={() => { setShowRoleUpgrade(false); setSelectedRole(null); setUpgradePassword(''); }} className="rounded-[1.25rem]">Cancel</Button>
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             {/* Inline Block Form */}
             <AnimatePresence>
               {showInlineBlock && viewingProfile && !viewingProfile.is_blocked && (
