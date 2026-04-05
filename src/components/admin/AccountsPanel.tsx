@@ -218,6 +218,22 @@ export function AccountsPanel({
   const [editPmTitle, setEditPmTitle] = useState('');
   const [editPmContent, setEditPmContent] = useState('');
 
+  // XP Gift
+  const [showGiftForm, setShowGiftForm] = useState(false);
+  const [giftTitle, setGiftTitle] = useState('');
+  const [giftPoints, setGiftPoints] = useState('');
+  const [giftMessage, setGiftMessage] = useState('');
+  const [giftSending, setGiftSending] = useState(false);
+  const giftFormRef = useRef<HTMLDivElement>(null);
+
+  // Role Upgrade
+  const [showRoleUpgrade, setShowRoleUpgrade] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<string | null>(null);
+  const [upgradePassword, setUpgradePassword] = useState('');
+  const [upgradeLoading, setUpgradeLoading] = useState(false);
+  const roleFormRef = useRef<HTMLDivElement>(null);
+  const roleConfirmRef = useRef<HTMLDivElement>(null);
+
   let filteredUsers = users.filter(u => {
     const query = searchQuery.toLowerCase();
     const userCode = u.id.slice(0, 8).toLowerCase();
