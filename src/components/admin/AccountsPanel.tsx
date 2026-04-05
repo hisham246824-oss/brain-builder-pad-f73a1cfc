@@ -566,6 +566,14 @@ export function AccountsPanel({
                     <Mail className="h-4 w-4" /> Send Private Message
                   </Button>
 
+                  {/* XP Gift */}
+                  <Button variant="outline" className="w-full justify-start gap-2 rounded-[1.25rem] text-amber-600 border-amber-200 hover:bg-amber-50 dark:hover:bg-amber-500/10" onClick={() => {
+                    setShowGiftForm(true);
+                    setTimeout(() => giftFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+                  }}>
+                    <Gift className="h-4 w-4" /> Gift XP Points
+                  </Button>
+
                   {/* Block/Unblock */}
                   {viewingProfile.role !== 'super_admin' && (
                     (isSuperAdmin || viewingProfile.role === 'user') ? (
@@ -584,10 +592,10 @@ export function AccountsPanel({
                     ) : null
                   )}
 
-                  {/* Role management & deletion - super_admin only */}
+                  {/* Role management */}
                   {isSuperAdmin && viewingProfile.role !== 'super_admin' && (
                     <>
-                      {viewingProfile.role === 'admin' ? (
+                      {(viewingProfile.role === 'admin' || viewingProfile.role === 'analyst' || viewingProfile.role === 'executive_admin') ? (
                         <Button variant="outline" className="w-full justify-start gap-2 text-orange-600 rounded-[1.25rem]" onClick={async () => {
                           const success = await onDemoteFromAdmin(viewingProfile.id);
                           if (success) setViewingProfile(null);
@@ -595,8 +603,11 @@ export function AccountsPanel({
                           <ShieldAlert className="h-4 w-4" /> Revoke Admin Privileges
                         </Button>
                       ) : (
-                        <Button variant="outline" className="w-full justify-start gap-2 text-blue-600 rounded-[1.25rem]" onClick={() => setPromoteTarget(viewingProfile)}>
-                          <Shield className="h-4 w-4" /> Promote to Admin
+                        <Button variant="outline" className="w-full justify-start gap-2 text-purple-600 rounded-[1.25rem]" onClick={() => {
+                          setShowRoleUpgrade(true);
+                          setTimeout(() => roleFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+                        }}>
+                          <ShieldCheck className="h-4 w-4" /> Upgrade to Admin
                         </Button>
                       )}
                       <Button variant="destructive" className="w-full justify-start gap-2 rounded-[1.25rem]" onClick={() => {
