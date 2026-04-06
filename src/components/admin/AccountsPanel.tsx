@@ -7,7 +7,8 @@ import {
   Edit, X, Save, Mail, CheckCircle2, XCircle, Timer, ListTodo,
   UserCheck, UserX, Fingerprint, CalendarDays, MapPin, BarChart3,
   FileText, Zap, TrendingUp, Hash, Monitor, Smartphone, Tablet,
-  Chrome, AppWindow, Cpu, Gift, Star, ShieldCheck
+  Chrome, AppWindow, Cpu, Gift, Star, ShieldCheck, RefreshCw,
+  Trophy, Wifi, Signal, Gauge, Moon, Sun, ShieldQuestion
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -73,6 +74,14 @@ interface UserActivity {
   device_type: string | null;
   os: string | null;
   browser: string | null;
+  xp_points?: number;
+  theme?: string | null;
+  leaderboard_rank?: number | null;
+  most_active_hour?: number | null;
+  recent_actions?: { page_path: string; visited_at: string; duration_seconds: number | null }[];
+  connection_type?: string | null;
+  downlink_mbps?: number | null;
+  uses_vpn?: boolean | null;
 }
 
 interface PrivateMessage {
@@ -181,7 +190,7 @@ export function AccountsPanel({
   onSendPrivateMessage, onGetPrivateMessages, onUpdatePrivateMessage,
   onDeletePrivateMessage, onImpersonateUser,
 }: AccountsPanelProps) {
-  const { isSuperAdmin } = useUserRole();
+  const { canBlockUsers, canDeleteUsers, canManageRoles, canViewSensitiveUserInfo, isMainAdmin } = useUserRole();
   const { user: authUser } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [filterRole, setFilterRole] = useState<string>('all');
@@ -340,6 +349,19 @@ export function AccountsPanel({
     setUpgradeLoading(false);
   };
 
+  const refreshViewingProfile = useCallback(async () => {
+    if (!viewingProfile) return;
+    setActivityLoading(true);
+    try {
+      const activity = await fetchUserActivity(viewingProfile.id);
+      setUserActivity(activity);
+    } catch {
+      setUserActivity(null);
+    } finally {
+      setActivityLoading(false);
+    }
+  }, [fetchUserActivity, viewingProfile]);
+
   const getAvatarColor = (color: string | null) => AVATAR_COLORS[color || 'primary'] || AVATAR_COLORS.primary;
 
   const getRoleIcon = (role: string) => {
@@ -349,9 +371,35 @@ export function AccountsPanel({
   };
 
   const getRoleBadge = (role: string) => {
-    const colors = role === 'super_admin' ? 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20' : role === 'admin' ? 'bg-blue-500/10 text-blue-600 border-blue-500/20' : 'bg-secondary text-muted-foreground border-border';
-    const label = role === 'super_admin' ? 'Super Admin' : role === 'admin' ? 'Admin' : 'User';
+    const colors = role === 'super_admin'
+      ? 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20'
+      : role === 'admin'
+        ? 'bg-blue-500/10 text-blue-600 border-blue-500/20'
+        : role === 'analyst'
+          ? 'bg-sky-500/10 text-sky-700 border-sky-500/20'
+          : role === 'executive_admin'
+            ? 'bg-orange-500/10 text-orange-700 border-orange-500/20'
+            : 'bg-secondary text-muted-foreground border-border';
+    const label = role === 'super_admin'
+      ? 'Super Admin'
+      : role === 'admin'
+        ? 'Admin'
+        : role === 'analyst'
+          ? 'Analyst'
+          : role === 'executive_admin'
+            ? 'Executive Admin'
+            : 'User';
     return <span className={cn('inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold', colors)}>{getRoleIcon(role)} {label}</span>;
+  };
+
+  const formatHour = (hour: number | null | undefined) => {
+    if (hour === null || hour === undefined) return 'Unknown';
+    return `${hour.toString().padStart(2, '0')}:00`;
+  };
+
+  const getConnectionLabel = () => {
+    if (userActivity?.connection_type) return userActivity.connection_type;
+    return 'Not available yet';
   };
 
   const onlineCount = users.filter(u => u.is_online).length;
@@ -380,30 +428,29 @@ export function AccountsPanel({
         </div>
 
         {/* User header card - enhanced with more info and rounded edges */}
-        <Card className="overflow-hidden rounded-[2rem] border-none shadow-lg">
+        <Card className="overflow-hidden rounded-[3rem] border border-border/60 shadow-lg">
           <div className="h-2" style={{ background: `linear-gradient(90deg, ${getAvatarColor(viewingProfile.avatar_color)}, ${getAvatarColor(viewingProfile.avatar_color)}88)` }} />
-          <CardContent className="p-6">
-            <div className="flex items-start gap-4">
+          <CardContent className="p-6 sm:p-7">
+            <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
               <div className="relative flex-shrink-0">
                 {viewingProfile.avatar_url ? (
-                  <img src={viewingProfile.avatar_url} alt="" className="h-18 w-18 rounded-[1.25rem] object-cover shadow-md" style={{ width: 72, height: 72 }} />
+                  <img src={viewingProfile.avatar_url} alt="" className="h-20 w-20 rounded-full object-cover shadow-md" style={{ width: 80, height: 80 }} />
                 ) : (
-                  <div className="flex items-center justify-center rounded-[1.25rem] text-2xl font-bold text-white shadow-md" style={{ backgroundColor: getAvatarColor(viewingProfile.avatar_color), width: 72, height: 72 }}>
+                  <div className="flex items-center justify-center rounded-full text-2xl font-bold text-white shadow-md" style={{ backgroundColor: getAvatarColor(viewingProfile.avatar_color), width: 80, height: 80 }}>
                     {viewingProfile.display_name?.charAt(0)?.toUpperCase() || '?'}
                   </div>
                 )}
                 <div className={cn("absolute -bottom-1 -right-1 h-4.5 w-4.5 rounded-full border-2 border-card", viewingProfile.is_online ? "bg-green-500 animate-pulse" : "bg-muted-foreground")} style={{ width: 18, height: 18 }} />
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="text-xl font-bold text-foreground">{viewingProfile.display_name || 'User'}</h3>
-                <p className="text-sm text-muted-foreground flex items-center gap-1.5 mt-0.5">
-                  <Mail className="h-3.5 w-3.5" /> {viewingProfile.email || 'No email'}
+                <h3 className="text-xl font-bold text-foreground flex items-center gap-2">
+                  <UserCheck className="h-4.5 w-4.5 text-primary" />
+                  {viewingProfile.display_name || 'User'}
+                </h3>
+                <p className="text-sm text-muted-foreground flex items-center gap-1.5 mt-1">
+                  <Mail className="h-3.5 w-3.5 text-sky-500" />
+                  {canViewSensitiveUserInfo ? (viewingProfile.email || 'No email') : 'Hidden for your role'}
                 </p>
-                {viewingProfile.country && (
-                  <p className="text-sm text-muted-foreground flex items-center gap-1.5 mt-0.5">
-                    <MapPin className="h-3.5 w-3.5 text-red-400" /> {viewingProfile.country}
-                  </p>
-                )}
                 <div className="mt-2 flex items-center gap-2 flex-wrap">
                   {getRoleBadge(viewingProfile.role)}
                   {viewingProfile.is_blocked && (
@@ -422,21 +469,19 @@ export function AccountsPanel({
                   )}
                 </div>
               </div>
-              <div className="text-right text-xs text-muted-foreground space-y-1.5 flex-shrink-0">
+              <div className="min-w-[180px] text-right text-xs text-muted-foreground space-y-2 flex-shrink-0 rounded-[2rem] bg-secondary/40 px-4 py-3">
+                <p className="flex items-center gap-1.5 justify-end font-semibold text-foreground">
+                  <MapPin className="h-3.5 w-3.5 text-red-400" />
+                  {viewingProfile.country || 'Unknown country'}
+                </p>
                 <p className="flex items-center gap-1.5 justify-end">
-                  <CalendarDays className="h-3.5 w-3.5 text-blue-400" />
-                  Joined {new Date(viewingProfile.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                  <Activity className="h-3.5 w-3.5 text-emerald-500" />
+                  {viewingProfile.is_online ? 'Online now' : `Last seen ${formatTimeAgo(viewingProfile.last_sign_in_at)}`}
                 </p>
                 {viewingProfile.language && LANGUAGE_INFO[viewingProfile.language] && (
                   <p className="flex items-center gap-1.5 justify-end">
                     <span className="text-base">{LANGUAGE_INFO[viewingProfile.language].flag}</span>
                     {LANGUAGE_INFO[viewingProfile.language].name}
-                  </p>
-                )}
-                {viewingProfile.avatar_color && (
-                  <p className="flex items-center gap-1.5 justify-end">
-                    <span className="h-3 w-3 rounded-full inline-block" style={{ backgroundColor: getAvatarColor(viewingProfile.avatar_color) }} />
-                    Profile: {viewingProfile.avatar_color}
                   </p>
                 )}
               </div>
@@ -488,7 +533,6 @@ export function AccountsPanel({
             </div>
 
             <div className="grid gap-4 lg:grid-cols-2">
-              {/* Activity Summary - simplified: last seen + device + most visited */}
               <Card className="rounded-[2rem] border-none shadow-sm">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-base flex items-center gap-2">
@@ -501,8 +545,8 @@ export function AccountsPanel({
                     <span className="text-muted-foreground flex items-center gap-2">
                       <Clock className="h-4 w-4 text-sky-500" /> Last Seen
                     </span>
-                    <span className={cn("font-semibold", viewingProfile.is_online ? "text-green-600" : "text-muted-foreground")}>
-                      {viewingProfile.is_online ? '🟢 Active Now' : formatTimeAgo(userActivity.last_active)}
+                      <span className={cn("font-semibold", viewingProfile.is_online ? "text-green-600" : "text-muted-foreground")}>
+                        {viewingProfile.is_online ? 'Active Now' : formatTimeAgo(userActivity.last_active)}
                     </span>
                   </div>
 
@@ -575,8 +619,8 @@ export function AccountsPanel({
                   </Button>
 
                   {/* Block/Unblock */}
-                  {viewingProfile.role !== 'super_admin' && (
-                    (isSuperAdmin || viewingProfile.role === 'user') ? (
+                  {viewingProfile.role !== 'super_admin' && canBlockUsers && (
+                    (isMainAdmin || viewingProfile.role === 'user') ? (
                       viewingProfile.is_blocked ? (
                         <Button variant="outline" className="w-full justify-start gap-2 text-green-600 rounded-[1.25rem]" onClick={() => onUnblockUser(viewingProfile.id)}>
                           <Unlock className="h-4 w-4" /> Unblock User
@@ -593,7 +637,7 @@ export function AccountsPanel({
                   )}
 
                   {/* Role management */}
-                  {isSuperAdmin && viewingProfile.role !== 'super_admin' && (
+                  {canManageRoles && viewingProfile.role !== 'super_admin' && (
                     <>
                       {(viewingProfile.role === 'admin' || viewingProfile.role === 'analyst' || viewingProfile.role === 'executive_admin') ? (
                         <Button variant="outline" className="w-full justify-start gap-2 text-orange-600 rounded-[1.25rem]" onClick={async () => {
@@ -610,14 +654,74 @@ export function AccountsPanel({
                           <ShieldCheck className="h-4 w-4" /> Upgrade to Admin
                         </Button>
                       )}
-                      <Button variant="destructive" className="w-full justify-start gap-2 rounded-[1.25rem]" onClick={() => {
-                        setShowInlineDelete(true);
-                        setTimeout(() => deleteFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
-                      }}>
-                        <Trash2 className="h-4 w-4" /> Delete Account Permanently
-                      </Button>
+                      {canDeleteUsers && (
+                        <Button variant="destructive" className="w-full justify-start gap-2 rounded-[1.25rem]" onClick={() => {
+                          setShowInlineDelete(true);
+                          setTimeout(() => deleteFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+                        }}>
+                          <Trash2 className="h-4 w-4" /> Delete Account Permanently
+                        </Button>
+                      )}
                     </>
                   )}
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="grid gap-4 lg:grid-cols-2">
+              <Card className="rounded-[2rem] border-none shadow-sm order-2 lg:order-1">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <Clock className="h-4.5 w-4.5 text-primary" /> Recent Actions
+                    </CardTitle>
+                    <Button variant="ghost" size="icon" className="rounded-full" onClick={refreshViewingProfile} disabled={activityLoading}>
+                      <RefreshCw className={cn('h-4 w-4 text-primary', activityLoading && 'animate-spin')} />
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  {(userActivity.recent_actions || []).length === 0 ? (
+                    <div className="rounded-[1.5rem] bg-secondary/40 p-4 text-sm text-muted-foreground">No recent actions yet.</div>
+                  ) : (
+                    (userActivity.recent_actions || []).map((action, index) => (
+                      <div key={`${action.visited_at}-${index}`} className="flex items-center gap-3 rounded-[1.5rem] bg-secondary/40 px-4 py-3">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-bold">{index + 1}</div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-foreground truncate">{pageNameMap[action.page_path] || action.page_path}</p>
+                          <p className="text-xs text-muted-foreground">{new Date(action.visited_at).toLocaleString()} • {formatDuration(action.duration_seconds || 0)}</p>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card className="rounded-[2rem] border-none shadow-sm order-1 lg:order-2">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <BarChart3 className="h-4.5 w-4.5 text-primary" /> Advanced Stats
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3 text-sm">
+                  {[
+                    { label: 'Leaderboard Rank', value: userActivity.leaderboard_rank ? `#${userActivity.leaderboard_rank}` : 'Unranked', icon: Trophy, color: 'text-yellow-500' },
+                    { label: 'Experience Points', value: String(userActivity.xp_points || 0), icon: Star, color: 'text-amber-500' },
+                    { label: 'Most Active Hour', value: formatHour(userActivity.most_active_hour), icon: Clock, color: 'text-sky-500' },
+                    { label: 'Join Date', value: new Date(viewingProfile.created_at).toLocaleDateString(), icon: CalendarDays, color: 'text-blue-500' },
+                    { label: 'Connection Type', value: getConnectionLabel(), icon: Wifi, color: 'text-emerald-500' },
+                    { label: 'Download Speed', value: userActivity.downlink_mbps ? `${userActivity.downlink_mbps} MB/s` : 'Not available yet', icon: Gauge, color: 'text-cyan-500' },
+                    { label: 'Theme', value: userActivity.theme === 'dark' ? 'Dark' : 'Light', icon: userActivity.theme === 'dark' ? Moon : Sun, color: 'text-purple-500' },
+                    { label: 'VPN Usage', value: userActivity.uses_vpn === null ? 'Not available yet' : userActivity.uses_vpn ? 'Detected' : 'Not detected', icon: ShieldQuestion, color: 'text-orange-500' },
+                  ].map((item) => (
+                    <div key={item.label} className="flex items-center justify-between gap-3 rounded-[1.25rem] bg-secondary/40 p-3">
+                      <span className="text-muted-foreground flex items-center gap-2">
+                        <item.icon className={cn('h-4 w-4', item.color)} />
+                        {item.label}
+                      </span>
+                      <span className="font-semibold text-right text-foreground">{item.value}</span>
+                    </div>
+                  ))}
                 </CardContent>
               </Card>
             </div>
@@ -728,7 +832,7 @@ export function AccountsPanel({
 
             {/* Role Upgrade Form */}
             <AnimatePresence>
-              {showRoleUpgrade && viewingProfile && (
+                  {showRoleUpgrade && viewingProfile && (
                 <motion.div ref={roleFormRef} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }}>
                   <Card className="border-purple-300/30 bg-purple-500/5 rounded-[2rem]">
                     <CardHeader>
@@ -878,11 +982,13 @@ export function AccountsPanel({
             <Input placeholder="Search by name, email, or code..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-9 rounded-[1.25rem] border-none bg-secondary/50" />
           </div>
           <Select value={filterRole} onValueChange={setFilterRole}>
-            <SelectTrigger className="w-full sm:w-[130px] rounded-[1.25rem] border-none bg-secondary/50"><SelectValue placeholder="Role" /></SelectTrigger>
+                      <SelectTrigger className="w-full sm:w-[130px] rounded-[1.25rem] border-none bg-secondary/50"><SelectValue placeholder="Role" /></SelectTrigger>
             <SelectContent className="rounded-[1.25rem]">
               <SelectItem value="all">All Roles</SelectItem>
               <SelectItem value="super_admin">Super Admin</SelectItem>
               <SelectItem value="admin">Admin</SelectItem>
+                        <SelectItem value="executive_admin">Executive Admin</SelectItem>
+                        <SelectItem value="analyst">Analyst</SelectItem>
               <SelectItem value="user">User</SelectItem>
             </SelectContent>
           </Select>
