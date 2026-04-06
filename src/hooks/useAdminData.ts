@@ -4,6 +4,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useUserRole } from './useUserRole';
 import { toast } from 'sonner';
 
+const MAIN_ADMIN_EMAIL = 'hisham090807@gmail.com';
+
 interface UserWithProfile {
   id: string;
   email: string;
@@ -90,6 +92,14 @@ interface UserActivity {
   device_type: string | null;
   os: string | null;
   browser: string | null;
+  xp_points: number;
+  theme: string | null;
+  leaderboard_rank: number | null;
+  most_active_hour: number | null;
+  recent_actions: { page_path: string; visited_at: string; duration_seconds: number | null }[];
+  connection_type: string | null;
+  downlink_mbps: number | null;
+  uses_vpn: boolean | null;
 }
 
 interface AdminPoll {
@@ -105,7 +115,7 @@ interface AdminPoll {
 
 export function useAdminData() {
   const { user } = useAuth();
-  const { isAdmin, isSuperAdmin } = useUserRole();
+  const { isAdmin, isMainAdmin } = useUserRole();
   const [users, setUsers] = useState<UserWithProfile[]>([]);
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [messages, setMessages] = useState<AdminMessage[]>([]);
@@ -136,29 +146,44 @@ export function useAdminData() {
       ]);
 
       const emailMap: Record<string, string> = {};
+      const authMetaMap: Record<string, { created_at: string | null; last_sign_in_at: string | null }> = {};
       if (emailsRes.data?.users) {
-        emailsRes.data.users.forEach((u: { id: string; email: string }) => {
+        emailsRes.data.users.forEach((u: { id: string; email: string; created_at?: string | null; last_sign_in_at?: string | null }) => {
           emailMap[u.id] = u.email;
+          authMetaMap[u.id] = {
+            created_at: u.created_at || null,
+            last_sign_in_at: u.last_sign_in_at || null,
+          };
         });
       }
 
       const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
       const recentVisits = activityRes.data || [];
+      const allUserIds = Array.from(new Set([
+        ...(emailsRes.data?.users?.map((u: { id: string }) => u.id) || []),
+        ...((profilesRes.data || []).map((profile) => profile.user_id)),
+        ...((rolesRes.data || []).map((role) => role.user_id)),
+        ...((settingsRes.data || []).map((setting) => setting.user_id)),
+      ]));
 
-      const usersWithRoles: UserWithProfile[] = (profilesRes.data || []).map(profile => {
-        const userRole = rolesRes.data?.find(r => r.user_id === profile.user_id);
-        const userSetting = settingsRes.data?.find(s => s.user_id === profile.user_id);
-        const block = blocksRes.data?.find(b => b.user_id === profile.user_id && new Date(b.blocked_until) > new Date());
-        const lastVisit = recentVisits.find(v => v.user_id === profile.user_id);
+      const usersWithRoles: UserWithProfile[] = allUserIds.map((userId) => {
+        const profile = profilesRes.data?.find(p => p.user_id === userId);
+        const userRole = rolesRes.data?.find(r => r.user_id === userId);
+        const userSetting = settingsRes.data?.find(s => s.user_id === userId);
+        const block = blocksRes.data?.find(b => b.user_id === userId && new Date(b.blocked_until) > new Date());
+        const lastVisit = recentVisits.find(v => v.user_id === userId);
         const isOnline = lastVisit ? new Date(lastVisit.visited_at) > new Date(fiveMinAgo) : false;
+        const email = emailMap[userId] || '';
+        const fallbackName = email ? email.split('@')[0] : `User ${userId.slice(0, 6)}`;
+        const createdAt = profile?.created_at || authMetaMap[userId]?.created_at || new Date().toISOString();
 
         return {
-          id: profile.user_id,
-          email: emailMap[profile.user_id] || '',
-          created_at: profile.created_at,
-          last_sign_in_at: lastVisit?.visited_at || null,
-          display_name: userSetting?.display_name || profile.display_name,
-          avatar_url: profile.avatar_url,
+          id: userId,
+          email,
+          created_at: createdAt,
+          last_sign_in_at: lastVisit?.visited_at || authMetaMap[userId]?.last_sign_in_at || null,
+          display_name: userSetting?.display_name || profile?.display_name || fallbackName,
+          avatar_url: profile?.avatar_url || null,
           avatar_color: userSetting?.avatar_color || 'primary',
           avatar_icon: userSetting?.avatar_icon || null,
           role: userRole?.role || 'user',
@@ -166,10 +191,11 @@ export function useAdminData() {
           is_blocked: !!block,
           blocked_until: block?.blocked_until || null,
           block_reason: block?.reason || null,
-          country: (profile as any).country || null,
+          country: (profile as any)?.country || null,
           language: (userSetting as any)?.language || 'en',
         };
       });
+      usersWithRoles.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
       setUsers(usersWithRoles);
     } catch (err) {
       console.error('Error fetching users:', err);
@@ -177,14 +203,15 @@ export function useAdminData() {
   }, [isAdmin]);
 
   const fetchUserActivity = useCallback(async (userId: string): Promise<UserActivity> => {
-    const [materials, lessons, vocabulary, suggestionsRes, visits, settingsRes, profileRes] = await Promise.all([
+    const [materials, lessons, vocabulary, suggestionsRes, visits, settingsRes, profileRes, rankingRes] = await Promise.all([
       supabase.from('study_materials').select('*', { count: 'exact', head: true }).eq('user_id', userId),
       supabase.from('lessons').select('*', { count: 'exact', head: true }).eq('user_id', userId),
       supabase.from('vocabulary').select('*', { count: 'exact', head: true }).eq('user_id', userId),
       supabase.from('suggestions').select('*', { count: 'exact', head: true }).eq('user_id', userId),
       supabase.from('page_visits').select('page_path, duration_seconds, visited_at, device_type, os, browser').eq('user_id', userId).eq('is_impersonation', false).order('visited_at', { ascending: false }),
-      supabase.from('user_settings').select('language').eq('user_id', userId).maybeSingle(),
+      supabase.from('user_settings').select('language, xp_points, theme').eq('user_id', userId).maybeSingle(),
       supabase.from('profiles').select('country').eq('user_id', userId).maybeSingle(),
+      supabase.from('user_settings').select('user_id, xp_points').order('xp_points', { ascending: false }),
     ]);
 
     const pageStats: Record<string, number> = {};
@@ -217,6 +244,9 @@ export function useAdminData() {
       .sort((a, b) => b.visits - a.visits)
       .slice(0, 5);
 
+    const rankedUsers = (rankingRes.data || []).sort((a, b) => (b.xp_points || 0) - (a.xp_points || 0));
+    const leaderboardRank = rankedUsers.findIndex((entry) => entry.user_id === userId);
+
     return {
       materials_count: materials.count || 0,
       lessons_count: lessons.count || 0,
@@ -232,6 +262,18 @@ export function useAdminData() {
       device_type: latestDevice,
       os: latestOs,
       browser: latestBrowser,
+      xp_points: (settingsRes.data as any)?.xp_points || 0,
+      theme: (settingsRes.data as any)?.theme || 'light',
+      leaderboard_rank: leaderboardRank >= 0 ? leaderboardRank + 1 : null,
+      most_active_hour: peakHours[0]?.hour ?? null,
+      recent_actions: (visits.data || []).slice(0, 8).map((visit: any) => ({
+        page_path: visit.page_path,
+        visited_at: visit.visited_at,
+        duration_seconds: visit.duration_seconds || 0,
+      })),
+      connection_type: null,
+      downlink_mbps: null,
+      uses_vpn: null,
     };
   }, []);
 
@@ -457,7 +499,7 @@ export function useAdminData() {
 
   // Block user
   const blockUser = async (userId: string, durationHours: number, reason: string) => {
-    if (!isAdmin || !user) return false;
+    if (!isMainAdmin || !user) return false;
     
     // Regular admins can only block regular users, not other admins
     const targetUser = users.find(u => u.id === userId);
@@ -465,11 +507,6 @@ export function useAdminData() {
       toast.error('Cannot block the super admin');
       return false;
     }
-    if (!isSuperAdmin && targetUser?.role === 'admin') {
-      toast.error('Only super admin can block other admins');
-      return false;
-    }
-    
     try {
       const blockedUntil = new Date(Date.now() + durationHours * 60 * 60 * 1000).toISOString();
       // Remove existing block first
@@ -492,7 +529,7 @@ export function useAdminData() {
   };
 
   const unblockUser = async (userId: string) => {
-    if (!isAdmin) return false;
+    if (!isMainAdmin) return false;
     try {
       const { error } = await supabase.from('user_blocks').delete().eq('user_id', userId);
       if (error) throw error;
@@ -603,7 +640,7 @@ export function useAdminData() {
 
   // User management
   const deleteUser = async (userId: string, adminPassword: string) => {
-    if (!isSuperAdmin) { toast.error('Only super admin can delete users'); return false; }
+    if (!isMainAdmin) { toast.error('Only the main admin can delete users'); return false; }
     try {
       // Verify admin password
       const { error: signInError } = await supabase.auth.signInWithPassword({ email: user?.email || '', password: adminPassword });
@@ -629,7 +666,7 @@ export function useAdminData() {
   };
 
   const promoteToAdmin = async (userId: string, password: string) => {
-    if (!isSuperAdmin) { toast.error('Only super admin can promote users'); return false; }
+    if (!isMainAdmin) { toast.error('Only the main admin can change admin ranks'); return false; }
     try {
       const { error: signInError } = await supabase.auth.signInWithPassword({ email: user?.email || '', password });
       if (signInError) { toast.error('Incorrect password'); return false; }
@@ -646,7 +683,7 @@ export function useAdminData() {
   };
 
   const demoteFromAdmin = async (userId: string) => {
-    if (!isSuperAdmin) { toast.error('Only super admin can remove admin privileges'); return false; }
+    if (!isMainAdmin) { toast.error('Only the main admin can remove admin privileges'); return false; }
     try {
       const { error } = await supabase.from('user_roles').update({ role: 'user' }).eq('user_id', userId);
       if (error) throw error;
