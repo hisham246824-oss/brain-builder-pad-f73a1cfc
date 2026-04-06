@@ -113,7 +113,7 @@ interface AdminPoll {
 
 export function useAdminData() {
   const { user } = useAuth();
-  const { isAdmin, isMainAdmin } = useUserRole();
+  const { isAdmin, isMainAdmin, canModerateContent } = useUserRole();
   const [users, setUsers] = useState<UserWithProfile[]>([]);
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [messages, setMessages] = useState<AdminMessage[]>([]);
@@ -434,7 +434,7 @@ export function useAdminData() {
 
   // Private messages
   const sendPrivateMessage = async (recipientId: string, title: string, content: string) => {
-    if (!isAdmin || !user) return false;
+    if (!canModerateContent || !user) return false;
     try {
       const { error } = await supabase.from('private_messages').insert({
         sender_id: user.id,
@@ -453,7 +453,7 @@ export function useAdminData() {
   };
 
   const getPrivateMessages = async (userId: string): Promise<PrivateMessage[]> => {
-    if (!isAdmin) return [];
+    if (!canModerateContent) return [];
     try {
       const { data, error } = await supabase
         .from('private_messages')
@@ -468,7 +468,7 @@ export function useAdminData() {
   };
 
   const updatePrivateMessage = async (messageId: string, title: string, content: string) => {
-    if (!isAdmin) return false;
+    if (!canModerateContent) return false;
     try {
       const { error } = await supabase.from('private_messages')
         .update({ title, content, updated_at: new Date().toISOString() })
@@ -483,7 +483,7 @@ export function useAdminData() {
   };
 
   const deletePrivateMessage = async (messageId: string) => {
-    if (!isAdmin) return false;
+    if (!canModerateContent) return false;
     try {
       const { error } = await supabase.from('private_messages').delete().eq('id', messageId);
       if (error) throw error;
@@ -542,7 +542,7 @@ export function useAdminData() {
 
   // Message CRUD
   const sendBroadcastMessage = async (title: string, content: string, extra?: { is_pinned?: boolean; is_important?: boolean; title_translations?: Record<string, string>; content_translations?: Record<string, string> }) => {
-    if (!isAdmin || !user) return false;
+    if (!canModerateContent || !user) return false;
     try {
       const { error } = await supabase.from('admin_messages').insert({
         sender_id: user.id, title, content,
@@ -561,7 +561,7 @@ export function useAdminData() {
   };
 
   const updateMessage = async (messageId: string, title: string, content: string, extra?: Record<string, any>) => {
-    if (!isAdmin) return false;
+    if (!canModerateContent) return false;
     try {
       const updateData: any = { title, content };
       if (extra) Object.assign(updateData, extra);
@@ -578,7 +578,7 @@ export function useAdminData() {
   };
 
   const deleteMessage = async (messageId: string) => {
-    if (!isAdmin) return false;
+    if (!canModerateContent) return false;
     try {
       const { error } = await supabase.from('admin_messages').delete().eq('id', messageId);
       if (error) throw error;
@@ -594,7 +594,7 @@ export function useAdminData() {
 
   // Poll CRUD
   const createPoll = async (question: string, options: string[]) => {
-    if (!isAdmin || !user) return false;
+    if (!canModerateContent || !user) return false;
     try {
       const { error } = await supabase.from('admin_polls').insert({
         sender_id: user.id, question, options: options as any,
@@ -611,7 +611,7 @@ export function useAdminData() {
   };
 
   const deletePoll = async (pollId: string) => {
-    if (!isAdmin) return false;
+    if (!canModerateContent) return false;
     try {
       const { error } = await supabase.from('admin_polls').delete().eq('id', pollId);
       if (error) throw error;
@@ -626,7 +626,7 @@ export function useAdminData() {
   };
 
   const togglePollActive = async (pollId: string, isActive: boolean) => {
-    if (!isAdmin) return false;
+    if (!canModerateContent) return false;
     try {
       const { error } = await supabase.from('admin_polls').update({ is_active: isActive }).eq('id', pollId);
       if (error) throw error;
@@ -696,7 +696,7 @@ export function useAdminData() {
   };
 
   const acceptSuggestion = async (suggestionId: string, userId: string) => {
-    if (!isAdmin || !user) return false;
+    if (!canModerateContent || !user) return false;
     try {
       const { error } = await supabase.from('suggestions').update({ status: 'accepted' }).eq('id', suggestionId);
       if (error) throw error;
@@ -718,7 +718,7 @@ export function useAdminData() {
   };
 
   const rejectSuggestion = async (suggestionId: string) => {
-    if (!isAdmin) return false;
+    if (!canModerateContent) return false;
     try {
       const { error } = await supabase.from('suggestions').delete().eq('id', suggestionId);
       if (error) throw error;

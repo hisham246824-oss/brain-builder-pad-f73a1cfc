@@ -36,9 +36,12 @@ Deno.serve(async (req) => {
 
     const callerId = claimsData.claims.sub as string;
 
-    const { data: isSuperAdmin } = await callerClient.rpc("is_super_admin", { _user_id: callerId });
-    if (!isSuperAdmin) {
-      return new Response(JSON.stringify({ error: "Super admin access required" }), {
+    const { data: callerUserData, error: callerUserError } = await callerClient.auth.getUser(token);
+    const callerEmail = callerUserData.user?.email?.toLowerCase();
+    const isMainAdmin = !callerUserError && callerEmail === "hisham090807@gmail.com";
+
+    if (!isMainAdmin) {
+      return new Response(JSON.stringify({ error: "Main admin access required" }), {
         status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
@@ -53,14 +56,6 @@ Deno.serve(async (req) => {
     if (user_id === callerId) {
       return new Response(JSON.stringify({ error: "Cannot delete your own account" }), {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    // Prevent deleting other super admins
-    const { data: targetIsSuperAdmin } = await callerClient.rpc("is_super_admin", { _user_id: user_id });
-    if (targetIsSuperAdmin) {
-      return new Response(JSON.stringify({ error: "Cannot delete a super admin account" }), {
-        status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
