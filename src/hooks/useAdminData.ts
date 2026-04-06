@@ -113,7 +113,7 @@ interface AdminPoll {
 
 export function useAdminData() {
   const { user } = useAuth();
-  const { isAdmin, isMainAdmin, canModerateContent } = useUserRole();
+  const { isAdmin, isMainAdmin, canModerateContent, canViewSensitiveUserInfo } = useUserRole();
   const [users, setUsers] = useState<UserWithProfile[]>([]);
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [messages, setMessages] = useState<AdminMessage[]>([]);
@@ -177,7 +177,7 @@ export function useAdminData() {
 
         return {
           id: userId,
-          email,
+          email: canViewSensitiveUserInfo ? email : '',
           created_at: createdAt,
           last_sign_in_at: lastVisit?.visited_at || authMetaMap[userId]?.last_sign_in_at || null,
           display_name: userSetting?.display_name || profile?.display_name || fallbackName,
@@ -198,7 +198,7 @@ export function useAdminData() {
     } catch (err) {
       console.error('Error fetching users:', err);
     }
-  }, [isAdmin]);
+  }, [isAdmin, canViewSensitiveUserInfo]);
 
   const fetchUserActivity = useCallback(async (userId: string): Promise<UserActivity> => {
     const [materials, lessons, vocabulary, suggestionsRes, visits, settingsRes, profileRes, rankingRes] = await Promise.all([
