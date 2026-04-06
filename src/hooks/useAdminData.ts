@@ -4,8 +4,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useUserRole } from './useUserRole';
 import { toast } from 'sonner';
 
-const MAIN_ADMIN_EMAIL = 'hisham090807@gmail.com';
-
 interface UserWithProfile {
   id: string;
   email: string;
