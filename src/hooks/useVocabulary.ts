@@ -11,9 +11,16 @@ export interface VocabularyWord {
   meanings: string;
   notes: string | null;
   created_at: string;
+  group_id?: string | null;
+  is_difficult?: boolean;
 }
 
-export function useVocabulary() {
+export type VocabularyView =
+  | { type: 'main' }
+  | { type: 'group'; groupId: string }
+  | { type: 'all' };
+
+export function useVocabulary(view: VocabularyView = { type: 'all' }) {
   const { user } = useAuth();
   const { isOnline } = useNetworkStatus();
   // Pre-populate from cache instantly when offline — no loading spinner
@@ -233,7 +240,13 @@ export function useVocabulary() {
     return { error: null };
   }, [user, isOnline, fetchWords]);
 
-  const filteredWords = words.filter(word => {
+  const viewFiltered = words.filter(w => {
+    if (view.type === 'main') return !w.group_id;
+    if (view.type === 'group') return w.group_id === view.groupId;
+    return true;
+  });
+
+  const filteredWords = viewFiltered.filter(word => {
     if (!searchQuery) return true;
     const query = searchQuery.toLowerCase();
     return (
