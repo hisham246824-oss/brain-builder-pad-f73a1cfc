@@ -11,9 +11,16 @@ export interface VocabularyWord {
   meanings: string;
   notes: string | null;
   created_at: string;
+  group_id?: string | null;
+  is_difficult?: boolean;
 }
 
-export function useVocabulary() {
+export type VocabularyView =
+  | { type: 'main' }
+  | { type: 'group'; groupId: string }
+  | { type: 'all' };
+
+export function useVocabulary(view: VocabularyView = { type: 'all' }) {
   const { user } = useAuth();
   const { isOnline } = useNetworkStatus();
   // Pre-populate from cache instantly when offline — no loading spinner
@@ -143,7 +150,7 @@ export function useVocabulary() {
     };
   }, [user, fetchWords]);
 
-  const addWord = useCallback(async (word: string, meanings: string, notes?: string) => {
+  const addWord = useCallback(async (word: string, meanings: string, notes?: string, groupId?: string | null) => {
     if (!user) return { error: new Error('Not authenticated') };
 
     const optimisticWord: VocabularyWord = {
@@ -152,6 +159,8 @@ export function useVocabulary() {
       meanings: meanings.trim(),
       notes: notes?.trim() || null,
       created_at: new Date().toISOString(),
+      group_id: groupId ?? null,
+      is_difficult: false,
     };
 
     // Optimistic update
@@ -170,6 +179,7 @@ export function useVocabulary() {
           word: word.trim(),
           meanings: meanings.trim(),
           notes: notes?.trim() || null,
+          group_id: groupId ?? null,
         },
       });
       return { data: optimisticWord };
@@ -182,6 +192,7 @@ export function useVocabulary() {
         word: word.trim(),
         meanings: meanings.trim(),
         notes: notes?.trim() || null,
+        group_id: groupId ?? null,
       })
       .select()
       .single();
@@ -233,7 +244,13 @@ export function useVocabulary() {
     return { error: null };
   }, [user, isOnline, fetchWords]);
 
-  const filteredWords = words.filter(word => {
+  const viewFiltered = words.filter(w => {
+    if (view.type === 'main') return !w.group_id;
+    if (view.type === 'group') return w.group_id === view.groupId;
+    return true;
+  });
+
+  const filteredWords = viewFiltered.filter(word => {
     if (!searchQuery) return true;
     const query = searchQuery.toLowerCase();
     return (
