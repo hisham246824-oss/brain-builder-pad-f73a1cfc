@@ -889,8 +889,10 @@ export type Database = {
         Row: {
           created_at: string
           ease_factor: number | null
+          group_id: string | null
           id: string
           interval_days: number | null
+          is_difficult: boolean
           meanings: string
           next_review_at: string | null
           notes: string | null
@@ -902,8 +904,10 @@ export type Database = {
         Insert: {
           created_at?: string
           ease_factor?: number | null
+          group_id?: string | null
           id?: string
           interval_days?: number | null
+          is_difficult?: boolean
           meanings: string
           next_review_at?: string | null
           notes?: string | null
@@ -915,8 +919,10 @@ export type Database = {
         Update: {
           created_at?: string
           ease_factor?: number | null
+          group_id?: string | null
           id?: string
           interval_days?: number | null
+          is_difficult?: boolean
           meanings?: string
           next_review_at?: string | null
           notes?: string | null
@@ -924,6 +930,38 @@ export type Database = {
           updated_at?: string
           user_id?: string
           word?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vocabulary_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "vocabulary_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vocabulary_groups: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
