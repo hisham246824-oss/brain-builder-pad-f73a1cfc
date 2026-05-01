@@ -150,7 +150,7 @@ export function useVocabulary(view: VocabularyView = { type: 'all' }) {
     };
   }, [user, fetchWords]);
 
-  const addWord = useCallback(async (word: string, meanings: string, notes?: string) => {
+  const addWord = useCallback(async (word: string, meanings: string, notes?: string, groupId?: string | null) => {
     if (!user) return { error: new Error('Not authenticated') };
 
     const optimisticWord: VocabularyWord = {
@@ -159,6 +159,8 @@ export function useVocabulary(view: VocabularyView = { type: 'all' }) {
       meanings: meanings.trim(),
       notes: notes?.trim() || null,
       created_at: new Date().toISOString(),
+      group_id: groupId ?? null,
+      is_difficult: false,
     };
 
     // Optimistic update
@@ -177,6 +179,7 @@ export function useVocabulary(view: VocabularyView = { type: 'all' }) {
           word: word.trim(),
           meanings: meanings.trim(),
           notes: notes?.trim() || null,
+          group_id: groupId ?? null,
         },
       });
       return { data: optimisticWord };
@@ -189,6 +192,7 @@ export function useVocabulary(view: VocabularyView = { type: 'all' }) {
         word: word.trim(),
         meanings: meanings.trim(),
         notes: notes?.trim() || null,
+        group_id: groupId ?? null,
       })
       .select()
       .single();
