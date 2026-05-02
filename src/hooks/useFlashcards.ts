@@ -14,11 +14,13 @@ export interface FlashcardWord {
   repetitions: number;
   next_review_at: string;
   created_at: string;
+  is_difficult?: boolean;
+  group_id?: string | null;
 }
 
-export type TestMode = 'flashcard' | 'mcq' | 'typing';
-export type TestFormat = 'random' | 'focus' | 'smart' | 'date';
-export type TestCount = 10 | 20 | 30 | 40 | 50 | 'all';
+export type TestMode = 'flashcard' | 'mcq' | 'typing' | 'reverse-typing';
+export type TestFormat = 'random' | 'difficult' | 'date' | 'group';
+export type TestCount = 10 | 20 | 30 | 40 | 50 | 60 | 70 | 80 | 'all';
 
 export interface TestResult {
   wordId: string;
@@ -117,7 +119,7 @@ export function useFlashcards() {
       setIsLoading(true);
       const { data, error } = await supabase
         .from('vocabulary')
-        .select('id, word, meanings, notes, ease_factor, interval_days, repetitions, next_review_at, created_at')
+        .select('id, word, meanings, notes, ease_factor, interval_days, repetitions, next_review_at, created_at, is_difficult, group_id')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
@@ -154,34 +156,34 @@ export function useFlashcards() {
     setMcqSelectedIndex(null);
   }, []);
 
-  const startTest = useCallback((count: TestCount, mode: TestMode, format: TestFormat, selectedDate?: string) => {
+  const startTest = useCallback((
+    count: TestCount,
+    mode: TestMode,
+    format: TestFormat,
+    options?: { selectedDates?: string[]; selectedGroupIds?: string[] }
+  ) => {
     let filtered: FlashcardWord[];
-    const now = new Date();
 
-    if (format === 'date' && selectedDate) {
+    if (format === 'date' && options?.selectedDates && options.selectedDates.length > 0) {
+      const dateSet = new Set(options.selectedDates);
       filtered = allWords.filter(w => {
         const wordDate = new Date(w.created_at).toISOString().split('T')[0];
-        return wordDate === selectedDate;
+        return dateSet.has(wordDate);
       });
-    } else if (format === 'focus') {
-      filtered = allWords.filter(w => w.ease_factor < 2.0 || w.repetitions <= 1);
-    } else if (format === 'smart') {
-      filtered = [...allWords].sort((a, b) => {
-        const aDate = new Date(a.next_review_at);
-        const bDate = new Date(b.next_review_at);
-        const aOverdue = aDate <= now ? -aDate.getTime() : aDate.getTime();
-        const bOverdue = bDate <= now ? -bDate.getTime() : bDate.getTime();
-        return aOverdue - bOverdue;
-      });
+    } else if (format === 'group' && options?.selectedGroupIds && options.selectedGroupIds.length > 0) {
+      const groupSet = new Set(options.selectedGroupIds);
+      filtered = allWords.filter(w => w.group_id && groupSet.has(w.group_id));
+    } else if (format === 'difficult') {
+      filtered = allWords.filter(w => w.is_difficult);
     } else {
       filtered = shuffleArray(allWords);
     }
 
     if (filtered.length === 0) filtered = shuffleArray(allWords);
     const limit = count === 'all' ? filtered.length : Math.min(count, filtered.length);
-    const selected = filtered.slice(0, limit);
+    const selected = shuffleArray(filtered).slice(0, limit);
 
-    setCards(format === 'random' ? shuffleArray(selected) : selected);
+    setCards(selected);
     setTotalTestCards(selected.length);
     setCurrentIndex(0);
     setIsFlipped(false);
@@ -271,16 +273,23 @@ export function useFlashcards() {
   const submitTypingAnswer = useCallback(() => {
     if (typingSubmitted || !currentCard) return;
     setTypingSubmitted(true);
-    const correct = currentCard.meanings.trim().toLowerCase();
     const answer = typingAnswer.trim().toLowerCase();
-    const isCorrect = correct === answer || correct.includes(answer) || answer.includes(correct);
+    let isCorrect: boolean;
+    if (testMode === 'reverse-typing') {
+      // User types the English word; case-insensitive exact match
+      const correct = currentCard.word.trim().toLowerCase();
+      isCorrect = correct === answer;
+    } else {
+      const correct = currentCard.meanings.trim().toLowerCase();
+      isCorrect = correct === answer || correct.includes(answer) || answer.includes(correct);
+    }
 
     setTimeout(() => {
       rateCard(isCorrect ? 4 : 1);
     }, 1200);
 
     return isCorrect;
-  }, [typingSubmitted, currentCard, typingAnswer, rateCard]);
+  }, [typingSubmitted, currentCard, typingAnswer, rateCard, testMode]);
 
   const resetTest = useCallback(() => {
     setTestStarted(false);
