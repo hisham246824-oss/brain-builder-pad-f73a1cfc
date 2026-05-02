@@ -753,8 +753,8 @@ export default function FlashcardsPage() {
             {currentCard ? (
               testMode === 'mcq' ? (
                 <MCQCard card={currentCard} options={mcqOptions} answered={mcqAnswered} selectedIndex={mcqSelectedIndex} onAnswer={answerMCQ} />
-              ) : testMode === 'typing' ? (
-                <TypingCard card={currentCard} answer={typingAnswer} setAnswer={setTypingAnswer} submitted={typingSubmitted} onSubmit={submitTypingAnswer} />
+              ) : (testMode === 'typing' || testMode === 'reverse-typing') ? (
+                <TypingCard card={currentCard} answer={typingAnswer} setAnswer={setTypingAnswer} submitted={typingSubmitted} onSubmit={submitTypingAnswer} mode={testMode} />
               ) : (
                 <>
                   <Flashcard card={currentCard} isFlipped={isFlipped} onFlip={flipCard} />
