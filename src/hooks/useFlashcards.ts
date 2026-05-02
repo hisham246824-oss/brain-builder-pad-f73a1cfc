@@ -14,11 +14,13 @@ export interface FlashcardWord {
   repetitions: number;
   next_review_at: string;
   created_at: string;
+  is_difficult?: boolean;
+  group_id?: string | null;
 }
 
-export type TestMode = 'flashcard' | 'mcq' | 'typing';
-export type TestFormat = 'random' | 'focus' | 'smart' | 'date';
-export type TestCount = 10 | 20 | 30 | 40 | 50 | 'all';
+export type TestMode = 'flashcard' | 'mcq' | 'typing' | 'reverse-typing';
+export type TestFormat = 'random' | 'difficult' | 'date' | 'group';
+export type TestCount = 10 | 20 | 30 | 40 | 50 | 60 | 70 | 80 | 'all';
 
 export interface TestResult {
   wordId: string;
