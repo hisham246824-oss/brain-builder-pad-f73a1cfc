@@ -156,34 +156,34 @@ export function useFlashcards() {
     setMcqSelectedIndex(null);
   }, []);
 
-  const startTest = useCallback((count: TestCount, mode: TestMode, format: TestFormat, selectedDate?: string) => {
+  const startTest = useCallback((
+    count: TestCount,
+    mode: TestMode,
+    format: TestFormat,
+    options?: { selectedDates?: string[]; selectedGroupIds?: string[] }
+  ) => {
     let filtered: FlashcardWord[];
-    const now = new Date();
 
-    if (format === 'date' && selectedDate) {
+    if (format === 'date' && options?.selectedDates && options.selectedDates.length > 0) {
+      const dateSet = new Set(options.selectedDates);
       filtered = allWords.filter(w => {
         const wordDate = new Date(w.created_at).toISOString().split('T')[0];
-        return wordDate === selectedDate;
+        return dateSet.has(wordDate);
       });
-    } else if (format === 'focus') {
-      filtered = allWords.filter(w => w.ease_factor < 2.0 || w.repetitions <= 1);
-    } else if (format === 'smart') {
-      filtered = [...allWords].sort((a, b) => {
-        const aDate = new Date(a.next_review_at);
-        const bDate = new Date(b.next_review_at);
-        const aOverdue = aDate <= now ? -aDate.getTime() : aDate.getTime();
-        const bOverdue = bDate <= now ? -bDate.getTime() : bDate.getTime();
-        return aOverdue - bOverdue;
-      });
+    } else if (format === 'group' && options?.selectedGroupIds && options.selectedGroupIds.length > 0) {
+      const groupSet = new Set(options.selectedGroupIds);
+      filtered = allWords.filter(w => w.group_id && groupSet.has(w.group_id));
+    } else if (format === 'difficult') {
+      filtered = allWords.filter(w => w.is_difficult);
     } else {
       filtered = shuffleArray(allWords);
     }
 
     if (filtered.length === 0) filtered = shuffleArray(allWords);
     const limit = count === 'all' ? filtered.length : Math.min(count, filtered.length);
-    const selected = filtered.slice(0, limit);
+    const selected = shuffleArray(filtered).slice(0, limit);
 
-    setCards(format === 'random' ? shuffleArray(selected) : selected);
+    setCards(selected);
     setTotalTestCards(selected.length);
     setCurrentIndex(0);
     setIsFlipped(false);
