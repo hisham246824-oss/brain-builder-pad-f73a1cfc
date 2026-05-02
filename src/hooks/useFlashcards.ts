@@ -273,16 +273,23 @@ export function useFlashcards() {
   const submitTypingAnswer = useCallback(() => {
     if (typingSubmitted || !currentCard) return;
     setTypingSubmitted(true);
-    const correct = currentCard.meanings.trim().toLowerCase();
     const answer = typingAnswer.trim().toLowerCase();
-    const isCorrect = correct === answer || correct.includes(answer) || answer.includes(correct);
+    let isCorrect: boolean;
+    if (testMode === 'reverse-typing') {
+      // User types the English word; case-insensitive exact match
+      const correct = currentCard.word.trim().toLowerCase();
+      isCorrect = correct === answer;
+    } else {
+      const correct = currentCard.meanings.trim().toLowerCase();
+      isCorrect = correct === answer || correct.includes(answer) || answer.includes(correct);
+    }
 
     setTimeout(() => {
       rateCard(isCorrect ? 4 : 1);
     }, 1200);
 
     return isCorrect;
-  }, [typingSubmitted, currentCard, typingAnswer, rateCard]);
+  }, [typingSubmitted, currentCard, typingAnswer, rateCard, testMode]);
 
   const resetTest = useCallback(() => {
     setTestStarted(false);
