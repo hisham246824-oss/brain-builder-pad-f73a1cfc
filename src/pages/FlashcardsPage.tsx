@@ -603,17 +603,25 @@ function MCQCard({ card, options, answered, selectedIndex, onAnswer }: {
   );
 }
 
-function TypingCard({ card, answer, setAnswer, submitted, onSubmit }: {
+function TypingCard({ card, answer, setAnswer, submitted, onSubmit, mode }: {
   card: ReturnType<typeof useFlashcards>['currentCard'];
   answer: string;
   setAnswer: (v: string) => void;
   submitted: boolean;
   onSubmit: () => boolean | undefined;
+  mode: TestMode;
 }) {
   const { t } = useLanguage();
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
 
   if (!card) return null;
+
+  const isReverse = mode === 'reverse-typing';
+  const promptLabel = isReverse
+    ? (t('typeWord') || 'Type the English word')
+    : (t('typeMeaning') || 'Type the meaning');
+  const displayedText = isReverse ? card.meanings : card.word;
+  const correctReveal = isReverse ? card.word : card.meanings;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -630,9 +638,9 @@ function TypingCard({ card, answer, setAnswer, submitted, onSubmit }: {
         className="bg-card border-2 border-primary/20 rounded-3xl p-8 text-center shadow-md"
       >
         <p className="text-xs text-muted-foreground mb-2 uppercase tracking-wider font-medium">
-          {t('typeMeaning') || 'Type the meaning'}
+          {promptLabel}
         </p>
-        <h2 className="text-4xl font-bold text-primary">{card.word}</h2>
+        <h2 className="text-4xl font-bold text-primary" dir={isReverse ? 'rtl' : 'ltr'}>{displayedText}</h2>
       </motion.div>
 
       <form onSubmit={handleSubmit} className="space-y-3">
@@ -647,7 +655,7 @@ function TypingCard({ card, answer, setAnswer, submitted, onSubmit }: {
           )}
           disabled={submitted}
           autoFocus
-          dir="rtl"
+          dir={isReverse ? 'ltr' : 'rtl'}
         />
         {submitted && (
           <motion.div
@@ -660,7 +668,7 @@ function TypingCard({ card, answer, setAnswer, submitted, onSubmit }: {
           >
             {isCorrect
               ? (t('correct') || '✓ Correct!')
-              : `${t('incorrect') || '✗ Incorrect'}: ${card.meanings}`}
+              : `${t('incorrect') || '✗ Incorrect'}: ${correctReveal}`}
           </motion.div>
         )}
         {!submitted && (
