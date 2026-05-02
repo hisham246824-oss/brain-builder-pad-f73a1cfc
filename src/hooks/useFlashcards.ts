@@ -119,7 +119,7 @@ export function useFlashcards() {
       setIsLoading(true);
       const { data, error } = await supabase
         .from('vocabulary')
-        .select('id, word, meanings, notes, ease_factor, interval_days, repetitions, next_review_at, created_at')
+        .select('id, word, meanings, notes, ease_factor, interval_days, repetitions, next_review_at, created_at, is_difficult, group_id')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
