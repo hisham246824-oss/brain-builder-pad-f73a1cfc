@@ -28,8 +28,8 @@ function StepBadge({ n }: { n: number }) {
     <div
       className="flex h-12 w-12 items-center justify-center rounded-full text-lg font-bold text-white shadow-lg backdrop-blur-xl border border-white/30"
       style={{
-        background: 'linear-gradient(135deg, hsl(174 72% 56% / 0.85), hsl(186 90% 42% / 0.7))',
-        boxShadow: '0 8px 24px hsl(174 72% 56% / 0.35), inset 0 1px 0 hsl(0 0% 100% / 0.4)',
+        background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)))',
+        
       }}
     >
       {n}
@@ -74,28 +74,28 @@ function TestSetup({ totalWords, allWords, onStart }: { totalWords: number; allW
       label: t('flashcards') || 'Flashcards',
       desc: t('flashcardModeDesc') || 'Flip cards to reveal the meaning. Rate how well you knew each word so the system schedules smart reviews.',
       icon: Layers,
-      gradient: 'linear-gradient(135deg, hsl(265 85% 65% / 0.85), hsl(280 80% 55% / 0.65))',
+      gradient: 'linear-gradient(135deg, hsl(var(--primary) / 0.85), hsl(var(--primary-glow) / 0.65))',
     },
     {
       value: 'mcq',
       label: t('multipleChoice') || 'Multiple Choice',
       desc: t('mcqModeDesc') || 'Pick the correct meaning from four choices. Quick, fun, and great for fast recognition practice.',
       icon: ListChecks,
-      gradient: 'linear-gradient(135deg, hsl(200 90% 60% / 0.85), hsl(220 85% 50% / 0.65))',
+      gradient: 'linear-gradient(135deg, hsl(var(--primary) / 0.85), hsl(var(--primary-glow) / 0.65))',
     },
     {
       value: 'typing',
       label: t('typing') || 'Type the Meaning',
       desc: t('typingModeDesc') || 'The English word is shown and you type its meaning. Builds active recall of definitions.',
       icon: Keyboard,
-      gradient: 'linear-gradient(135deg, hsl(35 95% 60% / 0.85), hsl(20 90% 55% / 0.65))',
+      gradient: 'linear-gradient(135deg, hsl(var(--primary) / 0.85), hsl(var(--primary-glow) / 0.65))',
     },
     {
       value: 'reverse-typing',
       label: t('reverseTyping') || 'Type the Word',
       desc: t('reverseTypingDesc') || 'The meaning is shown and you write the English word with correct spelling. Letter case is ignored.',
       icon: PencilLine,
-      gradient: 'linear-gradient(135deg, hsl(150 75% 50% / 0.85), hsl(170 80% 42% / 0.65))',
+      gradient: 'linear-gradient(135deg, hsl(var(--primary) / 0.85), hsl(var(--primary-glow) / 0.65))',
     },
   ];
 
@@ -105,28 +105,28 @@ function TestSetup({ totalWords, allWords, onStart }: { totalWords: number; allW
       label: t('random') || 'Random',
       desc: t('randomFormatDesc') || 'Quizzes you on a random selection from every word you have, including difficult ones and grouped ones.',
       icon: Shuffle,
-      gradient: 'linear-gradient(135deg, hsl(174 72% 56% / 0.85), hsl(186 90% 42% / 0.65))',
+      gradient: 'linear-gradient(135deg, hsl(var(--primary) / 0.85), hsl(var(--primary-glow) / 0.65))',
     },
     {
       value: 'difficult',
       label: t('difficultWords') || 'Difficult Words',
       desc: t('difficultFormatDesc') || 'Test only the words you previously marked as difficult so you can master them faster.',
       icon: Flame,
-      gradient: 'linear-gradient(135deg, hsl(0 80% 60% / 0.85), hsl(15 85% 50% / 0.65))',
+      gradient: 'linear-gradient(135deg, hsl(0 70% 55% / 0.85), hsl(0 70% 45% / 0.65))',
     },
     {
       value: 'date',
       label: t('byDate') || 'Test by Date',
       desc: t('byDateFormatDesc') || 'Choose one or more days you added words on, and the test will combine them all into one session.',
       icon: CalendarDays,
-      gradient: 'linear-gradient(135deg, hsl(220 85% 60% / 0.85), hsl(245 80% 55% / 0.65))',
+      gradient: 'linear-gradient(135deg, hsl(var(--primary) / 0.85), hsl(var(--primary-glow) / 0.65))',
     },
     {
       value: 'group',
       label: t('byGroup') || 'Test by Group',
       desc: t('byGroupFormatDesc') || 'Pick one or more vocabulary groups you created, and the test will mix words from all of them.',
       icon: FolderOpen,
-      gradient: 'linear-gradient(135deg, hsl(45 95% 55% / 0.85), hsl(35 90% 50% / 0.65))',
+      gradient: 'linear-gradient(135deg, hsl(var(--primary) / 0.85), hsl(var(--primary-glow) / 0.65))',
     },
   ];
 
@@ -185,8 +185,8 @@ function TestSetup({ totalWords, allWords, onStart }: { totalWords: number; allW
                       : 'border-border bg-card/70 text-foreground hover:border-primary/40 hover:bg-accent'
                   )}
                   style={count === c ? {
-                    background: 'linear-gradient(135deg, hsl(174 72% 56% / 0.95), hsl(186 90% 42% / 0.85))',
-                    boxShadow: '0 8px 24px hsl(174 72% 56% / 0.35)',
+                    background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)))',
+                    
                   } : {}}
                 >
                   {c === 'all' ? `${t('allWords') || 'All'} (${totalWords})` : c}
@@ -200,7 +200,7 @@ function TestSetup({ totalWords, allWords, onStart }: { totalWords: number; allW
                 disabled={totalWords === 0}
                 className="w-full rounded-[1.75rem] py-6 text-base font-semibold shadow-md hover:shadow-lg transition-all"
                 style={{
-                  background: 'linear-gradient(135deg, hsl(174 72% 56%), hsl(186 90% 42%))',
+                  background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)))',
                   color: 'white',
                 }}
               >
@@ -234,12 +234,12 @@ function TestSetup({ totalWords, allWords, onStart }: { totalWords: number; allW
                     className={cn(
                       'relative rounded-[2rem] p-5 text-left border-2 transition-all duration-200 backdrop-blur-md active:scale-[0.98] overflow-hidden',
                       isSelected
-                        ? 'border-white/40 shadow-2xl scale-[1.02] text-white'
+                        ? 'border-white/40 shadow-sm scale-[1.02] text-white'
                         : 'border-border bg-card/70 hover:border-primary/40'
                     )}
                     style={isSelected ? {
                       background: m.gradient,
-                      boxShadow: '0 16px 40px hsl(0 0% 0% / 0.2), inset 0 1px 0 hsl(0 0% 100% / 0.3)',
+                      
                     } : {}}
                   >
                     <div className="flex items-center gap-3 mb-2">
@@ -276,7 +276,7 @@ function TestSetup({ totalWords, allWords, onStart }: { totalWords: number; allW
               <Button
                 onClick={() => { setStep(3); setShowSubStep(false); }}
                 className="flex-1 rounded-[1.75rem] py-6 font-semibold text-white"
-                style={{ background: 'linear-gradient(135deg, hsl(174 72% 56%), hsl(186 90% 42%))' }}
+                style={{ background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)))' }}
               >
                 {t('next') || 'Next'}
                 <ArrowRight className="ml-2 h-5 w-5" />
@@ -310,12 +310,12 @@ function TestSetup({ totalWords, allWords, onStart }: { totalWords: number; allW
                       className={cn(
                         'relative rounded-[2rem] p-5 text-left border-2 transition-all duration-200 backdrop-blur-md active:scale-[0.98] overflow-hidden',
                         isSelected
-                          ? 'border-white/40 shadow-2xl scale-[1.02] text-white'
+                          ? 'border-white/40 shadow-sm scale-[1.02] text-white'
                           : 'border-border bg-card/70 hover:border-primary/40'
                       )}
                       style={isSelected ? {
                         background: f.gradient,
-                        boxShadow: '0 16px 40px hsl(0 0% 0% / 0.2), inset 0 1px 0 hsl(0 0% 100% / 0.3)',
+                        
                       } : {}}
                     >
                       <div className="flex items-center gap-3 mb-2">
@@ -436,7 +436,7 @@ function TestSetup({ totalWords, allWords, onStart }: { totalWords: number; allW
                 <Button
                   onClick={() => setShowSubStep(true)}
                   className="flex-1 rounded-[1.75rem] py-6 font-semibold text-white"
-                  style={{ background: 'linear-gradient(135deg, hsl(174 72% 56%), hsl(186 90% 42%))' }}
+                  style={{ background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)))' }}
                 >
                   {t('next') || 'Next'}
                   <ArrowRight className="ml-2 h-5 w-5" />
@@ -446,7 +446,7 @@ function TestSetup({ totalWords, allWords, onStart }: { totalWords: number; allW
                   onClick={handleStart}
                   disabled={!canStart()}
                   className="flex-1 rounded-[1.75rem] py-6 font-semibold text-white shadow-lg"
-                  style={{ background: 'linear-gradient(135deg, hsl(174 72% 56%), hsl(186 90% 42%))' }}
+                  style={{ background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)))' }}
                 >
                   <Play className="mr-2 h-5 w-5" />
                   {t('startTest') || 'Start Test'}
@@ -574,8 +574,8 @@ function GlassCircle({
 }) {
   const tints: Record<string, string> = {
     neutral: 'linear-gradient(135deg, hsl(0 0% 100% / 0.45), hsl(0 0% 100% / 0.18))',
-    turquoise: 'linear-gradient(135deg, hsl(174 72% 56% / 0.85), hsl(186 90% 42% / 0.7))',
-    green: 'linear-gradient(135deg, hsl(140 70% 65% / 0.75), hsl(150 65% 50% / 0.55))',
+    turquoise: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)))',
+    green: 'linear-gradient(135deg, hsl(var(--primary) / 0.75), hsl(var(--primary-glow) / 0.55))',
     red: 'linear-gradient(135deg, hsl(0 80% 68% / 0.8), hsl(8 78% 55% / 0.6))',
   };
   return (
@@ -585,7 +585,7 @@ function GlassCircle({
         width: size,
         height: size,
         background: tints[tint],
-        boxShadow: '0 6px 18px hsl(0 0% 0% / 0.12), inset 0 1px 0 hsl(0 0% 100% / 0.5)',
+        
       }}
     >
       {children}
@@ -679,8 +679,8 @@ function GlassFlashcard({
       <motion.div
         initial={{ scale: 0.96, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        className="relative rounded-[2.25rem] border border-primary/15 bg-card/80 backdrop-blur-xl p-6 sm:p-8 shadow-xl overflow-hidden"
-        style={{ boxShadow: '0 18px 48px hsl(174 72% 56% / 0.18), inset 0 1px 0 hsl(0 0% 100% / 0.3)' }}
+        className="relative rounded-[2.5rem] border border-primary/15 bg-card/80 backdrop-blur-xl p-6 sm:p-8 shadow-sm overflow-hidden"
+        
       >
         {/* top: logo center, question number left */}
         <div className="flex items-start justify-between mb-4">
@@ -705,7 +705,7 @@ function GlassFlashcard({
           ) : (
             <h2 className="text-4xl sm:text-5xl font-extrabold tracking-tight"
               style={{
-                background: 'linear-gradient(135deg, hsl(174 72% 46%), hsl(186 90% 38%))',
+                background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)))',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
               }}>
@@ -724,8 +724,8 @@ function GlassFlashcard({
               onClick={onFlip}
               className="w-full rounded-[1.75rem] py-4 text-base font-bold text-white shadow-lg active:scale-[0.98] transition-transform inline-flex items-center justify-center gap-2"
               style={{
-                background: 'linear-gradient(135deg, hsl(174 72% 56%), hsl(186 90% 42%))',
-                boxShadow: '0 10px 28px hsl(174 72% 56% / 0.4)',
+                background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)))',
+                
               }}
             >
               <Eye className="h-5 w-5" />
@@ -781,8 +781,8 @@ function MCQCard({ card, options, answered, selectedIndex, onAnswer, onMarkDiffi
       <motion.div
         initial={{ scale: 0.96, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        className="relative rounded-[2.25rem] border border-primary/15 bg-card/80 backdrop-blur-xl p-5 sm:p-6 shadow-xl"
-        style={{ boxShadow: '0 18px 48px hsl(174 72% 56% / 0.18), inset 0 1px 0 hsl(0 0% 100% / 0.3)' }}
+        className="relative rounded-[2.5rem] border border-primary/15 bg-card/80 backdrop-blur-xl p-5 sm:p-6 shadow-sm"
+        
       >
         <div className="flex items-start gap-4">
           <div className="flex-1 min-w-0">
@@ -794,7 +794,7 @@ function MCQCard({ card, options, answered, selectedIndex, onAnswer, onMarkDiffi
             </div>
             <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mt-3 text-center sm:text-left"
               style={{
-                background: 'linear-gradient(135deg, hsl(174 72% 46%), hsl(186 90% 38%))',
+                background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)))',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
               }}>
@@ -907,8 +907,8 @@ function TypingCard({ card, answer, setAnswer, submitted, onSubmit, mode, onMark
       <motion.div
         initial={{ scale: 0.96, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        className="relative rounded-[2.25rem] border border-primary/15 bg-card/80 backdrop-blur-xl p-5 sm:p-6 shadow-xl"
-        style={{ boxShadow: '0 18px 48px hsl(174 72% 56% / 0.18), inset 0 1px 0 hsl(0 0% 100% / 0.3)' }}
+        className="relative rounded-[2.5rem] border border-primary/15 bg-card/80 backdrop-blur-xl p-5 sm:p-6 shadow-sm"
+        
       >
         <div className="flex items-start gap-4">
           <div className="flex-1 min-w-0">
@@ -920,7 +920,7 @@ function TypingCard({ card, answer, setAnswer, submitted, onSubmit, mode, onMark
               className="text-3xl sm:text-4xl font-extrabold tracking-tight mt-3 text-center sm:text-left leading-tight"
               dir={isReverse ? 'rtl' : 'ltr'}
               style={{
-                background: 'linear-gradient(135deg, hsl(174 72% 46%), hsl(186 90% 38%))',
+                background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)))',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
               }}
@@ -988,7 +988,7 @@ function TypingCard({ card, answer, setAnswer, submitted, onSubmit, mode, onMark
             type="submit"
             disabled={!answer.trim()}
             className="w-full rounded-[1.75rem] py-6 font-semibold text-white shadow-lg"
-            style={{ background: 'linear-gradient(135deg, hsl(174 72% 56%), hsl(186 90% 42%))' }}
+            style={{ background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)))' }}
           >
             {t('checkAnswer') || 'Check Answer'}
           </Button>

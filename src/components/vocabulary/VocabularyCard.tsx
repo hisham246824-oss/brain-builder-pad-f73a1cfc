@@ -57,44 +57,29 @@ export function VocabularyCard({
   const formattedDate = format(new Date(word.created_at), 'MMM dd, yyyy');
   const letterCount = word.word.length;
 
-  // Glassy header gradient — turquoise normally, red when difficult
+  // Header gradient — primary turquoise normally, red when difficult. No glow.
   const headerGradient = isDifficult
-    ? 'linear-gradient(135deg, hsl(0 75% 60% / 0.85), hsl(0 65% 48% / 0.7))'
-    : 'linear-gradient(135deg, hsl(174 72% 56% / 0.85), hsl(186 90% 42% / 0.7))';
+    ? 'linear-gradient(135deg, hsl(var(--destructive)), hsl(var(--destructive) / 0.85))'
+    : 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)))';
 
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.15, delay: Math.min(index * 0.03, 0.2) }}
+      transition={{ duration: 0.12, delay: Math.min(index * 0.02, 0.15) }}
       className="relative bg-card rounded-[2rem] overflow-hidden shadow-card gpu border border-border/40"
     >
-      {/* Glassy header */}
+      {/* Header */}
       <div
         className="relative p-4 flex items-center justify-between"
         style={{
           background: headerGradient,
-          backdropFilter: 'blur(10px)',
-          borderBottom: '1px solid hsl(0 0% 100% / 0.2)',
+          borderBottom: '1px solid hsl(0 0% 100% / 0.18)',
         }}
       >
-        {/* Glass shine overlay */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background: 'linear-gradient(180deg, hsl(0 0% 100% / 0.25), transparent 60%)',
-          }}
-        />
-
         {/* Logo circle (top-left) */}
-        <div className="relative h-12 w-12 rounded-full flex items-center justify-center"
-             style={{
-               background: 'hsl(0 0% 100% / 0.25)',
-               backdropFilter: 'blur(6px)',
-               border: '1px solid hsl(0 0% 100% / 0.4)',
-               boxShadow: 'inset 0 1px 0 hsl(0 0% 100% / 0.5)',
-             }}>
+        <div className="relative h-12 w-12 rounded-full flex items-center justify-center bg-white/20 border border-white/30">
           <VocabularyLogo size={32} />
         </div>
 
