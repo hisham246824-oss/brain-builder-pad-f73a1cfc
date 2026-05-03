@@ -234,7 +234,7 @@ function TestSetup({ totalWords, allWords, onStart }: { totalWords: number; allW
                     className={cn(
                       'relative rounded-[2rem] p-5 text-left border-2 transition-all duration-200 backdrop-blur-md active:scale-[0.98] overflow-hidden',
                       isSelected
-                        ? 'border-white/40 shadow-2xl scale-[1.02] text-white'
+                        ? 'border-white/40 shadow-sm scale-[1.02] text-white'
                         : 'border-border bg-card/70 hover:border-primary/40'
                     )}
                     style={isSelected ? {
@@ -310,7 +310,7 @@ function TestSetup({ totalWords, allWords, onStart }: { totalWords: number; allW
                       className={cn(
                         'relative rounded-[2rem] p-5 text-left border-2 transition-all duration-200 backdrop-blur-md active:scale-[0.98] overflow-hidden',
                         isSelected
-                          ? 'border-white/40 shadow-2xl scale-[1.02] text-white'
+                          ? 'border-white/40 shadow-sm scale-[1.02] text-white'
                           : 'border-border bg-card/70 hover:border-primary/40'
                       )}
                       style={isSelected ? {
@@ -679,7 +679,7 @@ function GlassFlashcard({
       <motion.div
         initial={{ scale: 0.96, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        className="relative rounded-[2.25rem] border border-primary/15 bg-card/80 backdrop-blur-xl p-6 sm:p-8 shadow-xl overflow-hidden"
+        className="relative rounded-[2.5rem] border border-primary/15 bg-card/80 backdrop-blur-xl p-6 sm:p-8 shadow-sm overflow-hidden"
         
       >
         {/* top: logo center, question number left */}
@@ -781,7 +781,7 @@ function MCQCard({ card, options, answered, selectedIndex, onAnswer, onMarkDiffi
       <motion.div
         initial={{ scale: 0.96, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        className="relative rounded-[2.25rem] border border-primary/15 bg-card/80 backdrop-blur-xl p-5 sm:p-6 shadow-xl"
+        className="relative rounded-[2.5rem] border border-primary/15 bg-card/80 backdrop-blur-xl p-5 sm:p-6 shadow-sm"
         
       >
         <div className="flex items-start gap-4">
@@ -907,7 +907,7 @@ function TypingCard({ card, answer, setAnswer, submitted, onSubmit, mode, onMark
       <motion.div
         initial={{ scale: 0.96, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        className="relative rounded-[2.25rem] border border-primary/15 bg-card/80 backdrop-blur-xl p-5 sm:p-6 shadow-xl"
+        className="relative rounded-[2.5rem] border border-primary/15 bg-card/80 backdrop-blur-xl p-5 sm:p-6 shadow-sm"
         
       >
         <div className="flex items-start gap-4">
