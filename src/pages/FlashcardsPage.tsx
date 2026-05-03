@@ -9,13 +9,15 @@ import { useAuth } from '@/contexts/AuthContext';
 import {
   ArrowLeft, ArrowRight, Sparkles, CheckCircle2, XCircle, ThumbsUp, AlertTriangle,
   Shuffle, Layers, ListChecks, Keyboard, Zap, Trophy, WifiOff, CalendarDays,
-  Flame, FolderOpen, PencilLine, Play, ChevronLeft,
+  Flame, FolderOpen, PencilLine, Play, ChevronLeft, Volume2, Flag, Eye, HelpCircle, Star,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Progress } from '@/components/ui/progress';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
+import { VocabularyLogo } from '@/components/vocabulary/VocabularyLogo';
+import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
 type StartTestFn = ReturnType<typeof useFlashcards>['startTest'];
