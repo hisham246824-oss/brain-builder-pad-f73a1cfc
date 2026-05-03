@@ -29,7 +29,7 @@ function StepBadge({ n }: { n: number }) {
       className="flex h-12 w-12 items-center justify-center rounded-full text-lg font-bold text-white shadow-lg backdrop-blur-xl border border-white/30"
       style={{
         background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)))',
-        boxShadow: '0 8px 24px hsl(174 72% 56% / 0.35), inset 0 1px 0 hsl(0 0% 100% / 0.4)',
+        
       }}
     >
       {n}
@@ -186,7 +186,7 @@ function TestSetup({ totalWords, allWords, onStart }: { totalWords: number; allW
                   )}
                   style={count === c ? {
                     background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)))',
-                    boxShadow: '0 8px 24px hsl(174 72% 56% / 0.35)',
+                    
                   } : {}}
                 >
                   {c === 'all' ? `${t('allWords') || 'All'} (${totalWords})` : c}
@@ -239,7 +239,7 @@ function TestSetup({ totalWords, allWords, onStart }: { totalWords: number; allW
                     )}
                     style={isSelected ? {
                       background: m.gradient,
-                      boxShadow: '0 16px 40px hsl(0 0% 0% / 0.2), inset 0 1px 0 hsl(0 0% 100% / 0.3)',
+                      
                     } : {}}
                   >
                     <div className="flex items-center gap-3 mb-2">
@@ -315,7 +315,7 @@ function TestSetup({ totalWords, allWords, onStart }: { totalWords: number; allW
                       )}
                       style={isSelected ? {
                         background: f.gradient,
-                        boxShadow: '0 16px 40px hsl(0 0% 0% / 0.2), inset 0 1px 0 hsl(0 0% 100% / 0.3)',
+                        
                       } : {}}
                     >
                       <div className="flex items-center gap-3 mb-2">
@@ -585,7 +585,7 @@ function GlassCircle({
         width: size,
         height: size,
         background: tints[tint],
-        boxShadow: '0 6px 18px hsl(0 0% 0% / 0.12), inset 0 1px 0 hsl(0 0% 100% / 0.5)',
+        
       }}
     >
       {children}
@@ -680,7 +680,7 @@ function GlassFlashcard({
         initial={{ scale: 0.96, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         className="relative rounded-[2.25rem] border border-primary/15 bg-card/80 backdrop-blur-xl p-6 sm:p-8 shadow-xl overflow-hidden"
-        style={{ boxShadow: '0 18px 48px hsl(174 72% 56% / 0.18), inset 0 1px 0 hsl(0 0% 100% / 0.3)' }}
+        
       >
         {/* top: logo center, question number left */}
         <div className="flex items-start justify-between mb-4">
@@ -725,7 +725,7 @@ function GlassFlashcard({
               className="w-full rounded-[1.75rem] py-4 text-base font-bold text-white shadow-lg active:scale-[0.98] transition-transform inline-flex items-center justify-center gap-2"
               style={{
                 background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)))',
-                boxShadow: '0 10px 28px hsl(174 72% 56% / 0.4)',
+                
               }}
             >
               <Eye className="h-5 w-5" />
@@ -782,7 +782,7 @@ function MCQCard({ card, options, answered, selectedIndex, onAnswer, onMarkDiffi
         initial={{ scale: 0.96, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         className="relative rounded-[2.25rem] border border-primary/15 bg-card/80 backdrop-blur-xl p-5 sm:p-6 shadow-xl"
-        style={{ boxShadow: '0 18px 48px hsl(174 72% 56% / 0.18), inset 0 1px 0 hsl(0 0% 100% / 0.3)' }}
+        
       >
         <div className="flex items-start gap-4">
           <div className="flex-1 min-w-0">
@@ -908,7 +908,7 @@ function TypingCard({ card, answer, setAnswer, submitted, onSubmit, mode, onMark
         initial={{ scale: 0.96, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         className="relative rounded-[2.25rem] border border-primary/15 bg-card/80 backdrop-blur-xl p-5 sm:p-6 shadow-xl"
-        style={{ boxShadow: '0 18px 48px hsl(174 72% 56% / 0.18), inset 0 1px 0 hsl(0 0% 100% / 0.3)' }}
+        
       >
         <div className="flex items-start gap-4">
           <div className="flex-1 min-w-0">
