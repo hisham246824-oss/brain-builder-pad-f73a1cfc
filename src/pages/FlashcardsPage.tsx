@@ -9,13 +9,15 @@ import { useAuth } from '@/contexts/AuthContext';
 import {
   ArrowLeft, ArrowRight, Sparkles, CheckCircle2, XCircle, ThumbsUp, AlertTriangle,
   Shuffle, Layers, ListChecks, Keyboard, Zap, Trophy, WifiOff, CalendarDays,
-  Flame, FolderOpen, PencilLine, Play, ChevronLeft,
+  Flame, FolderOpen, PencilLine, Play, ChevronLeft, Volume2, Flag, Eye, HelpCircle, Star,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Progress } from '@/components/ui/progress';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
+import { VocabularyLogo } from '@/components/vocabulary/VocabularyLogo';
+import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
 type StartTestFn = ReturnType<typeof useFlashcards>['startTest'];
@@ -555,12 +557,221 @@ function TestResults({ results, onRestart }: { results: ReturnType<typeof useFla
   );
 }
 
-function MCQCard({ card, options, answered, selectedIndex, onAnswer }: {
+/* ──────────────────────────────────────────────────────────────────
+   Shared in-test UI helpers (glass circles, action buttons, etc.)
+   ────────────────────────────────────────────────────────────────── */
+
+function GlassCircle({
+  size = 44,
+  tint = 'neutral',
+  className = '',
+  children,
+}: {
+  size?: number;
+  tint?: 'neutral' | 'turquoise' | 'green' | 'red';
+  className?: string;
+  children?: React.ReactNode;
+}) {
+  const tints: Record<string, string> = {
+    neutral: 'linear-gradient(135deg, hsl(0 0% 100% / 0.45), hsl(0 0% 100% / 0.18))',
+    turquoise: 'linear-gradient(135deg, hsl(174 72% 56% / 0.85), hsl(186 90% 42% / 0.7))',
+    green: 'linear-gradient(135deg, hsl(140 70% 65% / 0.75), hsl(150 65% 50% / 0.55))',
+    red: 'linear-gradient(135deg, hsl(0 80% 68% / 0.8), hsl(8 78% 55% / 0.6))',
+  };
+  return (
+    <div
+      className={cn('inline-flex items-center justify-center rounded-full backdrop-blur-xl border border-white/40 shadow-md', className)}
+      style={{
+        width: size,
+        height: size,
+        background: tints[tint],
+        boxShadow: '0 6px 18px hsl(0 0% 0% / 0.12), inset 0 1px 0 hsl(0 0% 100% / 0.5)',
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+function speakWord(text: string) {
+  try {
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'en-US';
+    speechSynthesis.speak(u);
+  } catch {}
+}
+
+function CardActionButtons({
+  word,
+  onMarkDifficult,
+  isDifficult,
+  size = 'md',
+}: {
+  word: string;
+  onMarkDifficult: () => void;
+  isDifficult?: boolean;
+  size?: 'md' | 'sm';
+}) {
+  const dim = size === 'md' ? 52 : 44;
+  const { t } = useLanguage();
+  return (
+    <div className="flex items-center gap-3">
+      <button
+        type="button"
+        onClick={(e) => { e.stopPropagation(); speakWord(word); }}
+        className="active:scale-[0.94] transition-transform"
+        aria-label={t('listen') || 'Listen'}
+      >
+        <GlassCircle size={dim} tint="green">
+          <Volume2 className="text-white drop-shadow" style={{ width: dim * 0.45, height: dim * 0.45 }} strokeWidth={2.4} />
+        </GlassCircle>
+      </button>
+      <button
+        type="button"
+        onClick={(e) => { e.stopPropagation(); onMarkDifficult(); }}
+        disabled={isDifficult}
+        className={cn('active:scale-[0.94] transition-transform', isDifficult && 'opacity-70')}
+        aria-label={t('addDifficult') || 'Add to difficult'}
+      >
+        <GlassCircle size={dim} tint="red">
+          <Flag className="text-white drop-shadow" style={{ width: dim * 0.42, height: dim * 0.42 }} strokeWidth={2.4} />
+        </GlassCircle>
+      </button>
+    </div>
+  );
+}
+
+function QuestionNumberBadge({ index, total }: { index: number; total: number }) {
+  return (
+    <GlassCircle size={40} tint="neutral" className="!border-primary/40">
+      <span className="text-xs font-bold text-primary tabular-nums">{index}/{total}</span>
+    </GlassCircle>
+  );
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   Flashcard mode (glass redesign)
+   ────────────────────────────────────────────────────────────────── */
+
+function GlassFlashcard({
+  card, isFlipped, onFlip, onRate, onMarkDifficult, index, total,
+}: {
+  card: ReturnType<typeof useFlashcards>['currentCard'];
+  isFlipped: boolean;
+  onFlip: () => void;
+  onRate: (q: number) => void;
+  onMarkDifficult: () => void;
+  index: number;
+  total: number;
+}) {
+  const { t } = useLanguage();
+  if (!card) return null;
+
+  const ratings = [
+    { q: 1, label: t('again') || 'Again', icon: XCircle, tint: 'red' as const },
+    { q: 3, label: t('hard') || 'Hard', icon: HelpCircle, tint: 'red' as const },
+    { q: 4, label: t('good') || 'Good', icon: ThumbsUp, tint: 'green' as const },
+    { q: 5, label: t('easy') || 'Easy', icon: Star, tint: 'turquoise' as const },
+  ];
+
+  return (
+    <div className="space-y-6">
+      <motion.div
+        initial={{ scale: 0.96, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        className="relative rounded-[2.25rem] border border-primary/15 bg-card/80 backdrop-blur-xl p-6 sm:p-8 shadow-xl overflow-hidden"
+        style={{ boxShadow: '0 18px 48px hsl(174 72% 56% / 0.18), inset 0 1px 0 hsl(0 0% 100% / 0.3)' }}
+      >
+        {/* top: logo center, question number left */}
+        <div className="flex items-start justify-between mb-4">
+          <QuestionNumberBadge index={index} total={total} />
+          <div className="flex flex-col items-center gap-2 -mt-2">
+            <VocabularyLogo size={56} />
+          </div>
+          <div style={{ width: 40 }} />
+        </div>
+
+        <p className="text-center text-sm font-semibold text-muted-foreground mb-5">
+          {isFlipped
+            ? (t('meaningOfWordIs') || 'The meaning of this word is:')
+            : (t('whatDoesWordMean') || 'What does this word mean?')}
+        </p>
+
+        <div className="text-center min-h-[80px] flex items-center justify-center px-2">
+          {isFlipped ? (
+            <p className="text-2xl sm:text-3xl font-bold text-destructive leading-snug" dir="rtl">
+              {card.meanings}
+            </p>
+          ) : (
+            <h2 className="text-4xl sm:text-5xl font-extrabold tracking-tight"
+              style={{
+                background: 'linear-gradient(135deg, hsl(174 72% 46%), hsl(186 90% 38%))',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+              }}>
+              {card.word}
+            </h2>
+          )}
+        </div>
+
+        <div className="flex justify-center mt-6">
+          <CardActionButtons word={card.word} onMarkDifficult={onMarkDifficult} isDifficult={card.is_difficult} />
+        </div>
+
+        {!isFlipped && (
+          <div className="mt-6">
+            <button
+              onClick={onFlip}
+              className="w-full rounded-[1.75rem] py-4 text-base font-bold text-white shadow-lg active:scale-[0.98] transition-transform inline-flex items-center justify-center gap-2"
+              style={{
+                background: 'linear-gradient(135deg, hsl(174 72% 56%), hsl(186 90% 42%))',
+                boxShadow: '0 10px 28px hsl(174 72% 56% / 0.4)',
+              }}
+            >
+              <Eye className="h-5 w-5" />
+              {t('revealMeaning') || 'Reveal the meaning'}
+            </button>
+          </div>
+        )}
+      </motion.div>
+
+      {isFlipped && (
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="grid grid-cols-4 gap-2 sm:gap-3"
+        >
+          {ratings.map(r => (
+            <button
+              key={r.q}
+              onClick={() => onRate(r.q)}
+              className="flex flex-col items-center gap-1.5 active:scale-[0.95] transition-transform"
+            >
+              <GlassCircle size={56} tint={r.tint}>
+                <r.icon className="h-6 w-6 text-white drop-shadow" strokeWidth={2.4} />
+              </GlassCircle>
+              <span className="text-[11px] sm:text-xs font-semibold text-foreground">{r.label}</span>
+            </button>
+          ))}
+        </motion.div>
+      )}
+    </div>
+  );
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   MCQ mode (glass redesign)
+   ────────────────────────────────────────────────────────────────── */
+
+function MCQCard({ card, options, answered, selectedIndex, onAnswer, onMarkDifficult, index, total }: {
   card: ReturnType<typeof useFlashcards>['currentCard'];
   options: ReturnType<typeof useFlashcards>['mcqOptions'];
   answered: boolean;
   selectedIndex: number | null;
   onAnswer: (index: number) => void;
+  onMarkDifficult: () => void;
+  index: number;
+  total: number;
 }) {
   const { t } = useLanguage();
   if (!card) return null;
@@ -568,20 +779,64 @@ function MCQCard({ card, options, answered, selectedIndex, onAnswer }: {
   return (
     <div className="space-y-5">
       <motion.div
-        initial={{ scale: 0.95 }}
-        animate={{ scale: 1 }}
-        className="bg-card border-2 border-primary/20 rounded-3xl p-8 text-center shadow-md"
+        initial={{ scale: 0.96, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        className="relative rounded-[2.25rem] border border-primary/15 bg-card/80 backdrop-blur-xl p-5 sm:p-6 shadow-xl"
+        style={{ boxShadow: '0 18px 48px hsl(174 72% 56% / 0.18), inset 0 1px 0 hsl(0 0% 100% / 0.3)' }}
       >
-        <p className="text-xs text-muted-foreground mb-2 uppercase tracking-wider font-medium">{t('whatDoesWordMean')}</p>
-        <h2 className="text-4xl font-bold text-primary">{card.word}</h2>
+        <div className="flex items-start gap-4">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-2">
+              <QuestionNumberBadge index={index} total={total} />
+              <p className="text-xs sm:text-sm font-semibold text-muted-foreground flex-1">
+                {t('chooseCorrectAnswer') || 'Choose the correct answer: What does this word mean?'}
+              </p>
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mt-3 text-center sm:text-left"
+              style={{
+                background: 'linear-gradient(135deg, hsl(174 72% 46%), hsl(186 90% 38%))',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+              }}>
+              {card.word}
+            </h2>
+          </div>
+
+          {/* right column: stacked action circles */}
+          <div className="flex flex-col gap-3 shrink-0">
+            <button
+              type="button"
+              onClick={() => speakWord(card.word)}
+              className="active:scale-[0.94] transition-transform"
+              aria-label={t('listen') || 'Listen'}
+            >
+              <GlassCircle size={48} tint="green">
+                <Volume2 className="h-5 w-5 text-white drop-shadow" strokeWidth={2.4} />
+              </GlassCircle>
+            </button>
+            <button
+              type="button"
+              onClick={onMarkDifficult}
+              disabled={card.is_difficult}
+              className={cn('active:scale-[0.94] transition-transform', card.is_difficult && 'opacity-70')}
+              aria-label={t('addDifficult') || 'Add to difficult'}
+            >
+              <GlassCircle size={48} tint="red">
+                <Flag className="h-5 w-5 text-white drop-shadow" strokeWidth={2.4} />
+              </GlassCircle>
+            </button>
+          </div>
+        </div>
       </motion.div>
-      <div className="grid grid-cols-1 gap-2">
+
+      <div className="grid grid-cols-1 gap-3">
         {options.map((opt, i) => {
-          let cls = 'border-border bg-card hover:border-primary/40 hover:bg-accent';
+          let cls = 'border-border bg-card/80 hover:border-primary/40 hover:bg-accent';
+          let badgeTint: 'turquoise' | 'green' | 'red' | 'neutral' = 'neutral';
           if (answered) {
-            if (opt.isCorrect) cls = 'border-green-500 bg-green-500/10';
-            else if (i === selectedIndex) cls = 'border-destructive bg-destructive/10 shake';
-            else cls = 'border-border bg-card opacity-40';
+            if (opt.isCorrect) { cls = 'border-green-500 bg-green-500/10'; badgeTint = 'green'; }
+            else if (i === selectedIndex) { cls = 'border-destructive bg-destructive/10 shake'; badgeTint = 'red'; }
+            else cls = 'border-border bg-card/60 opacity-50';
           }
           return (
             <motion.button
@@ -591,10 +846,18 @@ function MCQCard({ card, options, answered, selectedIndex, onAnswer }: {
               transition={{ delay: i * 0.06 }}
               onClick={() => onAnswer(i)}
               disabled={answered}
-              className={cn('rounded-2xl p-4 text-right border-2 transition-all font-medium text-base', cls)}
+              className={cn(
+                'rounded-[1.75rem] p-4 pr-5 text-right border-2 transition-all font-medium text-base flex items-center gap-3 backdrop-blur-md active:scale-[0.98]',
+                cls
+              )}
               dir="rtl"
             >
-              {opt.text}
+              <span className="flex-1 leading-relaxed">{opt.text}</span>
+              <GlassCircle size={36} tint={badgeTint} className={badgeTint === 'neutral' ? '!border-primary/40' : ''}>
+                <span className={cn('text-sm font-bold', badgeTint === 'neutral' ? 'text-primary' : 'text-white')}>
+                  {i + 1}
+                </span>
+              </GlassCircle>
             </motion.button>
           );
         })}
@@ -603,13 +866,20 @@ function MCQCard({ card, options, answered, selectedIndex, onAnswer }: {
   );
 }
 
-function TypingCard({ card, answer, setAnswer, submitted, onSubmit, mode }: {
+/* ──────────────────────────────────────────────────────────────────
+   Typing & reverse-typing modes (glass redesign)
+   ────────────────────────────────────────────────────────────────── */
+
+function TypingCard({ card, answer, setAnswer, submitted, onSubmit, mode, onMarkDifficult, index, total }: {
   card: ReturnType<typeof useFlashcards>['currentCard'];
   answer: string;
   setAnswer: (v: string) => void;
   submitted: boolean;
   onSubmit: () => boolean | undefined;
   mode: TestMode;
+  onMarkDifficult: () => void;
+  index: number;
+  total: number;
 }) {
   const { t } = useLanguage();
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
@@ -618,10 +888,12 @@ function TypingCard({ card, answer, setAnswer, submitted, onSubmit, mode }: {
 
   const isReverse = mode === 'reverse-typing';
   const promptLabel = isReverse
-    ? (t('typeWord') || 'Type the English word')
-    : (t('typeMeaning') || 'Type the meaning');
+    ? (t('writeEnglishWord') || 'Write the English word for this meaning:')
+    : (t('writeMeaningOfWord') || 'Write the meaning of this word:');
   const displayedText = isReverse ? card.meanings : card.word;
   const correctReveal = isReverse ? card.word : card.meanings;
+  // Listen plays the English word — when reverse, the English word is the answer (reveal only after submit).
+  const speakTarget = isReverse ? (submitted ? card.word : card.meanings) : card.word;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -633,14 +905,54 @@ function TypingCard({ card, answer, setAnswer, submitted, onSubmit, mode }: {
   return (
     <div className="space-y-5">
       <motion.div
-        initial={{ scale: 0.95 }}
-        animate={{ scale: 1 }}
-        className="bg-card border-2 border-primary/20 rounded-3xl p-8 text-center shadow-md"
+        initial={{ scale: 0.96, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        className="relative rounded-[2.25rem] border border-primary/15 bg-card/80 backdrop-blur-xl p-5 sm:p-6 shadow-xl"
+        style={{ boxShadow: '0 18px 48px hsl(174 72% 56% / 0.18), inset 0 1px 0 hsl(0 0% 100% / 0.3)' }}
       >
-        <p className="text-xs text-muted-foreground mb-2 uppercase tracking-wider font-medium">
-          {promptLabel}
-        </p>
-        <h2 className="text-4xl font-bold text-primary" dir={isReverse ? 'rtl' : 'ltr'}>{displayedText}</h2>
+        <div className="flex items-start gap-4">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-2">
+              <QuestionNumberBadge index={index} total={total} />
+              <p className="text-xs sm:text-sm font-semibold text-muted-foreground flex-1">{promptLabel}</p>
+            </div>
+            <h2
+              className="text-3xl sm:text-4xl font-extrabold tracking-tight mt-3 text-center sm:text-left leading-tight"
+              dir={isReverse ? 'rtl' : 'ltr'}
+              style={{
+                background: 'linear-gradient(135deg, hsl(174 72% 46%), hsl(186 90% 38%))',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+              }}
+            >
+              {displayedText}
+            </h2>
+          </div>
+
+          <div className="flex flex-col gap-3 shrink-0">
+            <button
+              type="button"
+              onClick={() => speakWord(speakTarget)}
+              className="active:scale-[0.94] transition-transform"
+              aria-label={t('listen') || 'Listen'}
+            >
+              <GlassCircle size={48} tint="green">
+                <Volume2 className="h-5 w-5 text-white drop-shadow" strokeWidth={2.4} />
+              </GlassCircle>
+            </button>
+            <button
+              type="button"
+              onClick={onMarkDifficult}
+              disabled={card.is_difficult}
+              className={cn('active:scale-[0.94] transition-transform', card.is_difficult && 'opacity-70')}
+              aria-label={t('addDifficult') || 'Add to difficult'}
+            >
+              <GlassCircle size={48} tint="red">
+                <Flag className="h-5 w-5 text-white drop-shadow" strokeWidth={2.4} />
+              </GlassCircle>
+            </button>
+          </div>
+        </div>
       </motion.div>
 
       <form onSubmit={handleSubmit} className="space-y-3">
@@ -649,7 +961,7 @@ function TypingCard({ card, answer, setAnswer, submitted, onSubmit, mode }: {
           onChange={e => setAnswer(e.target.value)}
           placeholder={t('typeYourAnswer') || 'Type your answer...'}
           className={cn(
-            'rounded-2xl py-6 text-center text-lg font-medium transition-all',
+            'rounded-[1.75rem] py-6 px-5 text-center text-lg font-medium transition-all border-2 backdrop-blur-md',
             submitted && isCorrect === true && 'border-green-500 bg-green-500/10',
             submitted && isCorrect === false && 'border-destructive bg-destructive/10'
           )}
@@ -662,8 +974,8 @@ function TypingCard({ card, answer, setAnswer, submitted, onSubmit, mode }: {
             initial={{ opacity: 0, y: 5 }}
             animate={{ opacity: 1, y: 0 }}
             className={cn(
-              'rounded-xl px-4 py-3 text-center text-sm font-medium',
-              isCorrect ? 'bg-green-500/10 text-green-600' : 'bg-destructive/10 text-destructive'
+              'rounded-[1.5rem] px-4 py-3 text-center text-sm font-medium border',
+              isCorrect ? 'bg-green-500/10 text-green-600 border-green-500/30' : 'bg-destructive/10 text-destructive border-destructive/30'
             )}
           >
             {isCorrect
@@ -672,7 +984,12 @@ function TypingCard({ card, answer, setAnswer, submitted, onSubmit, mode }: {
           </motion.div>
         )}
         {!submitted && (
-          <Button type="submit" disabled={!answer.trim()} className="w-full rounded-2xl py-5 font-semibold">
+          <Button
+            type="submit"
+            disabled={!answer.trim()}
+            className="w-full rounded-[1.75rem] py-6 font-semibold text-white shadow-lg"
+            style={{ background: 'linear-gradient(135deg, hsl(174 72% 56%), hsl(186 90% 42%))' }}
+          >
             {t('checkAnswer') || 'Check Answer'}
           </Button>
         )}
@@ -689,8 +1006,14 @@ export default function FlashcardsPage() {
     allWords, currentCard, isFlipped, isLoading, totalTestCards, completedCount, progress,
     testStarted, testFinished, testMode, results, mcqOptions, mcqAnswered, mcqSelectedIndex,
     typingAnswer, setTypingAnswer, typingSubmitted, submitTypingAnswer,
-    flipCard, rateCard, answerMCQ, startTest, resetTest,
+    flipCard, rateCard, markCurrentDifficult, answerMCQ, startTest, resetTest,
   } = useFlashcards();
+
+  const handleMarkDifficult = async () => {
+    const ok = await markCurrentDifficult();
+    if (ok) toast.success(t('addedToDifficult') || 'Added to difficult vocabulary');
+  };
+  const questionIndex = completedCount + 1;
 
   if (!user) {
     return (
@@ -752,14 +1075,19 @@ export default function FlashcardsPage() {
           >
             {currentCard ? (
               testMode === 'mcq' ? (
-                <MCQCard card={currentCard} options={mcqOptions} answered={mcqAnswered} selectedIndex={mcqSelectedIndex} onAnswer={answerMCQ} />
+                <MCQCard card={currentCard} options={mcqOptions} answered={mcqAnswered} selectedIndex={mcqSelectedIndex} onAnswer={answerMCQ} onMarkDifficult={handleMarkDifficult} index={questionIndex} total={totalTestCards} />
               ) : (testMode === 'typing' || testMode === 'reverse-typing') ? (
-                <TypingCard card={currentCard} answer={typingAnswer} setAnswer={setTypingAnswer} submitted={typingSubmitted} onSubmit={submitTypingAnswer} mode={testMode} />
+                <TypingCard card={currentCard} answer={typingAnswer} setAnswer={setTypingAnswer} submitted={typingSubmitted} onSubmit={submitTypingAnswer} mode={testMode} onMarkDifficult={handleMarkDifficult} index={questionIndex} total={totalTestCards} />
               ) : (
-                <>
-                  <Flashcard card={currentCard} isFlipped={isFlipped} onFlip={flipCard} />
-                  {isFlipped && <FlashcardControls onRate={rateCard} disabled={!isFlipped} />}
-                </>
+                <GlassFlashcard
+                  card={currentCard}
+                  isFlipped={isFlipped}
+                  onFlip={flipCard}
+                  onRate={rateCard}
+                  onMarkDifficult={handleMarkDifficult}
+                  index={questionIndex}
+                  total={totalTestCards}
+                />
               )
             ) : (
               <div className="text-center py-16">

@@ -259,6 +259,19 @@ export function useFlashcards() {
     advanceToNext(currentIndex + 1);
   }, [user, currentCard, currentIndex, isOnline, advanceToNext]);
 
+  const markCurrentDifficult = useCallback(async () => {
+    if (!user || !currentCard) return false;
+    // Optimistic local mark
+    setCards(prev => prev.map(c => c.id === currentCard.id ? { ...c, is_difficult: true } : c));
+    setAllWords(prev => prev.map(c => c.id === currentCard.id ? { ...c, is_difficult: true } : c));
+    if (isOnline) {
+      supabase.from('vocabulary').update({ is_difficult: true }).eq('id', currentCard.id).eq('user_id', user.id).then(() => {});
+    } else {
+      addPendingAction({ type: 'update', table: 'vocabulary', data: { id: currentCard.id, updates: { is_difficult: true } } });
+    }
+    return true;
+  }, [user, currentCard, isOnline]);
+
   const answerMCQ = useCallback((optionIndex: number) => {
     if (mcqAnswered) return;
     setMcqAnswered(true);
@@ -328,6 +341,7 @@ export function useFlashcards() {
     submitTypingAnswer,
     flipCard,
     rateCard,
+    markCurrentDifficult,
     answerMCQ,
     startTest,
     resetTest,
