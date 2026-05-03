@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Trash2, ChevronRight } from 'lucide-react';
+import { Trash2, Pencil, ChevronRight } from 'lucide-react';
 import { VocabularyLogo } from './VocabularyLogo';
 
 interface GroupCardProps {
@@ -8,31 +8,21 @@ interface GroupCardProps {
   count: number;
   onOpen: () => void;
   onDelete: () => void;
+  onRename: () => void;
 }
 
-export function GroupCard({ name, count, onOpen, onDelete }: GroupCardProps) {
+export function GroupCard({ name, count, onOpen, onDelete, onRename }: GroupCardProps) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 8 }}
+      initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.18 }}
-      className="group relative rounded-[2rem] border border-border/60 bg-card/80 backdrop-blur-md shadow-sm hover:shadow-md transition-all overflow-hidden cursor-pointer active:scale-[0.99]"
+      transition={{ duration: 0.12 }}
+      className="group relative rounded-[2rem] border border-border/60 bg-card overflow-hidden cursor-pointer active:scale-[0.99] transition-transform"
       onClick={onOpen}
-      style={{
-        background:
-          'linear-gradient(135deg, hsl(var(--card) / 0.92), hsl(var(--card) / 0.78))',
-      }}
     >
       <div className="flex items-center gap-4 p-4">
-        {/* Glass logo circle */}
-        <div className="relative h-14 w-14 shrink-0 rounded-full flex items-center justify-center"
-             style={{
-               background: 'linear-gradient(135deg, hsl(174 72% 56% / 0.25), hsl(186 90% 42% / 0.18))',
-               backdropFilter: 'blur(8px)',
-               boxShadow: 'inset 0 1px 0 hsl(0 0% 100% / 0.5), 0 4px 14px hsl(174 72% 56% / 0.25)',
-               border: '1px solid hsl(0 0% 100% / 0.35)',
-             }}>
+        <div className="relative h-14 w-14 shrink-0 rounded-full flex items-center justify-center bg-primary/10 border border-primary/20">
           <VocabularyLogo size={36} />
         </div>
 
@@ -45,9 +35,18 @@ export function GroupCard({ name, count, onOpen, onDelete }: GroupCardProps) {
 
         <div className="flex items-center gap-1">
           <button
+            onClick={(e) => { e.stopPropagation(); onRename(); }}
+            className="p-2 rounded-xl text-primary/80 hover:text-primary hover:bg-primary/10 transition-colors active:scale-[0.95]"
+            aria-label="Rename group"
+            title="Rename"
+          >
+            <Pencil className="h-4 w-4" />
+          </button>
+          <button
             onClick={(e) => { e.stopPropagation(); onDelete(); }}
             className="p-2 rounded-xl text-destructive/80 hover:text-destructive hover:bg-destructive/10 transition-colors active:scale-[0.95]"
             aria-label="Delete group"
+            title="Delete"
           >
             <Trash2 className="h-4 w-4" />
           </button>
