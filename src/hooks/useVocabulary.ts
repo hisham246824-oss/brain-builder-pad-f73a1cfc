@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { toast } from '@/hooks/use-toast';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import { cacheVocabulary, getCachedVocabulary, addPendingAction, getPendingActions, removePendingAction, setSyncStatus } from '@/lib/offlineCache';
 
@@ -20,10 +19,14 @@ export type VocabularyView =
   | { type: 'group'; groupId: string }
   | { type: 'all' };
 
+export type AddWordResult =
+  | { data: VocabularyWord; duplicate?: false }
+  | { duplicate: true; existing: VocabularyWord }
+  | { error: Error };
+
 export function useVocabulary(view: VocabularyView = { type: 'all' }) {
   const { user } = useAuth();
   const { isOnline } = useNetworkStatus();
-  // Pre-populate from cache instantly when offline — no loading spinner
   const cachedInit = !navigator.onLine ? getCachedVocabulary() : null;
   const [words, setWords] = useState<VocabularyWord[]>(cachedInit || []);
   const [isLoading, setIsLoading] = useState(cachedInit ? false : true);
@@ -32,20 +35,23 @@ export function useVocabulary(view: VocabularyView = { type: 'all' }) {
   const hasSyncedPending = useRef(false);
   const hasLoadedOnce = useRef(cachedInit ? true : false);
 
-  // Sync pending vocabulary actions when coming back online
+  // Sync pending vocabulary actions when coming back online.
+  // We pass the optimistic id along so the DB row uses the same id (no duplicate).
   const syncPendingActions = useCallback(async () => {
     if (!user || !isOnline || hasSyncedPending.current) return;
-    
+
     const pendingActions = getPendingActions();
     const vocabActions = pendingActions.filter(a => a.table === 'vocabulary');
     if (vocabActions.length === 0) return;
-    
+
     hasSyncedPending.current = true;
     setSyncStatus('syncing');
-    
+
     for (const action of vocabActions) {
       try {
         if (action.type === 'add') {
+          // Insert with the same optimistic id we already showed locally,
+          // so realtime + refetch merge cleanly without producing a duplicate row.
           await supabase.from('vocabulary').insert(action.data);
         } else if (action.type === 'update') {
           await supabase.from('vocabulary').update(action.data.updates).eq('id', action.data.id);
@@ -57,7 +63,7 @@ export function useVocabulary(view: VocabularyView = { type: 'all' }) {
         console.error('Error syncing vocabulary action:', error);
       }
     }
-    
+
     setSyncStatus('synced');
   }, [user, isOnline]);
 
@@ -75,12 +81,9 @@ export function useVocabulary(view: VocabularyView = { type: 'all' }) {
       return;
     }
 
-    // If offline, use cached data
     if (!isOnline) {
       const cached = getCachedVocabulary();
-      if (cached) {
-        setWords(cached);
-      }
+      if (cached) setWords(cached);
       setIsLoading(false);
       return;
     }
@@ -95,9 +98,7 @@ export function useVocabulary(view: VocabularyView = { type: 'all' }) {
     if (error) {
       console.error('Error fetching vocabulary:', error);
       const cached = getCachedVocabulary();
-      if (cached) {
-        setWords(cached);
-      }
+      if (cached) setWords(cached);
     } else {
       setWords(data || []);
       cacheVocabulary(data || []);
@@ -106,11 +107,8 @@ export function useVocabulary(view: VocabularyView = { type: 'all' }) {
     setIsLoading(false);
   }, [user, isOnline]);
 
-  useEffect(() => {
-    fetchWords();
-  }, [fetchWords]);
+  useEffect(() => { fetchWords(); }, [fetchWords]);
 
-  // Background refetch on tab focus
   useEffect(() => {
     const handleVisibility = () => {
       if (document.visibilityState === 'visible' && isOnline && user) {
@@ -121,41 +119,42 @@ export function useVocabulary(view: VocabularyView = { type: 'all' }) {
     return () => document.removeEventListener('visibilitychange', handleVisibility);
   }, [fetchWords, isOnline, user]);
 
-  // Subscribe to realtime changes
   useEffect(() => {
     if (!user) return;
-
     const channel = supabase
       .channel('vocabulary-changes')
       .on(
         'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'vocabulary',
-          filter: `user_id=eq.${user.id}`,
-        },
+        { event: '*', schema: 'public', table: 'vocabulary', filter: `user_id=eq.${user.id}` },
         () => {
-          if (isLocalChange.current) {
-            isLocalChange.current = false;
-            return;
-          }
+          if (isLocalChange.current) { isLocalChange.current = false; return; }
           fetchWords();
         }
       )
       .subscribe();
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    return () => { supabase.removeChannel(channel); };
   }, [user, fetchWords]);
 
-  const addWord = useCallback(async (word: string, meanings: string, notes?: string, groupId?: string | null) => {
+  const addWord = useCallback(async (
+    word: string,
+    meanings: string,
+    notes?: string,
+    groupId?: string | null,
+  ): Promise<AddWordResult> => {
     if (!user) return { error: new Error('Not authenticated') };
 
+    const trimmed = word.trim();
+    // Case-insensitive duplicate check across ALL of user's words (any group).
+    const existing = words.find(w => w.word.trim().toLowerCase() === trimmed.toLowerCase());
+    if (existing) {
+      return { duplicate: true, existing };
+    }
+
+    const optimisticId = crypto.randomUUID();
     const optimisticWord: VocabularyWord = {
-      id: crypto.randomUUID(),
-      word: word.trim(),
+      id: optimisticId,
+      word: trimmed,
       meanings: meanings.trim(),
       notes: notes?.trim() || null,
       created_at: new Date().toISOString(),
@@ -163,61 +162,50 @@ export function useVocabulary(view: VocabularyView = { type: 'all' }) {
       is_difficult: false,
     };
 
-    // Optimistic update
     setWords(prev => {
       const updated = [optimisticWord, ...prev];
       cacheVocabulary(updated);
       return updated;
     });
 
+    const payload = {
+      id: optimisticId, // ← keep ids stable to avoid duplicates after sync
+      user_id: user.id,
+      word: trimmed,
+      meanings: meanings.trim(),
+      notes: notes?.trim() || null,
+      group_id: groupId ?? null,
+    };
+
     if (!isOnline) {
-      addPendingAction({
-        type: 'add',
-        table: 'vocabulary',
-        data: {
-          user_id: user.id,
-          word: word.trim(),
-          meanings: meanings.trim(),
-          notes: notes?.trim() || null,
-          group_id: groupId ?? null,
-        },
-      });
+      addPendingAction({ type: 'add', table: 'vocabulary', data: payload });
       return { data: optimisticWord };
     }
 
+    isLocalChange.current = true;
     const { data, error } = await supabase
       .from('vocabulary')
-      .insert({
-        user_id: user.id,
-        word: word.trim(),
-        meanings: meanings.trim(),
-        notes: notes?.trim() || null,
-        group_id: groupId ?? null,
-      })
+      .insert(payload)
       .select()
       .single();
 
     if (error) {
       console.error('Error adding word:', error);
-      // Revert optimistic update
-      setWords(prev => prev.filter(w => w.id !== optimisticWord.id));
+      setWords(prev => prev.filter(w => w.id !== optimisticId));
       return { error };
     }
 
-    // Replace optimistic with real data
-    isLocalChange.current = true;
     setWords(prev => {
-      const updated = prev.map(w => w.id === optimisticWord.id ? data : w);
+      const updated = prev.map(w => w.id === optimisticId ? data : w);
       cacheVocabulary(updated);
       return updated;
     });
     return { data };
-  }, [user, isOnline]);
+  }, [user, isOnline, words]);
 
   const deleteWord = useCallback(async (id: string) => {
     if (!user) return { error: new Error('Not authenticated') };
 
-    // Optimistically update
     setWords(prev => {
       const updated = prev.filter(w => w.id !== id);
       cacheVocabulary(updated);
@@ -237,7 +225,7 @@ export function useVocabulary(view: VocabularyView = { type: 'all' }) {
 
     if (error) {
       console.error('Error deleting word:', error);
-      fetchWords(); // Revert on error
+      fetchWords();
       return { error };
     }
 
