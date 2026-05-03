@@ -1075,14 +1075,19 @@ export default function FlashcardsPage() {
           >
             {currentCard ? (
               testMode === 'mcq' ? (
-                <MCQCard card={currentCard} options={mcqOptions} answered={mcqAnswered} selectedIndex={mcqSelectedIndex} onAnswer={answerMCQ} />
+                <MCQCard card={currentCard} options={mcqOptions} answered={mcqAnswered} selectedIndex={mcqSelectedIndex} onAnswer={answerMCQ} onMarkDifficult={handleMarkDifficult} index={questionIndex} total={totalTestCards} />
               ) : (testMode === 'typing' || testMode === 'reverse-typing') ? (
-                <TypingCard card={currentCard} answer={typingAnswer} setAnswer={setTypingAnswer} submitted={typingSubmitted} onSubmit={submitTypingAnswer} mode={testMode} />
+                <TypingCard card={currentCard} answer={typingAnswer} setAnswer={setTypingAnswer} submitted={typingSubmitted} onSubmit={submitTypingAnswer} mode={testMode} onMarkDifficult={handleMarkDifficult} index={questionIndex} total={totalTestCards} />
               ) : (
-                <>
-                  <Flashcard card={currentCard} isFlipped={isFlipped} onFlip={flipCard} />
-                  {isFlipped && <FlashcardControls onRate={rateCard} disabled={!isFlipped} />}
-                </>
+                <GlassFlashcard
+                  card={currentCard}
+                  isFlipped={isFlipped}
+                  onFlip={flipCard}
+                  onRate={rateCard}
+                  onMarkDifficult={handleMarkDifficult}
+                  index={questionIndex}
+                  total={totalTestCards}
+                />
               )
             ) : (
               <div className="text-center py-16">
