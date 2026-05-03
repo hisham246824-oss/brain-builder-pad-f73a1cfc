@@ -1006,8 +1006,14 @@ export default function FlashcardsPage() {
     allWords, currentCard, isFlipped, isLoading, totalTestCards, completedCount, progress,
     testStarted, testFinished, testMode, results, mcqOptions, mcqAnswered, mcqSelectedIndex,
     typingAnswer, setTypingAnswer, typingSubmitted, submitTypingAnswer,
-    flipCard, rateCard, answerMCQ, startTest, resetTest,
+    flipCard, rateCard, markCurrentDifficult, answerMCQ, startTest, resetTest,
   } = useFlashcards();
+
+  const handleMarkDifficult = async () => {
+    const ok = await markCurrentDifficult();
+    if (ok) toast.success(t('addedToDifficult') || 'Added to difficult vocabulary');
+  };
+  const questionIndex = completedCount + 1;
 
   if (!user) {
     return (
