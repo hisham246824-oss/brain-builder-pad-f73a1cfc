@@ -64,6 +64,19 @@ export function useVocabularyGroups() {
     fetchGroups();
   };
 
+  const renameGroup = async (id: string, name: string) => {
+    if (!user || !name.trim()) return;
+    // Optimistic local update for instant feedback
+    setGroups(prev => prev.map(g => g.id === id ? { ...g, name: name.trim() } : g));
+    const { error } = await supabase
+      .from('vocabulary_groups')
+      .update({ name: name.trim() })
+      .eq('id', id)
+      .eq('user_id', user.id);
+    if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); fetchGroups(); return; }
+    toast({ title: 'Group renamed' });
+  };
+
   const deleteGroup = async (id: string) => {
     if (!user) return;
     // ON DELETE SET NULL — words automatically return to general vocab
@@ -87,5 +100,5 @@ export function useVocabularyGroups() {
     toast({ title: isDifficult ? 'Marked as difficult' : 'Removed from difficult' });
   };
 
-  return { groups, isLoading, createGroup, deleteGroup, moveWordToGroup, setWordDifficult, refetch: fetchGroups };
+  return { groups, isLoading, createGroup, renameGroup, deleteGroup, moveWordToGroup, setWordDifficult, refetch: fetchGroups };
 }
