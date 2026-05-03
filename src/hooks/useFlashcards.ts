@@ -341,6 +341,7 @@ export function useFlashcards() {
     submitTypingAnswer,
     flipCard,
     rateCard,
+    markCurrentDifficult,
     answerMCQ,
     startTest,
     resetTest,
