@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
@@ -34,6 +34,18 @@ export function useVocabulary(view: VocabularyView = { type: 'all' }) {
   const isLocalChange = useRef(false);
   const hasSyncedPending = useRef(false);
   const hasLoadedOnce = useRef(cachedInit ? true : false);
+
+  useEffect(() => {
+    const handleCacheUpdate = (event: Event) => {
+      const customEvent = event as CustomEvent<{ key?: string }>;
+      if (customEvent.detail?.key !== 'offline_vocabulary_cache') return;
+      const cached = getCachedVocabulary();
+      if (cached) setWords(cached);
+    };
+
+    window.addEventListener('offline-cache-update', handleCacheUpdate as EventListener);
+    return () => window.removeEventListener('offline-cache-update', handleCacheUpdate as EventListener);
+  }, []);
 
   // Sync pending vocabulary actions when coming back online.
   // We pass the optimistic id along so the DB row uses the same id (no duplicate).
@@ -232,20 +244,20 @@ export function useVocabulary(view: VocabularyView = { type: 'all' }) {
     return { error: null };
   }, [user, isOnline, fetchWords]);
 
-  const viewFiltered = words.filter(w => {
-    if (view.type === 'main') return !w.group_id;
-    if (view.type === 'group') return w.group_id === view.groupId;
-    return true;
-  });
+  const filteredWords = useMemo(() => {
+    const normalizedQuery = searchQuery.trim().toLowerCase();
 
-  const filteredWords = viewFiltered.filter(word => {
-    if (!searchQuery) return true;
-    const query = searchQuery.toLowerCase();
-    return (
-      word.word.toLowerCase().includes(query) ||
-      word.meanings.toLowerCase().includes(query)
-    );
-  });
+    return words.filter((word) => {
+      if (view.type === 'main' && word.group_id) return false;
+      if (view.type === 'group' && word.group_id !== view.groupId) return false;
+      if (!normalizedQuery) return true;
+
+      return (
+        word.word.toLowerCase().includes(normalizedQuery) ||
+        word.meanings.toLowerCase().includes(normalizedQuery)
+      );
+    });
+  }, [words, view, searchQuery]);
 
   return {
     words: filteredWords,
