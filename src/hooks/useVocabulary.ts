@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo, useDeferredValue } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
@@ -31,6 +31,7 @@ export function useVocabulary(view: VocabularyView = { type: 'all' }) {
   const [words, setWords] = useState<VocabularyWord[]>(cachedInit || []);
   const [isLoading, setIsLoading] = useState(cachedInit ? false : true);
   const [searchQuery, setSearchQuery] = useState('');
+  const deferredSearchQuery = useDeferredValue(searchQuery);
   const isLocalChange = useRef(false);
   const hasSyncedPending = useRef(false);
   const hasLoadedOnce = useRef(cachedInit ? true : false);
@@ -245,7 +246,7 @@ export function useVocabulary(view: VocabularyView = { type: 'all' }) {
   }, [user, isOnline, fetchWords]);
 
   const filteredWords = useMemo(() => {
-    const normalizedQuery = searchQuery.trim().toLowerCase();
+    const normalizedQuery = deferredSearchQuery.trim().toLowerCase();
 
     return words.filter((word) => {
       if (view.type === 'main' && word.group_id) return false;
@@ -257,7 +258,7 @@ export function useVocabulary(view: VocabularyView = { type: 'all' }) {
         word.meanings.toLowerCase().includes(normalizedQuery)
       );
     });
-  }, [words, view, searchQuery]);
+  }, [words, view, deferredSearchQuery]);
 
   return {
     words: filteredWords,
