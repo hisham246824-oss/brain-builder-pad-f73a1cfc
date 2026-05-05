@@ -66,7 +66,21 @@ export function getCachedVocabulary(): any[] | null {
   } catch { return null; }
 }
 
-// --- Todos ---
+// --- Vocabulary Groups ---
+export function cacheVocabularyGroups(groups: any[]) {
+  try {
+    localStorage.setItem(CACHE_KEYS.VOCABULARY_GROUPS, JSON.stringify(groups));
+  } catch (error) {
+    console.error('Error caching vocabulary groups:', error);
+  }
+}
+
+export function getCachedVocabularyGroups(): any[] | null {
+  try {
+    const cached = localStorage.getItem(CACHE_KEYS.VOCABULARY_GROUPS);
+    return cached ? JSON.parse(cached) : null;
+  } catch { return null; }
+}
 export function cacheTodos(todos: any[]) {
   try {
     localStorage.setItem(CACHE_KEYS.TODOS, JSON.stringify(todos));
