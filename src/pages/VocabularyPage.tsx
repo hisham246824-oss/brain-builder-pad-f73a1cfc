@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useMemo, useRef, useDeferredValue, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Search, BookOpen, GraduationCap, AlertTriangle, FolderOpen, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -15,7 +15,6 @@ import { useVocabularyGroups } from '@/hooks/useVocabularyGroups';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Link } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -38,6 +37,8 @@ export default function VocabularyPage() {
   const [groupSearch, setGroupSearch] = useState('');
   const [pendingDeleteGroup, setPendingDeleteGroup] = useState<{ id: string; name: string } | null>(null);
   const [highlightId, setHighlightId] = useState<string | null>(null);
+  const [focusedWordId, setFocusedWordId] = useState<string | null>(null);
+  const deferredGroupSearch = useDeferredValue(groupSearch);
 
   const view: VocabularyView = useMemo(() => {
     if (screen.kind === 'main') return { type: 'main' };
@@ -48,24 +49,15 @@ export default function VocabularyPage() {
   const { words, allWords, isLoading, searchQuery, setSearchQuery, addWord, deleteWord, refetch } = useVocabulary(view);
   const { groups, createGroup, renameGroup, deleteGroup, moveWordToGroup, setWordDifficult } = useVocabularyGroups();
 
-  const [masteredCount, setMasteredCount] = useState(0);
-  const [difficultWords, setDifficultWords] = useState<any[]>([]);
+  const masteredCount = useMemo(
+    () => allWords.filter((w: any) => Number(w.ease_factor) >= 2.5 && (w.repetitions || 0) >= 3).length,
+    [allWords],
+  );
 
-  useEffect(() => {
-    if (!user || !navigator.onLine) return;
-    (async () => {
-      const { data } = await supabase
-        .from('vocabulary')
-        .select('id, word, meanings, notes, created_at, ease_factor, repetitions, group_id, is_difficult')
-        .eq('user_id', user.id);
-      if (data) {
-        setMasteredCount(data.filter(w => Number(w.ease_factor) >= 2.5 && (w.repetitions || 0) >= 3).length);
-        setDifficultWords(
-          data.filter(w => w.is_difficult || (Number(w.ease_factor) < 2.0 && (w.repetitions || 0) >= 1))
-        );
-      }
-    })();
-  }, [user, allWords]);
+  const difficultWords = useMemo(
+    () => allWords.filter((w: any) => w.is_difficult || (Number(w.ease_factor) < 2.0 && (w.repetitions || 0) >= 1)),
+    [allWords],
+  );
 
   const editWord = async (id: string, w: string, m: string, n: string | null) => {
     if (!user) return;
@@ -75,7 +67,7 @@ export default function VocabularyPage() {
 
   const wordRefs = useRef(new Map<string, HTMLDivElement>());
 
-  const jumpToWord = (id: string) => {
+  const jumpToWord = useCallback((id: string) => {
     // Find which screen the word lives in and switch.
     const target = allWords.find(w => w.id === id);
     if (!target) return;
@@ -86,14 +78,21 @@ export default function VocabularyPage() {
       setScreen({ kind: 'main' });
     }
     setShowDifficult(false);
-    setSearchQuery('');
+    setFocusedWordId(id);
+    setSearchQuery(target.word);
     setHighlightId(id);
     setTimeout(() => {
       const el = wordRefs.current.get(id);
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 200);
+      if (el) el.scrollIntoView({ behavior: 'auto', block: 'center' });
+    }, 16);
     setTimeout(() => setHighlightId(null), 2400);
-  };
+  }, [allWords, groups, setSearchQuery]);
+
+  useEffect(() => {
+    if (!focusedWordId) return;
+    const stillVisible = allWords.some((word) => word.id === focusedWordId);
+    if (!stillVisible) setFocusedWordId(null);
+  }, [allWords, focusedWordId]);
 
   if (!user) {
     return (
