@@ -14,11 +14,11 @@ interface GroupCardProps {
 export function GroupCard({ name, count, onOpen, onDelete, onRename }: GroupCardProps) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 6 }}
+      initial={{ opacity: 0, y: 4 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.12 }}
-      className="group relative rounded-[2rem] border border-border/60 bg-card overflow-hidden cursor-pointer active:scale-[0.99] transition-transform"
+      transition={{ duration: 0.08 }}
+      className="group relative rounded-[2.75rem] border border-border/60 bg-card overflow-hidden cursor-pointer active:scale-[0.99] transition-transform"
       onClick={onOpen}
     >
       <div className="flex items-center gap-4 p-4">

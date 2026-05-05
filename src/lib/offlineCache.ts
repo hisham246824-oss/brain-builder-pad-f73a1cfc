@@ -2,6 +2,7 @@
 const CACHE_KEYS = {
   MATERIALS: 'offline_materials_cache',
   VOCABULARY: 'offline_vocabulary_cache',
+  VOCABULARY_GROUPS: 'offline_vocabulary_groups_cache',
   TODOS: 'offline_todos_cache',
   LAST_SYNC: 'offline_last_sync',
   PENDING_ACTIONS: 'offline_pending_actions',
@@ -13,7 +14,7 @@ export type SyncStatus = 'synced' | 'pending' | 'syncing';
 export interface PendingAction {
   id: string;
   type: 'add' | 'update' | 'delete';
-  table: 'study_materials' | 'lessons' | 'vocabulary' | 'material_files' | 'todos' | 'page_visits';
+  table: 'study_materials' | 'lessons' | 'vocabulary' | 'vocabulary_groups' | 'material_files' | 'todos' | 'page_visits';
   data: any;
   timestamp: number;
 }
@@ -65,7 +66,21 @@ export function getCachedVocabulary(): any[] | null {
   } catch { return null; }
 }
 
-// --- Todos ---
+// --- Vocabulary Groups ---
+export function cacheVocabularyGroups(groups: any[]) {
+  try {
+    localStorage.setItem(CACHE_KEYS.VOCABULARY_GROUPS, JSON.stringify(groups));
+  } catch (error) {
+    console.error('Error caching vocabulary groups:', error);
+  }
+}
+
+export function getCachedVocabularyGroups(): any[] | null {
+  try {
+    const cached = localStorage.getItem(CACHE_KEYS.VOCABULARY_GROUPS);
+    return cached ? JSON.parse(cached) : null;
+  } catch { return null; }
+}
 export function cacheTodos(todos: any[]) {
   try {
     localStorage.setItem(CACHE_KEYS.TODOS, JSON.stringify(todos));
