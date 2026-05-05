@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Volume2, Calendar, Hash, Trash2, Pencil, Check, X, FolderInput, AlertTriangle, FolderMinus } from 'lucide-react';
 import { format } from 'date-fns';
@@ -21,7 +21,7 @@ interface VocabularyCardProps {
   inGroupView?: boolean;
 }
 
-export function VocabularyCard({
+export const VocabularyCard = memo(function VocabularyCard({
   word, index, onDelete, onEdit,
   groups = [], onMoveToGroup, onToggleDifficult, inGroupView = false,
 }: VocabularyCardProps) {
@@ -67,7 +67,7 @@ export function VocabularyCard({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.12, delay: Math.min(index * 0.02, 0.15) }}
+      transition={{ duration: 0.04, delay: Math.min(index * 0.008, 0.04) }}
       className="relative bg-card rounded-[2rem] overflow-hidden shadow-card gpu border border-border/40"
     >
       {/* Header */}
@@ -197,4 +197,4 @@ export function VocabularyCard({
       </div>
     </motion.div>
   );
-}
+})

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useMemo, useRef, useDeferredValue, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Search, BookOpen, GraduationCap, AlertTriangle, FolderOpen, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -38,6 +38,8 @@ export default function VocabularyPage() {
   const [groupSearch, setGroupSearch] = useState('');
   const [pendingDeleteGroup, setPendingDeleteGroup] = useState<{ id: string; name: string } | null>(null);
   const [highlightId, setHighlightId] = useState<string | null>(null);
+  const [focusedWordId, setFocusedWordId] = useState<string | null>(null);
+  const deferredGroupSearch = useDeferredValue(groupSearch);
 
   const view: VocabularyView = useMemo(() => {
     if (screen.kind === 'main') return { type: 'main' };
@@ -48,34 +50,25 @@ export default function VocabularyPage() {
   const { words, allWords, isLoading, searchQuery, setSearchQuery, addWord, deleteWord, refetch } = useVocabulary(view);
   const { groups, createGroup, renameGroup, deleteGroup, moveWordToGroup, setWordDifficult } = useVocabularyGroups();
 
-  const [masteredCount, setMasteredCount] = useState(0);
-  const [difficultWords, setDifficultWords] = useState<any[]>([]);
+  const masteredCount = useMemo(
+    () => allWords.filter((w: any) => Number(w.ease_factor) >= 2.5 && (w.repetitions || 0) >= 3).length,
+    [allWords],
+  );
 
-  useEffect(() => {
-    if (!user || !navigator.onLine) return;
-    (async () => {
-      const { data } = await supabase
-        .from('vocabulary')
-        .select('id, word, meanings, notes, created_at, ease_factor, repetitions, group_id, is_difficult')
-        .eq('user_id', user.id);
-      if (data) {
-        setMasteredCount(data.filter(w => Number(w.ease_factor) >= 2.5 && (w.repetitions || 0) >= 3).length);
-        setDifficultWords(
-          data.filter(w => w.is_difficult || (Number(w.ease_factor) < 2.0 && (w.repetitions || 0) >= 1))
-        );
-      }
-    })();
-  }, [user, allWords]);
+  const difficultWords = useMemo(
+    () => allWords.filter((w: any) => w.is_difficult || (Number(w.ease_factor) < 2.0 && (w.repetitions || 0) >= 1)),
+    [allWords],
+  );
 
-  const editWord = async (id: string, w: string, m: string, n: string | null) => {
+  const editWord = useCallback(async (id: string, w: string, m: string, n: string | null) => {
     if (!user) return;
     await supabase.from('vocabulary').update({ word: w, meanings: m, notes: n }).eq('id', id).eq('user_id', user.id);
     refetch();
-  };
+  }, [user, refetch]);
 
   const wordRefs = useRef(new Map<string, HTMLDivElement>());
 
-  const jumpToWord = (id: string) => {
+  const jumpToWord = useCallback((id: string) => {
     // Find which screen the word lives in and switch.
     const target = allWords.find(w => w.id === id);
     if (!target) return;
@@ -86,14 +79,21 @@ export default function VocabularyPage() {
       setScreen({ kind: 'main' });
     }
     setShowDifficult(false);
-    setSearchQuery('');
+    setFocusedWordId(id);
+    setSearchQuery(target.word);
     setHighlightId(id);
     setTimeout(() => {
       const el = wordRefs.current.get(id);
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 200);
+      if (el) el.scrollIntoView({ behavior: 'auto', block: 'center' });
+    }, 16);
     setTimeout(() => setHighlightId(null), 2400);
-  };
+  }, [allWords, groups, setSearchQuery]);
+
+  useEffect(() => {
+    if (!focusedWordId) return;
+    const stillVisible = allWords.some((word) => word.id === focusedWordId);
+    if (!stillVisible) setFocusedWordId(null);
+  }, [allWords, focusedWordId]);
 
   if (!user) {
     return (
@@ -112,13 +112,17 @@ export default function VocabularyPage() {
   const totalWords = allWords.length;
   const masteryPercent = totalWords > 0 ? Math.round((masteredCount / totalWords) * 100) : 0;
 
-  let displayWords: any[] = [];
-  if (showDifficult) displayWords = difficultWords;
-  else if (screen.kind === 'main' || screen.kind === 'group') displayWords = words;
+  const filteredGroups = useMemo(() => groups.filter(g =>
+    !deferredGroupSearch || g.name.toLowerCase().includes(deferredGroupSearch.toLowerCase())
+  ), [groups, deferredGroupSearch]);
 
-  const filteredGroups = groups.filter(g =>
-    !groupSearch || g.name.toLowerCase().includes(groupSearch.toLowerCase())
-  );
+  const displayWords = useMemo(() => {
+    if (focusedWordId) {
+      return allWords.filter((word) => word.id === focusedWordId);
+    }
+
+    return showDifficult ? difficultWords : words;
+  }, [showDifficult, difficultWords, words, focusedWordId, allWords]);
 
   const headerCount = screen.kind === 'main'
     ? mainCount
@@ -138,9 +142,21 @@ export default function VocabularyPage() {
     if (screen.kind === 'main') setScreen({ kind: 'groups' });
     else if (screen.kind === 'groups') setScreen({ kind: 'main' });
     else setScreen({ kind: 'groups' });
+    setFocusedWordId(null);
     setSearchQuery('');
     setGroupSearch('');
     setShowDifficult(false);
+  };
+
+  const handleSearchChange = (value: string) => {
+    const trimmedValue = value.trim().toLowerCase();
+    const focusedWord = focusedWordId ? allWords.find((word) => word.id === focusedWordId) : null;
+
+    if (!trimmedValue || (focusedWord && focusedWord.word.trim().toLowerCase() !== trimmedValue)) {
+      setFocusedWordId(null);
+    }
+
+    setSearchQuery(value);
   };
 
   const searchPlaceholder =
@@ -215,11 +231,17 @@ export default function VocabularyPage() {
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
         <Input
           value={screen.kind === 'groups' ? groupSearch : searchQuery}
-          onChange={(e) => screen.kind === 'groups' ? setGroupSearch(e.target.value) : setSearchQuery(e.target.value)}
+          onChange={(e) => screen.kind === 'groups' ? setGroupSearch(e.target.value) : handleSearchChange(e.target.value)}
           placeholder={searchPlaceholder}
           className="pl-12 rounded-2xl py-6"
         />
       </div>
+
+      {focusedWordId && screen.kind !== 'groups' && (
+        <div className="mb-4 rounded-[1.5rem] border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-primary">
+          تم عزل الكلمة المطلوبة فقط.
+        </div>
+      )}
 
       {screen.kind === 'groups' ? (
         <Button onClick={() => setCreateGroupOpen(true)}
@@ -271,7 +293,7 @@ export default function VocabularyPage() {
 
       {screen.kind === 'groups' ? (
         filteredGroups.length === 0 ? (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.12 }}
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.06 }}
             className="flex flex-col items-center justify-center py-16 text-center">
             <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-secondary">
               <FolderOpen className="h-10 w-10 text-muted-foreground" />
@@ -297,7 +319,7 @@ export default function VocabularyPage() {
           </div>
         )
       ) : displayWords.length === 0 ? (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.12 }}
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.06 }}
           className="flex flex-col items-center justify-center py-16 text-center">
           <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-secondary">
             <BookOpen className="h-10 w-10 text-muted-foreground" />
@@ -310,13 +332,13 @@ export default function VocabularyPage() {
           </p>
         </motion.div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 contain-paint">
-          <AnimatePresence mode="popLayout">
+        <div className="grid gap-4 sm:grid-cols-2 contain-paint" style={{ contentVisibility: 'auto', containIntrinsicSize: '640px' }}>
+          <AnimatePresence initial={false} mode="popLayout">
             {displayWords.map((word, index) => (
               <div
                 key={word.id}
                 ref={(el) => { if (el) wordRefs.current.set(word.id, el); }}
-                className={highlightId === word.id ? 'ring-2 ring-primary rounded-[2rem] transition-all' : ''}
+                className={highlightId === word.id ? 'ring-2 ring-primary rounded-[2rem] transition-none' : ''}
               >
                 <VocabularyCard
                   word={word}

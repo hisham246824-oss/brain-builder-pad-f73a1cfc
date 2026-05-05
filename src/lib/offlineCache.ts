@@ -11,6 +11,11 @@ const CACHE_KEYS = {
 
 export type SyncStatus = 'synced' | 'pending' | 'syncing';
 
+function emitCacheUpdate(key: string) {
+  if (typeof window === 'undefined') return;
+  window.dispatchEvent(new CustomEvent('offline-cache-update', { detail: { key } }));
+}
+
 export interface PendingAction {
   id: string;
   type: 'add' | 'update' | 'delete';
@@ -54,6 +59,7 @@ export function cacheVocabulary(words: any[]) {
   try {
     localStorage.setItem(CACHE_KEYS.VOCABULARY, JSON.stringify(words));
     localStorage.setItem(CACHE_KEYS.LAST_SYNC, new Date().toISOString());
+    emitCacheUpdate(CACHE_KEYS.VOCABULARY);
   } catch (error) {
     console.error('Error caching vocabulary:', error);
   }
@@ -70,6 +76,7 @@ export function getCachedVocabulary(): any[] | null {
 export function cacheVocabularyGroups(groups: any[]) {
   try {
     localStorage.setItem(CACHE_KEYS.VOCABULARY_GROUPS, JSON.stringify(groups));
+    emitCacheUpdate(CACHE_KEYS.VOCABULARY_GROUPS);
   } catch (error) {
     console.error('Error caching vocabulary groups:', error);
   }
