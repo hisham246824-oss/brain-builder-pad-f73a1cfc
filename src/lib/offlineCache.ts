@@ -2,6 +2,7 @@
 const CACHE_KEYS = {
   MATERIALS: 'offline_materials_cache',
   VOCABULARY: 'offline_vocabulary_cache',
+  VOCABULARY_GROUPS: 'offline_vocabulary_groups_cache',
   TODOS: 'offline_todos_cache',
   LAST_SYNC: 'offline_last_sync',
   PENDING_ACTIONS: 'offline_pending_actions',
