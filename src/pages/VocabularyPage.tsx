@@ -117,14 +117,12 @@ export default function VocabularyPage() {
   ), [groups, deferredGroupSearch]);
 
   const displayWords = useMemo(() => {
-    const source = showDifficult ? difficultWords : words;
-
     if (focusedWordId) {
-      return source.filter((word) => word.id === focusedWordId);
+      return allWords.filter((word) => word.id === focusedWordId);
     }
 
-    return source;
-  }, [showDifficult, difficultWords, words, focusedWordId]);
+    return showDifficult ? difficultWords : words;
+  }, [showDifficult, difficultWords, words, focusedWordId, allWords]);
 
   const headerCount = screen.kind === 'main'
     ? mainCount
@@ -151,7 +149,13 @@ export default function VocabularyPage() {
   };
 
   const handleSearchChange = (value: string) => {
-    if (!value.trim()) setFocusedWordId(null);
+    const trimmedValue = value.trim().toLowerCase();
+    const focusedWord = focusedWordId ? allWords.find((word) => word.id === focusedWordId) : null;
+
+    if (!trimmedValue || (focusedWord && focusedWord.word.trim().toLowerCase() !== trimmedValue)) {
+      setFocusedWordId(null);
+    }
+
     setSearchQuery(value);
   };
 
