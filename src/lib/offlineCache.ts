@@ -14,7 +14,7 @@ export type SyncStatus = 'synced' | 'pending' | 'syncing';
 export interface PendingAction {
   id: string;
   type: 'add' | 'update' | 'delete';
-  table: 'study_materials' | 'lessons' | 'vocabulary' | 'material_files' | 'todos' | 'page_visits';
+  table: 'study_materials' | 'lessons' | 'vocabulary' | 'vocabulary_groups' | 'material_files' | 'todos' | 'page_visits';
   data: any;
   timestamp: number;
 }
