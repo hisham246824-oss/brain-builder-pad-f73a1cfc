@@ -12,15 +12,24 @@ interface AddWordDialogProps {
   onClose: () => void;
   onAdd: (word: string, meanings: string, notes?: string) => Promise<AddWordResult>;
   onJumpToWord?: (wordId: string) => void;
+  findDuplicate?: (word: string) => { id: string; word: string } | null;
 }
 
-export function AddWordDialog({ isOpen, onClose, onAdd, onJumpToWord }: AddWordDialogProps) {
+export function AddWordDialog({ isOpen, onClose, onAdd, onJumpToWord, findDuplicate }: AddWordDialogProps) {
   const [word, setWord] = useState('');
   const [meanings, setMeanings] = useState('');
   const [notes, setNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [duplicateId, setDuplicateId] = useState<string | null>(null);
   const { t, isRTL } = useLanguage();
+
+  // Live duplicate detection as user types
+  const liveDuplicate = (() => {
+    const trimmed = word.trim();
+    if (!trimmed || !findDuplicate) return null;
+    return findDuplicate(trimmed);
+  })();
+  const effectiveDuplicateId = duplicateId || liveDuplicate?.id || null;
 
   const reset = () => {
     setWord(''); setMeanings(''); setNotes(''); setDuplicateId(null);
@@ -31,6 +40,7 @@ export function AddWordDialog({ isOpen, onClose, onAdd, onJumpToWord }: AddWordD
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!word.trim() || !meanings.trim()) return;
+    if (effectiveDuplicateId) { setDuplicateId(effectiveDuplicateId); return; }
 
     setIsSubmitting(true);
     setDuplicateId(null);
@@ -53,24 +63,24 @@ export function AddWordDialog({ isOpen, onClose, onAdd, onJumpToWord }: AddWordD
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            transition={{ duration: 0.12 }}
+            transition={{ duration: 0.1 }}
             className="absolute inset-0 bg-background/80 backdrop-blur-sm"
             onClick={handleClose}
           />
           <motion.div
-            initial={{ opacity: 0, scale: 0.97, y: 10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.97, y: 10 }}
-            transition={{ duration: 0.14 }}
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.98 }}
+            transition={{ duration: 0.1 }}
             className="relative z-10 w-full max-w-md mx-4"
           >
-            <div className="rounded-3xl bg-card p-6 border border-border">
+            <div className="rounded-[2rem] bg-card p-6 border border-border">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-semibold text-card-foreground">
                   {t('addNewWord')}
                 </h2>
                 <button onClick={handleClose}
-                        className="rounded-lg p-2 text-muted-foreground hover:bg-secondary transition-colors">
+                        className="rounded-2xl p-2 text-muted-foreground hover:bg-secondary transition-colors">
                   <X className="h-5 w-5" />
                 </button>
               </div>
@@ -84,7 +94,7 @@ export function AddWordDialog({ isOpen, onClose, onAdd, onJumpToWord }: AddWordD
                     value={word}
                     onChange={(e) => { setWord(e.target.value); if (duplicateId) setDuplicateId(null); }}
                     placeholder={t('enterEnglishWord')}
-                    className="rounded-xl"
+                    className="rounded-2xl"
                     autoFocus
                   />
                 </div>
