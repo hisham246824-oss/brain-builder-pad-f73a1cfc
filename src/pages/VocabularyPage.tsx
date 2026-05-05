@@ -60,11 +60,11 @@ export default function VocabularyPage() {
     [allWords],
   );
 
-  const editWord = async (id: string, w: string, m: string, n: string | null) => {
+  const editWord = useCallback(async (id: string, w: string, m: string, n: string | null) => {
     if (!user) return;
     await supabase.from('vocabulary').update({ word: w, meanings: m, notes: n }).eq('id', id).eq('user_id', user.id);
     refetch();
-  };
+  }, [user, refetch]);
 
   const wordRefs = useRef(new Map<string, HTMLDivElement>());
 
@@ -328,7 +328,7 @@ export default function VocabularyPage() {
           </p>
         </motion.div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 contain-paint content-visibility-auto">
+        <div className="grid gap-4 sm:grid-cols-2 contain-paint" style={{ contentVisibility: 'auto', containIntrinsicSize: '640px' }}>
           <AnimatePresence initial={false} mode="popLayout">
             {displayWords.map((word, index) => (
               <div
