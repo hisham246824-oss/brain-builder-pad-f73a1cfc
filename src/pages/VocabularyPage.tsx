@@ -157,7 +157,7 @@ export default function VocabularyPage() {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 0.1 }}
+      transition={{ duration: 0.05 }}
       className="pb-20"
     >
       {/* Header rectangle — flat turquoise accent, no glow */}
