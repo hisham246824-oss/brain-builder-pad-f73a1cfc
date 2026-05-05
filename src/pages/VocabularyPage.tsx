@@ -227,11 +227,17 @@ export default function VocabularyPage() {
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
         <Input
           value={screen.kind === 'groups' ? groupSearch : searchQuery}
-          onChange={(e) => screen.kind === 'groups' ? setGroupSearch(e.target.value) : setSearchQuery(e.target.value)}
+          onChange={(e) => screen.kind === 'groups' ? setGroupSearch(e.target.value) : handleSearchChange(e.target.value)}
           placeholder={searchPlaceholder}
           className="pl-12 rounded-2xl py-6"
         />
       </div>
+
+      {focusedWordId && screen.kind !== 'groups' && (
+        <div className="mb-4 rounded-[1.5rem] border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-primary">
+          تم عزل الكلمة المطلوبة فقط.
+        </div>
+      )}
 
       {screen.kind === 'groups' ? (
         <Button onClick={() => setCreateGroupOpen(true)}
@@ -283,7 +289,7 @@ export default function VocabularyPage() {
 
       {screen.kind === 'groups' ? (
         filteredGroups.length === 0 ? (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.12 }}
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.06 }}
             className="flex flex-col items-center justify-center py-16 text-center">
             <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-secondary">
               <FolderOpen className="h-10 w-10 text-muted-foreground" />
@@ -309,7 +315,7 @@ export default function VocabularyPage() {
           </div>
         )
       ) : displayWords.length === 0 ? (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.12 }}
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.06 }}
           className="flex flex-col items-center justify-center py-16 text-center">
           <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-secondary">
             <BookOpen className="h-10 w-10 text-muted-foreground" />
@@ -322,13 +328,13 @@ export default function VocabularyPage() {
           </p>
         </motion.div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 contain-paint">
-          <AnimatePresence mode="popLayout">
+        <div className="grid gap-4 sm:grid-cols-2 contain-paint content-visibility-auto">
+          <AnimatePresence initial={false} mode="popLayout">
             {displayWords.map((word, index) => (
               <div
                 key={word.id}
                 ref={(el) => { if (el) wordRefs.current.set(word.id, el); }}
-                className={highlightId === word.id ? 'ring-2 ring-primary rounded-[2rem] transition-all' : ''}
+                className={highlightId === word.id ? 'ring-2 ring-primary rounded-[2rem] transition-none' : ''}
               >
                 <VocabularyCard
                   word={word}
