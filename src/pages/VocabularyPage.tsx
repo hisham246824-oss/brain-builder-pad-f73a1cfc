@@ -15,6 +15,7 @@ import { useVocabularyGroups } from '@/hooks/useVocabularyGroups';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Link } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -111,13 +112,19 @@ export default function VocabularyPage() {
   const totalWords = allWords.length;
   const masteryPercent = totalWords > 0 ? Math.round((masteredCount / totalWords) * 100) : 0;
 
-  let displayWords: any[] = [];
-  if (showDifficult) displayWords = difficultWords;
-  else if (screen.kind === 'main' || screen.kind === 'group') displayWords = words;
+  const filteredGroups = useMemo(() => groups.filter(g =>
+    !deferredGroupSearch || g.name.toLowerCase().includes(deferredGroupSearch.toLowerCase())
+  ), [groups, deferredGroupSearch]);
 
-  const filteredGroups = groups.filter(g =>
-    !groupSearch || g.name.toLowerCase().includes(groupSearch.toLowerCase())
-  );
+  const displayWords = useMemo(() => {
+    const source = showDifficult ? difficultWords : words;
+
+    if (focusedWordId) {
+      return source.filter((word) => word.id === focusedWordId);
+    }
+
+    return source;
+  }, [showDifficult, difficultWords, words, focusedWordId]);
 
   const headerCount = screen.kind === 'main'
     ? mainCount
@@ -137,9 +144,15 @@ export default function VocabularyPage() {
     if (screen.kind === 'main') setScreen({ kind: 'groups' });
     else if (screen.kind === 'groups') setScreen({ kind: 'main' });
     else setScreen({ kind: 'groups' });
+    setFocusedWordId(null);
     setSearchQuery('');
     setGroupSearch('');
     setShowDifficult(false);
+  };
+
+  const handleSearchChange = (value: string) => {
+    if (!value.trim()) setFocusedWordId(null);
+    setSearchQuery(value);
   };
 
   const searchPlaceholder =
