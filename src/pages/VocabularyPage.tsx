@@ -339,6 +339,12 @@ export default function VocabularyPage() {
         onClose={() => setAddWordOpen(false)}
         onAdd={(w, m, n) => addWord(w, m, n, screen.kind === 'group' ? screen.groupId : null)}
         onJumpToWord={jumpToWord}
+        findDuplicate={(input) => {
+          const t = input.trim().toLowerCase();
+          if (!t) return null;
+          const found = allWords.find(w => w.word.trim().toLowerCase() === t);
+          return found ? { id: found.id, word: found.word } : null;
+        }}
       />
 
       <CreateGroupDialog
