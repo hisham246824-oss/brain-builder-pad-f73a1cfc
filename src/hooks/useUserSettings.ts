@@ -16,6 +16,8 @@ export interface UserSettings {
 }
 
 const CACHE_KEY = 'studyhub-user-settings';
+const SETTINGS_MEMORY_CACHE = new Map<string, UserSettings>();
+const SETTINGS_PROMISES = new Map<string, Promise<UserSettings | null>>();
 
 const DEFAULT_SETTINGS: Omit<UserSettings, 'id' | 'user_id'> = {
   display_name: null,
@@ -81,21 +83,39 @@ export function useUserSettings() {
       return;
     }
 
-    const { data, error } = await supabase
-      .from('user_settings')
-      .select('*')
-      .eq('user_id', user.id)
-      .single();
-
-    if (error && error.code !== 'PGRST116') {
-      console.error('Error fetching settings:', error);
+    const memoryCached = SETTINGS_MEMORY_CACHE.get(user.id);
+    if (memoryCached) {
+      setSettings(memoryCached);
+      setCachedSettings(memoryCached);
+      setIsLoading(false);
     }
 
-    if (data) {
-      const s = data as UserSettings;
-      setSettings(s);
-      setCachedSettings(s);
-    } else {
+    const existingPromise = SETTINGS_PROMISES.get(user.id);
+    if (existingPromise) {
+      const sharedSettings = await existingPromise;
+      if (sharedSettings) {
+        setSettings(sharedSettings);
+        setCachedSettings(sharedSettings);
+      }
+      setIsLoading(false);
+      return;
+    }
+
+    const request = (async () => {
+      const { data, error } = await supabase
+        .from('user_settings')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error fetching settings:', error);
+      }
+
+      if (data) {
+        return data as UserSettings;
+      }
+
       const { data: newSettings, error: insertError } = await supabase
         .from('user_settings')
         .insert({ user_id: user.id, ...DEFAULT_SETTINGS })
@@ -104,11 +124,21 @@ export function useUserSettings() {
 
       if (insertError) {
         console.error('Error creating settings:', insertError);
-      } else {
-        const s = newSettings as UserSettings;
-        setSettings(s);
-        setCachedSettings(s);
+        return null;
       }
+
+      return newSettings as UserSettings;
+    })().finally(() => {
+      SETTINGS_PROMISES.delete(user.id);
+    });
+
+    SETTINGS_PROMISES.set(user.id, request);
+    const resolved = await request;
+
+    if (resolved) {
+      SETTINGS_MEMORY_CACHE.set(user.id, resolved);
+      setSettings(resolved);
+      setCachedSettings(resolved);
     }
 
     setIsLoading(false);
@@ -143,6 +173,7 @@ export function useUserSettings() {
 
     // Optimistic update + cache
     const updated = { ...settings, ...updates };
+    SETTINGS_MEMORY_CACHE.set(user.id, updated);
     setSettings(updated);
     setCachedSettings(updated);
 
