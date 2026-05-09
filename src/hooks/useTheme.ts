@@ -6,26 +6,10 @@ export function useTheme() {
   const { user } = useAuth();
 
   useEffect(() => {
-    const applyTheme = async () => {
-      if (!user) {
-        // Check localStorage for theme preference when not logged in
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'dark') {
-          document.documentElement.classList.add('dark');
-        } else {
-          document.documentElement.classList.remove('dark');
-        }
-        return;
-      }
+    let cancelled = false;
 
-      // Fetch user settings and apply theme
-      const { data } = await supabase
-        .from('user_settings')
-        .select('theme')
-        .eq('user_id', user.id)
-        .single();
-
-      if (data?.theme === 'dark') {
+    const applyThemeValue = (theme: string | null | undefined) => {
+      if (theme === 'dark') {
         document.documentElement.classList.add('dark');
         localStorage.setItem('theme', 'dark');
       } else {
@@ -34,6 +18,38 @@ export function useTheme() {
       }
     };
 
+    const applyTheme = async () => {
+      if (!user) {
+        const savedTheme = localStorage.getItem('theme');
+        applyThemeValue(savedTheme);
+        return;
+      }
+
+      const cachedSettings = localStorage.getItem('studyhub-user-settings');
+      if (cachedSettings) {
+        try {
+          const parsed = JSON.parse(cachedSettings);
+          if (parsed?.user_id === user.id) {
+            applyThemeValue(parsed.theme);
+          }
+        } catch {
+          // ignore bad cache
+        }
+      }
+
+      const { data } = await supabase
+        .from('user_settings')
+        .select('theme')
+        .eq('user_id', user.id)
+        .single();
+
+      if (!cancelled) applyThemeValue(data?.theme);
+    };
+
     applyTheme();
+
+    return () => {
+      cancelled = true;
+    };
   }, [user]);
 }
