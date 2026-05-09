@@ -18,10 +18,11 @@ export function useImportantMessage() {
   const [showBar, setShowBar] = useState(false);
 
   useEffect(() => {
-    if (!user) { setShowBar(false); return; }
+    if (!user) { setShowBar(false); setImportantMessage(null); return; }
+
+    let cancelled = false;
 
     const fetchImportant = async () => {
-      // Get important messages
       const { data: msgs } = await supabase
         .from('admin_messages')
         .select('id, title, title_translations, content, content_translations')
@@ -29,11 +30,11 @@ export function useImportantMessage() {
         .order('created_at', { ascending: false })
         .limit(1);
 
+      if (cancelled) return;
       if (!msgs || msgs.length === 0) { setShowBar(false); setImportantMessage(null); return; }
 
       const msg = msgs[0] as any;
 
-      // Check if user has already read this message
       const { data: reads } = await supabase
         .from('message_reads')
         .select('id')
@@ -41,6 +42,7 @@ export function useImportantMessage() {
         .eq('user_id', user.id)
         .limit(1);
 
+      if (cancelled) return;
       if (reads && reads.length > 0) {
         setShowBar(false);
         setImportantMessage(null);
@@ -51,15 +53,12 @@ export function useImportantMessage() {
       setShowBar(true);
     };
 
-    fetchImportant();
+    const schedule = window.setTimeout(fetchImportant, 350);
 
-    const channel = supabase
-      .channel('important_messages_header')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'admin_messages' }, () => fetchImportant())
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'message_reads' }, () => fetchImportant())
-      .subscribe();
-
-    return () => { supabase.removeChannel(channel); };
+    return () => {
+      cancelled = true;
+      window.clearTimeout(schedule);
+    };
   }, [user]);
 
   const getTitle = () => {
