@@ -1,5 +1,4 @@
 import { useState, useEffect, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { BookOpen, Timer, CheckSquare, ArrowRight, GraduationCap, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -7,8 +6,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useUserSettings } from '@/hooks/useUserSettings';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { HomeSkeleton } from '@/components/skeletons/HomeSkeleton';
-
-const fade = { initial: { opacity: 0 }, animate: { opacity: 1 } };
 
 function GuestHomePage() {
   const navigate = useNavigate();
@@ -22,8 +19,7 @@ function GuestHomePage() {
 
   return (
     <div className="flex flex-col items-center pb-12">
-      <motion.div {...fade} transition={{ duration: 0.2 }}
-        className="text-center py-16 md:py-24 max-w-3xl mx-auto">
+      <div className="text-center py-16 md:py-24 max-w-3xl mx-auto">
         <div className="mb-8 inline-flex h-20 w-20 items-center justify-center rounded-3xl gradient-primary shadow-glow">
           <GraduationCap className="h-10 w-10 text-primary-foreground" />
         </div>
@@ -39,7 +35,7 @@ function GuestHomePage() {
           {t('getStartedFree')}
           <ArrowRight className="ml-2 h-5 w-5" />
         </Button>
-      </motion.div>
+      </div>
 
       <div className="text-center mb-10 w-full">
         <div className="flex items-center justify-center gap-2 mb-3">
@@ -99,8 +95,7 @@ function LoggedInHomePage() {
 
   return (
     <div className="flex flex-col items-center pb-12">
-      <motion.div {...fade} transition={{ duration: 0.2 }}
-        className="text-center py-12 md:py-20 max-w-2xl mx-auto">
+      <div className="text-center py-12 md:py-20 max-w-2xl mx-auto">
         <div className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-2xl gradient-primary shadow-glow">
           <GraduationCap className="h-8 w-8 text-primary-foreground" />
         </div>
@@ -116,7 +111,7 @@ function LoggedInHomePage() {
             <ArrowRight className="ml-2 h-5 w-5" />
           </Button>
         </Link>
-      </motion.div>
+      </div>
 
       <div className="grid gap-4 grid-cols-3 w-full max-w-3xl mb-12">
         {[
@@ -134,13 +129,7 @@ function LoggedInHomePage() {
       <div className="w-full max-w-xl">
         <div className="rounded-3xl bg-card border border-border/50 shadow-card p-6 md:p-8 text-center min-h-[160px] flex flex-col items-center justify-center relative overflow-hidden">
           <div className="absolute top-0 left-0 right-0 h-1 gradient-primary opacity-50 rounded-t-3xl" />
-          <AnimatePresence mode="wait">
-            <motion.div key={phraseIndex}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.15 }}
-              className="flex flex-col items-center gap-4">
+          <div key={phraseIndex} className="flex flex-col items-center gap-4">
               <p className="text-lg font-medium text-foreground">{currentPhrase.text}</p>
               <Link to={currentPhrase.link}>
                 <Button variant="outline" className="rounded-full px-6 text-sm font-medium">
@@ -148,8 +137,7 @@ function LoggedInHomePage() {
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
-            </motion.div>
-          </AnimatePresence>
+          </div>
           <div className="flex gap-1.5 mt-6">
             {motivationalPhrases.map((_, i) => (
               <div key={i} className={`h-1.5 rounded-full transition-all duration-200 ${i === phraseIndex ? 'w-6 bg-primary' : 'w-1.5 bg-muted-foreground/20'}`} />
