@@ -11,7 +11,6 @@ export function useRealtimeNotifications() {
   const { user } = useAuth();
   const userTicketIds = useRef<Set<string>>(new Set());
   const initialized = useRef(false);
-  const cachedXpRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -102,7 +101,6 @@ export function useRealtimeNotifications() {
 
     return () => {
       channels.forEach((channel) => supabase.removeChannel(channel));
-      cachedXpRef.current = null;
     };
   }, [user]);
 }
