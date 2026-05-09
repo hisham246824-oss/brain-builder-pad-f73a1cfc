@@ -3,6 +3,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
 const MAIN_ADMIN_EMAIL = 'hisham090807@gmail.com';
+const ROLE_CACHE = new Map<string, AppRole>();
+const MAIN_ADMIN_CACHE = new Map<string, boolean>();
+const ROLE_PROMISES = new Map<string, Promise<{ role: AppRole; isMainAdmin: boolean }>>();
 
 export type AppRole = 'super_admin' | 'admin' | 'analyst' | 'executive_admin' | 'user' | null;
 
@@ -20,26 +23,36 @@ export function useUserRole() {
       return;
     }
 
+    const cachedRole = ROLE_CACHE.get(user.id);
+    const cachedMainAdmin = MAIN_ADMIN_CACHE.get(user.id);
+    if (cachedRole !== undefined && cachedMainAdmin !== undefined) {
+      setRole(cachedRole);
+      setIsMainAdmin(cachedMainAdmin);
+      setIsLoading(false);
+      return;
+    }
+
     const fetchRole = async () => {
       try {
-        const [{ data, error }, { data: userData, error: userError }] = await Promise.all([
+        const existingPromise = ROLE_PROMISES.get(user.id);
+        const request = existingPromise ?? Promise.all([
           supabase.rpc('get_user_role', { _user_id: user.id }),
           supabase.auth.getUser(),
-        ]);
+        ]).then(([roleResult, userResult]) => {
+          const resolvedRole = roleResult.error ? 'user' : ((roleResult.data as AppRole) || 'user');
+          const resolvedMainAdmin = userResult.error ? false : userResult.data.user?.email?.toLowerCase() === MAIN_ADMIN_EMAIL;
+          ROLE_CACHE.set(user.id, resolvedRole);
+          MAIN_ADMIN_CACHE.set(user.id, resolvedMainAdmin);
+          return { role: resolvedRole, isMainAdmin: resolvedMainAdmin };
+        }).finally(() => {
+          ROLE_PROMISES.delete(user.id);
+        });
 
-        if (error) {
-          console.error('Error fetching role:', error);
-          setRole('user');
-        } else {
-          setRole((data as AppRole) || 'user');
-        }
+        ROLE_PROMISES.set(user.id, request);
+        const resolved = await request;
 
-        if (userError) {
-          console.error('Error fetching user email:', userError);
-          setIsMainAdmin(false);
-        } else {
-          setIsMainAdmin(userData.user?.email?.toLowerCase() === MAIN_ADMIN_EMAIL);
-        }
+        setRole(resolved.role);
+        setIsMainAdmin(resolved.isMainAdmin);
       } catch (err) {
         console.error('Error fetching role:', err);
         setRole('user');
