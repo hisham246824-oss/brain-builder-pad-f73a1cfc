@@ -1,5 +1,4 @@
 import { useState, useMemo, useRef, useDeferredValue, useCallback, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Search, BookOpen, GraduationCap, AlertTriangle, FolderOpen, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -170,12 +169,7 @@ export default function VocabularyPage() {
     : t('vocabulary');
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.05 }}
-      className="pb-20"
-    >
+    <div className="pb-20">
       {/* Header rectangle — flat turquoise accent, no glow */}
       <div className="mb-6 rounded-[2rem] border border-border bg-card p-5 sm:p-6">
         <div className="flex items-center gap-4 sm:gap-5">
@@ -293,34 +287,30 @@ export default function VocabularyPage() {
 
       {screen.kind === 'groups' ? (
         filteredGroups.length === 0 ? (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.06 }}
-            className="flex flex-col items-center justify-center py-16 text-center">
+          <div className="flex flex-col items-center justify-center py-16 text-center">
             <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-secondary">
               <FolderOpen className="h-10 w-10 text-muted-foreground" />
             </div>
             <h3 className="mb-2 text-lg font-semibold text-foreground">No groups yet</h3>
             <p className="text-muted-foreground">Create your first group to organize your vocabulary.</p>
-          </motion.div>
+          </div>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2">
-            <AnimatePresence mode="popLayout">
-              {filteredGroups.map(g => (
-                <GroupCard
-                  key={g.id}
-                  id={g.id}
-                  name={g.name}
-                  count={g.word_count || 0}
-                  onOpen={() => setScreen({ kind: 'group', groupId: g.id, groupName: g.name })}
-                  onDelete={() => setPendingDeleteGroup({ id: g.id, name: g.name })}
-                  onRename={() => setRenamingGroup({ id: g.id, name: g.name })}
-                />
-              ))}
-            </AnimatePresence>
+            {filteredGroups.map(g => (
+              <GroupCard
+                key={g.id}
+                id={g.id}
+                name={g.name}
+                count={g.word_count || 0}
+                onOpen={() => setScreen({ kind: 'group', groupId: g.id, groupName: g.name })}
+                onDelete={() => setPendingDeleteGroup({ id: g.id, name: g.name })}
+                onRename={() => setRenamingGroup({ id: g.id, name: g.name })}
+              />
+            ))}
           </div>
         )
       ) : displayWords.length === 0 ? (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.06 }}
-          className="flex flex-col items-center justify-center py-16 text-center">
+        <div className="flex flex-col items-center justify-center py-16 text-center">
           <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-secondary">
             <BookOpen className="h-10 w-10 text-muted-foreground" />
           </div>
@@ -330,29 +320,27 @@ export default function VocabularyPage() {
           <p className="text-muted-foreground">
             {showDifficult ? t('greatNoDifficult') : searchQuery ? t('tryDifferentSearch') : t('addFirstWord')}
           </p>
-        </motion.div>
+        </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 contain-paint" style={{ contentVisibility: 'auto', containIntrinsicSize: '640px' }}>
-          <AnimatePresence initial={false} mode="popLayout">
-            {displayWords.map((word, index) => (
-              <div
-                key={word.id}
-                ref={(el) => { if (el) wordRefs.current.set(word.id, el); }}
-                className={highlightId === word.id ? 'ring-2 ring-primary rounded-[2rem] transition-none' : ''}
-              >
-                <VocabularyCard
-                  word={word}
-                  index={index}
-                  onDelete={deleteWord}
-                  onEdit={editWord}
-                  groups={groups}
-                  onMoveToGroup={moveWordToGroup}
-                  onToggleDifficult={setWordDifficult}
-                  inGroupView={screen.kind === 'group'}
-                />
-              </div>
-            ))}
-          </AnimatePresence>
+          {displayWords.map((word, index) => (
+            <div
+              key={word.id}
+              ref={(el) => { if (el) wordRefs.current.set(word.id, el); }}
+              className={highlightId === word.id ? 'ring-2 ring-primary rounded-[2rem] transition-none' : ''}
+            >
+              <VocabularyCard
+                word={word}
+                index={index}
+                onDelete={deleteWord}
+                onEdit={editWord}
+                groups={groups}
+                onMoveToGroup={moveWordToGroup}
+                onToggleDifficult={setWordDifficult}
+                inGroupView={screen.kind === 'group'}
+              />
+            </div>
+          ))}
         </div>
       )}
 
@@ -405,6 +393,6 @@ export default function VocabularyPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </motion.div>
+    </div>
   );
 }
