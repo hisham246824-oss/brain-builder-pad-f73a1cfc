@@ -84,8 +84,14 @@ export function usePageVisitTracking() {
 
   useEffect(() => {
     if (!user) return;
-    // Skip tracking entirely during admin impersonation
     if (isImpersonating) return;
+
+    const ignoredPaths = new Set(['/auth', '/']);
+    if (ignoredPaths.has(location.pathname)) {
+      startTimeRef.current = Date.now();
+      lastPathRef.current = location.pathname;
+      return;
+    }
 
     const deviceInfo = getDeviceInfo();
 

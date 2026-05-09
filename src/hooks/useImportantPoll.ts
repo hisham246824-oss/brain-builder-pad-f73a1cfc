@@ -14,7 +14,9 @@ export function useImportantPoll() {
   const [showBar, setShowBar] = useState(false);
 
   useEffect(() => {
-    if (!user) { setShowBar(false); return; }
+    if (!user) { setShowBar(false); setImportantPoll(null); return; }
+
+    let cancelled = false;
 
     const fetchImportant = async () => {
       const { data: polls } = await supabase
@@ -25,11 +27,11 @@ export function useImportantPoll() {
         .order('created_at', { ascending: false })
         .limit(1);
 
+      if (cancelled) return;
       if (!polls || polls.length === 0) { setShowBar(false); setImportantPoll(null); return; }
 
       const poll = polls[0] as any;
 
-      // Check if user has voted on this poll
       const { data: votes } = await supabase
         .from('poll_votes')
         .select('id')
@@ -37,6 +39,7 @@ export function useImportantPoll() {
         .eq('user_id', user.id)
         .limit(1);
 
+      if (cancelled) return;
       if (votes && votes.length > 0) {
         setShowBar(false);
         setImportantPoll(null);
@@ -47,15 +50,12 @@ export function useImportantPoll() {
       setShowBar(true);
     };
 
-    fetchImportant();
+    const schedule = window.setTimeout(fetchImportant, 450);
 
-    const channel = supabase
-      .channel('important_polls_header')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'admin_polls' }, () => fetchImportant())
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'poll_votes' }, () => fetchImportant())
-      .subscribe();
-
-    return () => { supabase.removeChannel(channel); };
+    return () => {
+      cancelled = true;
+      window.clearTimeout(schedule);
+    };
   }, [user]);
 
   const getTitle = () => {

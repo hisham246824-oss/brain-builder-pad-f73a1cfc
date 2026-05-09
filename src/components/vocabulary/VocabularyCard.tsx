@@ -1,5 +1,4 @@
 import { memo, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { Volume2, Calendar, Hash, Trash2, Pencil, Check, X, FolderInput, AlertTriangle, FolderMinus } from 'lucide-react';
 import { format } from 'date-fns';
 import { VocabularyWord } from '@/hooks/useVocabulary';
@@ -63,11 +62,7 @@ export const VocabularyCard = memo(function VocabularyCard({
     : 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)))';
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.04, delay: Math.min(index * 0.008, 0.04) }}
+    <div
       className="relative bg-card rounded-[2rem] overflow-hidden shadow-card gpu border border-border/40"
     >
       {/* Header */}
@@ -114,29 +109,22 @@ export const VocabularyCard = memo(function VocabularyCard({
                         aria-label="Add to group" title="Add to group">
                   <FolderInput className="h-4.5 w-4.5" />
                 </button>
-                <AnimatePresence>
-                  {showGroupMenu && (
-                    <>
-                      <div className="fixed inset-0 z-40" onClick={() => setShowGroupMenu(false)} />
-                      <motion.div
-                        initial={{ opacity: 0, y: -4 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0 }}
-                        className="absolute right-0 mt-1 z-50 min-w-[180px] rounded-2xl border border-border bg-popover shadow-lg p-1 max-h-64 overflow-auto"
-                      >
-                        {groups.length === 0 ? (
-                          <p className="px-3 py-2 text-xs text-muted-foreground">No groups yet</p>
-                        ) : groups.map(g => (
-                          <button key={g.id}
-                                  onClick={() => { onMoveToGroup(word.id, g.id); setShowGroupMenu(false); }}
-                                  className="w-full text-left px-3 py-2 rounded-xl text-sm text-foreground hover:bg-accent transition-colors">
-                            {g.name}
-                          </button>
-                        ))}
-                      </motion.div>
-                    </>
-                  )}
-                </AnimatePresence>
+                {showGroupMenu && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setShowGroupMenu(false)} />
+                    <div className="absolute right-0 mt-1 z-50 min-w-[180px] rounded-2xl border border-border bg-popover shadow-lg p-1 max-h-64 overflow-auto">
+                      {groups.length === 0 ? (
+                        <p className="px-3 py-2 text-xs text-muted-foreground">No groups yet</p>
+                      ) : groups.map(g => (
+                        <button key={g.id}
+                                onClick={() => { onMoveToGroup(word.id, g.id); setShowGroupMenu(false); }}
+                                className="w-full text-left px-3 py-2 rounded-xl text-sm text-foreground hover:bg-accent transition-colors">
+                          {g.name}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
               </div>
             )
           )}
@@ -195,6 +183,6 @@ export const VocabularyCard = memo(function VocabularyCard({
           </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 })

@@ -15,8 +15,16 @@ export function useRealtimeNotifications() {
   useEffect(() => {
     if (!user) return;
 
-    // Fetch user's ticket IDs so we only notify for their tickets
+    const isMessagesRoute = window.location.pathname.startsWith('/messages');
+    const isSupportRoute = window.location.pathname.startsWith('/support');
+    const shouldTrackSupport = isSupportRoute;
+    const shouldTrackMessages = isMessagesRoute;
+
     const loadTicketIds = async () => {
+      if (!shouldTrackSupport) {
+        initialized.current = true;
+        return;
+      }
       const { data } = await supabase
         .from('support_tickets')
         .select('id')
@@ -28,95 +36,71 @@ export function useRealtimeNotifications() {
     };
     loadTicketIds();
 
-    // Listen for new support messages (admin replies)
-    const supportChannel = supabase
-      .channel('global-support-notifications')
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'support_messages' },
-        (payload) => {
-          if (!initialized.current) return;
-          const msg = payload.new as any;
-          // Only notify if it's an admin message AND belongs to the user's ticket
-          if (msg.is_admin && msg.sender_id !== user.id && userTicketIds.current.has(msg.ticket_id)) {
-            toast.message('💬 New reply from Support', {
-              description: msg.content.length > 80 ? msg.content.slice(0, 80) + '...' : msg.content,
-              duration: 8000,
-              action: {
-                label: 'View',
-                onClick: () => {
-                  window.location.href = '/support';
-                },
-              },
-            });
-          }
-        }
-      )
-      .subscribe();
+    const channels = [] as ReturnType<typeof supabase.channel>[];
 
-    // Listen for new broadcast messages
-    const broadcastChannel = supabase
-      .channel('global-broadcast-notifications')
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'admin_messages' },
-        (payload) => {
-          const msg = payload.new as any;
-          if (msg.sender_id !== user.id) {
-            toast.message('📢 New Announcement', {
-              description: msg.title || (msg.content?.length > 80 ? msg.content.slice(0, 80) + '...' : msg.content),
-              duration: 8000,
-              action: {
-                label: 'View',
-                onClick: () => {
-                  window.location.href = '/messages';
-                },
-              },
-            });
-          }
-        }
-      )
-      .subscribe();
+    if (shouldTrackSupport) {
+      channels.push(
+        supabase
+          .channel(`support-notifications-${user.id}`)
+          .on(
+            'postgres_changes',
+            { event: 'INSERT', schema: 'public', table: 'support_messages' },
+            (payload) => {
+              if (!initialized.current) return;
+              const msg = payload.new as any;
+              if (msg.is_admin && msg.sender_id !== user.id && userTicketIds.current.has(msg.ticket_id)) {
+                toast.message('New reply from Support', {
+                  description: msg.content.length > 80 ? msg.content.slice(0, 80) + '...' : msg.content,
+                  duration: 5000,
+                });
+              }
+            }
+          )
+          .on(
+            'postgres_changes',
+            { event: 'INSERT', schema: 'public', table: 'support_tickets', filter: `user_id=eq.${user.id}` },
+            (payload) => {
+              userTicketIds.current.add((payload.new as any).id);
+            }
+          )
+          .subscribe()
+      );
+    }
 
-    // Listen for new private messages
-    const privateChannel = supabase
-      .channel('global-private-notifications')
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'private_messages', filter: `recipient_id=eq.${user.id}` },
-        (payload) => {
-          const msg = payload.new as any;
-          toast.message('✉️ New Private Message', {
-            description: msg.title || (msg.content?.length > 80 ? msg.content.slice(0, 80) + '...' : msg.content),
-            duration: 8000,
-            action: {
-              label: 'View',
-              onClick: () => {
-                window.location.href = '/messages';
-              },
-            },
-          });
-        }
-      )
-      .subscribe();
-
-    // Listen for new ticket creation (so we track new ticket IDs)
-    const ticketChannel = supabase
-      .channel('global-ticket-tracking')
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'support_tickets', filter: `user_id=eq.${user.id}` },
-        (payload) => {
-          userTicketIds.current.add((payload.new as any).id);
-        }
-      )
-      .subscribe();
+    if (shouldTrackMessages) {
+      channels.push(
+        supabase
+          .channel(`message-notifications-${user.id}`)
+          .on(
+            'postgres_changes',
+            { event: 'INSERT', schema: 'public', table: 'admin_messages' },
+            (payload) => {
+              const msg = payload.new as any;
+              if (msg.sender_id !== user.id) {
+                toast.message('New Announcement', {
+                  description: msg.title || (msg.content?.length > 80 ? msg.content.slice(0, 80) + '...' : msg.content),
+                  duration: 5000,
+                });
+              }
+            }
+          )
+          .on(
+            'postgres_changes',
+            { event: 'INSERT', schema: 'public', table: 'private_messages', filter: `recipient_id=eq.${user.id}` },
+            (payload) => {
+              const msg = payload.new as any;
+              toast.message('New Private Message', {
+                description: msg.title || (msg.content?.length > 80 ? msg.content.slice(0, 80) + '...' : msg.content),
+                duration: 5000,
+              });
+            }
+          )
+          .subscribe()
+      );
+    }
 
     return () => {
-      supabase.removeChannel(supportChannel);
-      supabase.removeChannel(broadcastChannel);
-      supabase.removeChannel(privateChannel);
-      supabase.removeChannel(ticketChannel);
+      channels.forEach((channel) => supabase.removeChannel(channel));
     };
   }, [user]);
 }

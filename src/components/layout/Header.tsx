@@ -5,7 +5,6 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useAdminImpersonation } from '@/contexts/AdminImpersonationContext';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -28,8 +27,31 @@ export function Header({ onMenuClick }: HeaderProps) {
   // Load XP
   useEffect(() => {
     if (!user) return;
-    supabase.from('user_settings').select('xp_points').eq('user_id', user.id).maybeSingle()
-      .then(({ data }) => setXpPoints((data as any)?.xp_points || 0));
+    let cancelled = false;
+
+    const cached = localStorage.getItem('studyhub-user-settings');
+    if (cached) {
+      try {
+        const parsed = JSON.parse(cached);
+        if (parsed?.user_id === user.id && typeof parsed?.xp_points === 'number') {
+          setXpPoints(parsed.xp_points);
+        }
+      } catch {
+        // ignore invalid cache
+      }
+    }
+
+    const timer = window.setTimeout(() => {
+      supabase.from('user_settings').select('xp_points').eq('user_id', user.id).maybeSingle()
+        .then(({ data }) => {
+          if (!cancelled) setXpPoints((data as any)?.xp_points || 0);
+        });
+    }, 600);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
   }, [user]);
 
   const handleGoToMessage = () => {

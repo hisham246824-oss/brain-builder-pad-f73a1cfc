@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import { Trash2, Pencil, ChevronRight } from 'lucide-react';
 import { VocabularyLogo } from './VocabularyLogo';
 
@@ -13,11 +12,7 @@ interface GroupCardProps {
 
 export function GroupCard({ name, count, onOpen, onDelete, onRename }: GroupCardProps) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 4 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.08 }}
+    <div
       className="group relative rounded-[2.75rem] border border-border/60 bg-card overflow-hidden cursor-pointer active:scale-[0.99] transition-transform"
       onClick={onOpen}
     >
@@ -53,6 +48,6 @@ export function GroupCard({ name, count, onOpen, onDelete, onRename }: GroupCard
           <ChevronRight className="h-5 w-5 text-muted-foreground/60 group-hover:translate-x-0.5 transition-transform" />
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }

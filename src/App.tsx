@@ -12,7 +12,6 @@ import { BlockedScreen } from "@/components/BlockedScreen";
 import { AppLayout } from "./components/layout/AppLayout";
 import { lazy, Suspense, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { XpGiftCelebration } from "@/components/XpGiftCelebration";
 
 // Critical path - loaded eagerly
 import Index from "./pages/Index";
@@ -33,6 +32,9 @@ const SuggestionsPage = lazy(() => import("./pages/SuggestionsPage"));
 const TodoPage = lazy(() => import("./pages/TodoPage"));
 const SupportPage = lazy(() => import("./pages/SupportPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const XpGiftCelebration = lazy(() =>
+  import("@/components/XpGiftCelebration").then((module) => ({ default: module.XpGiftCelebration }))
+);
 
 // Minimal loading fallback for lazy routes
 const RouteFallback = () => (
@@ -46,11 +48,11 @@ const queryClient = new QueryClient({
     queries: {
       staleTime: 1000 * 30, // 30 sec stale time
       gcTime: 1000 * 60 * 10,
-      refetchOnWindowFocus: true,
+      refetchOnWindowFocus: false,
       refetchOnReconnect: true,
-      refetchInterval: 15 * 1000, // Background sync every 15 seconds
+      refetchInterval: false,
       refetchIntervalInBackground: false,
-      retry: 1,
+      retry: 0,
     },
   },
 });
@@ -89,14 +91,6 @@ function BlockCheck({ children }: { children: React.ReactNode }) {
 
     return () => { supabase.removeChannel(channel); };
   }, [user]);
-
-  if (!checked) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-      </div>
-    );
-  }
 
   if (blockInfo) {
     return (
@@ -178,6 +172,7 @@ function AppRoutes() {
       <Suspense fallback={<RouteFallback />}>
         <Routes>
           <Route path="/auth" element={<AuthPage />} />
+          <Route path="/index" element={<Navigate to="/" replace />} />
           <Route
             path="/admin"
             element={
@@ -218,7 +213,9 @@ const App = () => (
             <Sonner />
             <BrowserRouter>
               <BlockCheck>
-                <XpGiftCelebration />
+                <Suspense fallback={null}>
+                  <XpGiftCelebration />
+                </Suspense>
                 <AppRoutes />
               </BlockCheck>
             </BrowserRouter>

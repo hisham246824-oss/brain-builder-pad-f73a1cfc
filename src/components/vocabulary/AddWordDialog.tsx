@@ -100,11 +100,7 @@ export function AddWordDialog({ isOpen, onClose, onAdd, onJumpToWord, findDuplic
                 </div>
 
                 {effectiveDuplicateId && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.1 }}
-                    className="rounded-[1.5rem] border border-destructive/40 bg-destructive/10 p-3 flex items-start gap-3"
-                  >
+                  <div className="rounded-[1.5rem] border border-destructive/40 bg-destructive/10 p-3 flex items-start gap-3">
                     <AlertCircle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-destructive">
@@ -121,7 +117,7 @@ export function AddWordDialog({ isOpen, onClose, onAdd, onJumpToWord, findDuplic
                         </button>
                       )}
                     </div>
-                  </motion.div>
+                  </div>
                 )}
 
                 <div>
